@@ -8,8 +8,8 @@ export async function handleV3PoolSwap(params: {
   poolEntity: PoolEntity;
   token0Entity: TokenEntity;
   token1Entity: TokenEntity;
-  amount0: bigint;
-  amount1: bigint;
+  swapAmount0: bigint;
+  swapAmount1: bigint;
   sqrtPriceX96: bigint;
   tick: bigint;
   eventTimestamp: bigint;
@@ -17,8 +17,9 @@ export async function handleV3PoolSwap(params: {
   newFeeTier?: number;
   overrideSingleSwapFee?: number;
 }): Promise<void> {
-  const tokenAmount0Formatted = formatFromTokenAmount(params.amount0, params.token0Entity);
-  const tokenAmount1Formatted = formatFromTokenAmount(params.amount1, params.token1Entity);
+  const tokenAmount0Formatted = formatFromTokenAmount(params.swapAmount0, params.token0Entity);
+  const tokenAmount1Formatted = formatFromTokenAmount(params.swapAmount1, params.token1Entity);
+
   let v3PoolEntity = (await params.context.V3PoolData.get(params.poolEntity.id))!;
 
   const newPrices = params.v3PoolSetters.getPricesForPoolWhitelistedTokens(
@@ -74,8 +75,8 @@ export async function handleV3PoolSwap(params: {
     params.token0Entity,
     params.token1Entity,
     params.poolEntity,
-    params.amount0,
-    params.amount1,
+    params.swapAmount0,
+    params.swapAmount1,
     params.overrideSingleSwapFee
   );
 
@@ -85,8 +86,8 @@ export async function handleV3PoolSwap(params: {
     params.poolEntity,
     params.token0Entity,
     params.token1Entity,
-    params.amount0,
-    params.amount1,
+    params.swapAmount0,
+    params.swapAmount1,
     params.overrideSingleSwapFee
   );
 

@@ -23,6 +23,7 @@ export enum SupportedProtocol {
   HYPER_SWAP_V3 = "hyperswap-v3",
   PROJECT_X_V3 = "projectx-v3",
   HYBRA_V3 = "hybra-v3",
+  KITTENSWAP_V3 = "kittenswap-v3",
 }
 
 export namespace SupportedProtocol {
@@ -62,6 +63,8 @@ export namespace SupportedProtocol {
         return "Project X V3";
       case SupportedProtocol.HYBRA_V3:
         return "Hybra V3";
+      case SupportedProtocol.KITTENSWAP_V3:
+        return "Kittenswap V3";
     }
   }
 
@@ -101,6 +104,8 @@ export namespace SupportedProtocol {
         return "https://prjx.com/";
       case SupportedProtocol.HYBRA_V3:
         return "https://hybra.finance/";
+      case SupportedProtocol.KITTENSWAP_V3:
+        return "https://kittenswap.finance/";
     }
   }
 
@@ -140,6 +145,8 @@ export namespace SupportedProtocol {
         return "https://icons.llamao.fi/icons/protocols/project-x";
       case SupportedProtocol.HYBRA_V3:
         return "https://icons.llamao.fi/icons/protocols/hybra";
+      case SupportedProtocol.KITTENSWAP_V3:
+        return "https://icons.llamao.fi/icons/protocols/kittenswap-algebra";
     }
   }
 
@@ -179,6 +186,8 @@ export namespace SupportedProtocol {
         throw Error(`Permit2 is not available for ProjectX V3`);
       case SupportedProtocol.HYBRA_V3:
         throw Error(`Permit2 is not available for Hybra V3`);
+      case SupportedProtocol.KITTENSWAP_V3:
+        throw Error(`Permit2 is not available for KittenSwap V3`);
     }
   }
 
@@ -218,6 +227,8 @@ export namespace SupportedProtocol {
         throw Error(`V4 position manager is not available for ProjectX V3`);
       case SupportedProtocol.HYBRA_V3:
         throw Error(`V4 position manager is not available for Hybra V3`);
+      case SupportedProtocol.KITTENSWAP_V3:
+        throw Error(`V4 position manager is not available for KittenSwap V3`);
     }
   }
 
@@ -257,6 +268,8 @@ export namespace SupportedProtocol {
         throw Error(`V4 state view is not available for ProjectX V3`);
       case SupportedProtocol.HYBRA_V3:
         throw Error(`V4 state view is not available for Hybra V3`);
+      case SupportedProtocol.KITTENSWAP_V3:
+        throw Error(`V4 state view is not available for KittenSwap V3`);
     }
   }
 
@@ -296,6 +309,8 @@ export namespace SupportedProtocol {
         return V3PositionManagerAddress.projectX(network);
       case SupportedProtocol.HYBRA_V3:
         return V3PositionManagerAddress.hybra(network);
+      case SupportedProtocol.KITTENSWAP_V3:
+        return V3PositionManagerAddress.kittenSwap(network);
     }
   }
 
@@ -335,6 +350,8 @@ export namespace SupportedProtocol {
         throw Error(`V2 position manager is not available for ProjectX V3`);
       case SupportedProtocol.HYBRA_V3:
         throw Error(`V2 position manager is not available for Hybra V3`);
+      case SupportedProtocol.KITTENSWAP_V3:
+        throw Error(`V2 position manager is not available for KittenSwap V3`);
     }
   }
 }
