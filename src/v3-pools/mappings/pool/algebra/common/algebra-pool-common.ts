@@ -13,15 +13,20 @@ export function getPoolUpdatedWithAlgebraFees(params: {
   overrideSwapFee?: number;
 }): PoolEntity {
   let newPool = { ...params.currentPoolEntity };
+  let swapFee = params.overrideSwapFee ?? params.currentPoolEntity.currentFeeTier;
 
   if (params.amount0SwapAmount > 0n) {
-    const swapFeeForAmount0 = getRawFeeFromTokenAmount(
-      params.amount0SwapAmount,
-      params.overrideSwapFee ?? params.currentPoolEntity.currentFeeTier
-    );
+    // const swapFeeForAmount0 = getRawFeeFromTokenAmount(params.amount0SwapAmount, swapFee);
+
+    // let communityFeeAmount = amount0.times(
+    //   BigDecimal.fromString(pool.fee.times(pool.communityFee).toString()).div(BigDecimal.fromString(""))
+    // );
+    // communityFeeAmount = communityFeeAmount.times(BigDecimal.fromString("1"));
+
+    // const communityFeeAmount = params.amount0SwapAmount * (BigInt(swapFee) / 1000000000n);
     const pluginFeeForAmount0 = getRawFeeFromTokenAmount(params.amount0SwapAmount, params.pluginFee);
-    const communityFeeForAmount0 = (swapFeeForAmount0 * BigInt(params.communityFee)) / BigInt(1000);
-    const algebraFeesDeducted = pluginFeeForAmount0 + communityFeeForAmount0;
+    // const communityFeeForAmount0 = (swapFeeForAmount0 * BigInt(params.communityFee)) / BigInt(1000);
+    const algebraFeesDeducted = pluginFeeForAmount0;
 
     newPool = {
       ...newPool,
@@ -30,13 +35,13 @@ export function getPoolUpdatedWithAlgebraFees(params: {
       ),
     };
   } else {
-    const swapFeeForAmount1 = getRawFeeFromTokenAmount(
-      params.amount1SwapAmount,
-      params.overrideSwapFee ?? params.currentPoolEntity.currentFeeTier
-    );
+    // const swapFeeForAmount1 = getRawFeeFromTokenAmount(
+    //   params.amount1SwapAmount,
+    //   params.overrideSwapFee ?? params.currentPoolEntity.currentFeeTier
+    // );
     const pluginFeeForAmount1 = getRawFeeFromTokenAmount(params.amount1SwapAmount, params.pluginFee);
-    const communityFeeForAmount1 = (swapFeeForAmount1 * BigInt(params.communityFee)) / BigInt(1000);
-    const algebraFeesDeducted = pluginFeeForAmount1 + communityFeeForAmount1;
+    // const communityFeeForAmount1 = (swapFeeForAmount1 * BigInt(params.communityFee)) / BigInt(1000);
+    const algebraFeesDeducted = pluginFeeForAmount1;
 
     newPool = {
       ...newPool,
