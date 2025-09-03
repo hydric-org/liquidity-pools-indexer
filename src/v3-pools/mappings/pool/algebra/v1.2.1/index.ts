@@ -1,4 +1,5 @@
 export * from "./algebra-pool-collect";
+export * from "./algebra-pool-community-fee";
 export * from "./algebra-pool-fee";
 export * from "./algebra-pool-initialize";
 export * from "./algebra-pool-mint";
