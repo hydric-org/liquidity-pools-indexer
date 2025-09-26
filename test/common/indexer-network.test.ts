@@ -72,27 +72,27 @@ describe("IndexerNetworkTests", () => {
   });
 
   it("should return the correct rpc url for ethereum when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.ETHEREUM), `https://mainnet.gateway.tenderly.co`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.ETHEREUM), `https://eth.hypersync.xyz`);
   });
 
   it("should return the correct rpc url for base when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.BASE), `https://mainnet.base.org`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.BASE), `https://base.hypersync.xyz`);
   });
 
   it("should return the correct rpc url for scroll when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SCROLL), `https://rpc.scroll.io`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SCROLL), `https://scroll.hypersync.xyz`);
   });
 
   it("should return the correct rpc url for unichain when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.UNICHAIN), `https://mainnet.unichain.org`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.UNICHAIN), `https://unichain.hypersync.xyz`);
   });
 
   it("should return the correct rpc url for sepolia when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SEPOLIA), `https://sepolia.gateway.tenderly.co`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SEPOLIA), `https://sepolia.hypersync.xyz`);
   });
 
   it("should return the correct rpc url for hyperEVM when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.HYPER_EVM), `https://hyperliquid.drpc.org`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.HYPER_EVM), `https://hyperliquid.hypersync.xyz`);
   });
 
   it(`should return the right entity id for the given address,
