@@ -104,6 +104,7 @@ export namespace IndexerNetwork {
           "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34", // USDe
           "0xb50A96253aBDF803D85efcDce07Ad8becBc52BD5", // USDHL
           "0x9ab96A4668456896d45c301Bc3A15Cee76AA7B8D", // rUSDC
+          "0x02c6a2fa58cc01a18b8d9e00ea48d65e4df26c70", // feUSD
         ];
     }
   }

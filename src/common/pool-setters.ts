@@ -18,13 +18,12 @@ import {
   getPoolHourlyDataId,
   getSwapFeesFromRawAmounts,
   getSwapVolumeFromAmounts,
-  getTokenAmountInPool,
   isNativePool,
   isStablePool,
   isVariableWithStablePool,
   isWrappedNativePool,
 } from "./pool-commons";
-import { formatFromTokenAmount } from "./token-commons";
+import { formatFromTokenAmount, pickMostLiquidPoolForToken } from "./token-commons";
 import { PoolPrices } from "./types";
 
 export class PoolSetters {
@@ -251,9 +250,11 @@ export class PoolSetters {
     }
 
     const mostLiquidPoolEntity = await this.context.Pool.getOrThrow(forToken.mostLiquidPool_id);
-    const isPriceFromMoreLiquidPool = getTokenAmountInPool(fromPool, forToken).gt(
-      getTokenAmountInPool(mostLiquidPoolEntity, forToken)
-    );
+    const isPriceFromMoreLiquidPool = pickMostLiquidPoolForToken(
+      forToken,
+      fromPool,
+      mostLiquidPoolEntity
+    ).id.lowercasedEquals(fromPool.id);
 
     if (isPriceFromMoreLiquidPool && isNewPoolTvlBalanced) {
       return (forToken = {
