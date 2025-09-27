@@ -21,7 +21,7 @@ describe("NetworkToken", () => {
   });
 
   it("should return the correct metadata for Plasma", () => {
-    const metadata = NetworkToken.metadata(NetworkToken.HYPE);
+    const metadata = NetworkToken.metadata(NetworkToken.XPL);
     assert.deepEqual(metadata, {
       decimals: 18,
       name: "Plasma",

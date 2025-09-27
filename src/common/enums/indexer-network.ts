@@ -15,17 +15,17 @@ export namespace IndexerNetwork {
   export function getFreeRPCUrl(network: IndexerNetwork): string {
     switch (network) {
       case IndexerNetwork.ETHEREUM:
-        return "https://eth.hypersync.xyz";
+        return "https://mainnet.gateway.tenderly.co";
       case IndexerNetwork.BASE:
-        return "https://base.hypersync.xyz";
+        return "https://mainnet.base.org";
       case IndexerNetwork.SCROLL:
-        return "https://scroll.hypersync.xyz";
+        return "https://rpc.scroll.io";
       case IndexerNetwork.UNICHAIN:
-        return "https://unichain.hypersync.xyz";
+        return "https://mainnet.unichain.org";
       case IndexerNetwork.SEPOLIA:
-        return "https://sepolia.hypersync.xyz";
+        return "https://sepolia.gateway.tenderly.co";
       case IndexerNetwork.HYPER_EVM:
-        return "https://hyperliquid.hypersync.xyz";
+        return "https://hyperliquid.drpc.org";
       case IndexerNetwork.PLASMA:
         return "https://rpc.plasma.to";
     }

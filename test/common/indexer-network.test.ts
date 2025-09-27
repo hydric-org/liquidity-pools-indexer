@@ -72,31 +72,31 @@ describe("IndexerNetworkTests", () => {
   });
 
   it("should return the correct rpc url for ethereum when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.ETHEREUM), `https://eth.hypersync.xyz`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.ETHEREUM), `https://mainnet.gateway.tenderly.co`);
   });
 
   it("should return the correct rpc url for base when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.BASE), `https://base.hypersync.xyz`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.BASE), `https://mainnet.base.org`);
   });
 
   it("should return the correct rpc url for scroll when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SCROLL), `https://scroll.hypersync.xyz`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SCROLL), `https://rpc.scroll.io`);
   });
 
   it("should return the correct rpc url for unichain when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.UNICHAIN), `https://unichain.hypersync.xyz`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.UNICHAIN), `https://mainnet.unichain.org`);
   });
 
   it("should return the correct rpc url for sepolia when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SEPOLIA), `https://sepolia.hypersync.xyz`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.SEPOLIA), `https://sepolia.gateway.tenderly.co`);
   });
 
   it("should return the correct rpc url for hyperEVM when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.HYPER_EVM), `https://hyperliquid.hypersync.xyz`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.HYPER_EVM), `https://hyperliquid.drpc.org`);
   });
 
   it("should return the correct rpc url for Plasma when using free RPC url", () => {
-    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.PLASMA), `https://hyperliquid.hypersync.xyz`);
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.PLASMA), `https://rpc.plasma.to`);
   });
 
   it(`should return the right entity id for the given address,

@@ -31,7 +31,7 @@ describe("Permit2Address", () => {
   });
 
   it("uniswap throws for plasma", () => {
-    assert.throws(() => Permit2Address.uniswap(IndexerNetwork.HYPER_EVM), Error(`Uniswap is not supported on Plasma`));
+    assert.throws(() => Permit2Address.uniswap(IndexerNetwork.PLASMA), Error(`Uniswap is not supported on Plasma`));
   });
 
   it("pancakeSwap returns correct address for base", () => {
@@ -75,7 +75,7 @@ describe("Permit2Address", () => {
 
   it("pancakeSwap throws for Plasma", () => {
     assert.throws(
-      () => Permit2Address.pancakeSwap(IndexerNetwork.HYPER_EVM),
+      () => Permit2Address.pancakeSwap(IndexerNetwork.PLASMA),
       Error(`PancakeSwap is not supported on Plasma`)
     );
   });
