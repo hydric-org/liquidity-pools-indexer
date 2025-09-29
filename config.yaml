@@ -196,18 +196,18 @@ contracts:
       - event: Swap(bytes32 indexed id, address indexed sender, int128 amount0, int128 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick, uint24 fee)
 
 networks:
-  - id: 11155111 # Ethereum Sepolia
-    start_block: 3518269
-    confirmed_block_threshold: 12
-    contracts:
-      - name: UniswapV3Factory
-        address: 0x0227628f3F023bb0B980b67D528571c95c6DaC1c
-      - name: PancakeSwapV3Factory
-        address: 0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865
-      - name: UniswapV4PoolManager
-        address: 0xE03A1074c86CFeDd5C142C4F04F1a1536e203543
-      - name: UniswapV3Pool
-      - name: PancakeSwapV3Pool
+  # - id: 11155111 # Ethereum Sepolia
+  #   start_block: 3518269
+  #   confirmed_block_threshold: 12
+  #   contracts:
+  #     - name: UniswapV3Factory
+  #       address: 0x0227628f3F023bb0B980b67D528571c95c6DaC1c
+  #     - name: PancakeSwapV3Factory
+  #       address: 0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865
+  #     - name: UniswapV4PoolManager
+  #       address: 0xE03A1074c86CFeDd5C142C4F04F1a1536e203543
+  #     - name: UniswapV3Pool
+  #     - name: PancakeSwapV3Pool
   # - id: 1 # Ethereum Mainnet
   #   start_block: 12369621
   #   confirmed_block_threshold: 12
@@ -223,50 +223,50 @@ networks:
   #     - name: PancakeSwapV3Pool
   #     - name: UniswapV3Pool
   #     - name: UniswapV2Pool
-  - id: 534352 # Scroll Mainnet
-    start_block: 1367
-    confirmed_block_threshold: 5
-    contracts:
-      - name: ZebraProtocolV3Factory
-        address: 0x96a7F53f7636c93735bf85dE416A4Ace94B56Bd9
-      - name: SushiSwapV3Factory
-        address: 0x46B3fDF7b5CDe91Ac049936bF0bDb12c5d22202e
-      - name: OkuV3Factory
-        address: 0x70C62C8b8e801124A4Aa81ce07b637A3e83cb919
-      - name: HoneyPopV3Factory
-        address: 0x1d25AF2b0992bf227b350860Ea80Bad47382CAf6
-      - name: UniswapV3Pool
-  - id: 130 # Unichain
-    start_block: 0
-    confirmed_block_threshold: 200
-    contracts:
-      - name: UniswapV4PoolManager
-        address: 0x1f98400000000000000000000000000000000004
-      - name: UniswapV3Factory
-        address: 0x1f98400000000000000000000000000000000003
-      - name: VelodromeV3Factory
-        address: 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F
-      - name: UniswapV3Pool
-      - name: AerodromeV3Pool
-  - id: 999 # HyperEVM
-    start_block: 11648
-    confirmed_block_threshold: 6
-    hypersync_config:
-      url: https://hyperliquid.hypersync.xyz/
-    contracts:
-      - name: HyperSwapV3Factory
-        address: 0xB1c0fa0B789320044A6F623cFe5eBda9562602E3
-      - name: ProjectXV3Factory
-        address: 0xFf7B3e8C00e57ea31477c32A5B52a58Eea47b072
-      - name: HybraV3Factory
-        address: 0x2dC0Ec0F0db8bAF250eCccF268D7dFbF59346E5E
-      - name: GLiquidAlgebraFactory
-        address: 0x10253594A832f967994b44f33411940533302ACb
-      - name: KittenSwapAlgebraFactory
-        address: 0x5f95E92c338e6453111Fc55ee66D4AafccE661A7
-      - name: UniswapV3Pool
-      - name: AlgebraPool_1_2_1
-      - name: AlgebraPool_1_2_2
+  # - id: 534352 # Scroll Mainnet
+  #   start_block: 1367
+  #   confirmed_block_threshold: 5
+  #   contracts:
+  #     - name: ZebraProtocolV3Factory
+  #       address: 0x96a7F53f7636c93735bf85dE416A4Ace94B56Bd9
+  #     - name: SushiSwapV3Factory
+  #       address: 0x46B3fDF7b5CDe91Ac049936bF0bDb12c5d22202e
+  #     - name: OkuV3Factory
+  #       address: 0x70C62C8b8e801124A4Aa81ce07b637A3e83cb919
+  #     - name: HoneyPopV3Factory
+  #       address: 0x1d25AF2b0992bf227b350860Ea80Bad47382CAf6
+  #     - name: UniswapV3Pool
+  # - id: 130 # Unichain
+  #   start_block: 0
+  #   confirmed_block_threshold: 200
+  #   contracts:
+  #     - name: UniswapV4PoolManager
+  #       address: 0x1f98400000000000000000000000000000000004
+  #     - name: UniswapV3Factory
+  #       address: 0x1f98400000000000000000000000000000000003
+  #     - name: VelodromeV3Factory
+  #       address: 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F
+  #     - name: UniswapV3Pool
+  #     - name: AerodromeV3Pool
+  # - id: 999 # HyperEVM
+  #   start_block: 11648
+  #   confirmed_block_threshold: 6
+  #   hypersync_config:
+  #     url: https://hyperliquid.hypersync.xyz/
+  #   contracts:
+  #     - name: HyperSwapV3Factory
+  #       address: 0xB1c0fa0B789320044A6F623cFe5eBda9562602E3
+  #     - name: ProjectXV3Factory
+  #       address: 0xFf7B3e8C00e57ea31477c32A5B52a58Eea47b072
+  #     - name: HybraV3Factory
+  #       address: 0x2dC0Ec0F0db8bAF250eCccF268D7dFbF59346E5E
+  #     - name: GLiquidAlgebraFactory
+  #       address: 0x10253594A832f967994b44f33411940533302ACb
+  #     - name: KittenSwapAlgebraFactory
+  #       address: 0x5f95E92c338e6453111Fc55ee66D4AafccE661A7
+  #     - name: UniswapV3Pool
+  #     - name: AlgebraPool_1_2_1
+  #     - name: AlgebraPool_1_2_2
   # - id: 8453 # Base
   #   start_block: 1371680
   #   confirmed_block_threshold: 200
@@ -290,15 +290,15 @@ networks:
   #     - name: AerodromeV3Pool
   #     - name: UniswapV3Pool
   #     - name: PancakeSwapV3Pool
-  # - id: 9745 # Plasma
-  #   start_block: 430127
-  #   confirmed_block_threshold: 200
-  #   rpc_config:
-  #     url: https://plasma-mainnet.g.alchemy.com/v2/${ENVIO_RPC_KEY}
-  #   contracts:
-  #     - name: OkuV3Factory
-  #       address: 0xcb2436774C3e191c85056d248EF4260ce5f27A9D
-  #     - name: UniswapV3Pool
+  - id: 9745 # Plasma
+    start_block: 430127
+    confirmed_block_threshold: 200
+    rpc_config:
+      url: https://plasma-mainnet.g.alchemy.com/v2/${ENVIO_RPC_KEY}
+    contracts:
+      - name: OkuV3Factory
+        address: 0xcb2436774C3e191c85056d248EF4260ce5f27A9D
+      - name: UniswapV3Pool
 
 unordered_multichain_mode: true
 preload_handlers: true
