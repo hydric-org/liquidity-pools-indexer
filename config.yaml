@@ -291,7 +291,7 @@ networks:
   - id: 9745 # Plasma
     start_block: 430127
     confirmed_block_threshold: 180
-    rpc: hhttps://rpc.plasma.to
+    rpc: https://rpc.plasma.to/
     contracts:
       - name: OkuV3Factory
         address: 0xcb2436774C3e191c85056d248EF4260ce5f27A9D
