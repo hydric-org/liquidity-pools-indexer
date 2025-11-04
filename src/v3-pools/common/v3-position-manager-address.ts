@@ -165,4 +165,31 @@ export class V3PositionManagerAddress {
         throw Error(`KittenSwap is not supported on ${network}`);
     }
   }
+
+  static ultraSolid(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.HYPER_EVM:
+        return "0xE7ffA0ee20Deb1613489556062Fa8cec690C3c02";
+      default:
+        throw Error(`UltraSolid is not supported on ${network}`);
+    }
+  }
+
+  static upheaval(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.HYPER_EVM:
+        return "0xC8352A2EbA29F4d9BD4221c07D3461BaCc779088";
+      default:
+        throw Error(`Upheaval is not supported on ${network}`);
+    }
+  }
+
+  static hxFinance(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.HYPER_EVM:
+        return "0x578D8A2D07B60b12993559f1DDF90EB2af3eA496";
+      default:
+        throw Error(`HX Finance is not supported on ${network}`);
+    }
+  }
 }

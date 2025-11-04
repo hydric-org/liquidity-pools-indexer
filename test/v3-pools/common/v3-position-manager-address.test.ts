@@ -290,4 +290,43 @@ describe("V3PositionManagerAddress", () => {
       V3PositionManagerAddress.kittenSwap(IndexerNetwork.BASE);
     }, Error(`KittenSwap is not supported on ${IndexerNetwork.BASE}`));
   });
+
+  it("should throw when calling ultraSolid on unsupported network", async () => {
+    assert.throws(() => {
+      V3PositionManagerAddress.ultraSolid(IndexerNetwork.BASE);
+    }, Error(`UltraSolid is not supported on ${IndexerNetwork.BASE}`));
+  });
+
+  it("should return the correct address for ultraSolid on hyper_evm", async () => {
+    assert.equal(
+      V3PositionManagerAddress.ultraSolid(IndexerNetwork.HYPER_EVM),
+      "0xE7ffA0ee20Deb1613489556062Fa8cec690C3c02"
+    );
+  });
+
+  it("should throw when calling upheaval on unsupported network", async () => {
+    assert.throws(() => {
+      V3PositionManagerAddress.upheaval(IndexerNetwork.BASE);
+    }, Error(`Upheaval is not supported on ${IndexerNetwork.BASE}`));
+  });
+
+  it("should return the correct address for upheaval on hyper_evm", async () => {
+    assert.equal(
+      V3PositionManagerAddress.upheaval(IndexerNetwork.HYPER_EVM),
+      "0xC8352A2EbA29F4d9BD4221c07D3461BaCc779088"
+    );
+  });
+
+  it("should throw when calling hxFinance on unsupported network", async () => {
+    assert.throws(() => {
+      V3PositionManagerAddress.hxFinance(IndexerNetwork.BASE);
+    }, Error(`HX Finance is not supported on ${IndexerNetwork.BASE}`));
+  });
+
+  it("should return the correct address for hxFinance on hyper_evm", async () => {
+    assert.equal(
+      V3PositionManagerAddress.hxFinance(IndexerNetwork.HYPER_EVM),
+      "0x578D8A2D07B60b12993559f1DDF90EB2af3eA496"
+    );
+  });
 });

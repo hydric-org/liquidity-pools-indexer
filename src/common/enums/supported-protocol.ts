@@ -24,6 +24,9 @@ export enum SupportedProtocol {
   PROJECT_X_V3 = "projectx-v3",
   HYBRA_V3 = "hybra-v3",
   KITTENSWAP_ALGEBRA = "kittenswap-v3",
+  ULTRASOLID_V3 = "ultrasolid-v3",
+  UPHEAVAL_V3 = "upheaval-v3",
+  HX_FINANCE_ALGEBRA = "hx-finance-algebra",
 }
 
 export namespace SupportedProtocol {
@@ -65,6 +68,12 @@ export namespace SupportedProtocol {
         return "Hybra V3";
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         return "Kittenswap Algebra";
+      case SupportedProtocol.ULTRASOLID_V3:
+        return "UltraSolid V3";
+      case SupportedProtocol.UPHEAVAL_V3:
+        return "Upheaval V3";
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        return "HX Finance Algebra";
     }
   }
 
@@ -106,6 +115,12 @@ export namespace SupportedProtocol {
         return "https://hybra.finance/";
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         return "https://kittenswap.finance/";
+      case SupportedProtocol.ULTRASOLID_V3:
+        return "https://ultrasolid.xyz/";
+      case SupportedProtocol.UPHEAVAL_V3:
+        return "https://upheaval.fi/";
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        return "https://hx.finance/";
     }
   }
 
@@ -120,9 +135,9 @@ export namespace SupportedProtocol {
       case SupportedProtocol.BASESWAP_V3:
         return "https://s2.coinmarketcap.com/static/img/coins/200x200/27764.png";
       case SupportedProtocol.HONEYPOP_V3:
-        return "https://icons.llamao.fi/icons/protocols/honeypop-dex";
+        return "https://assets.coingecko.com/markets/images/22073/large/honeypop.jpg";
       case SupportedProtocol.OKU_TRADE_V3:
-        return "https://oku.trade/favicon.ico";
+        return "https://img.cryptorank.io/exchanges/150x150.oku_plasma1759142972702.png";
       case SupportedProtocol.PANCAKE_SWAP_V3:
         return "https://assets-cdn.trustwallet.com/dapps/pancakeswap.finance.png";
       case SupportedProtocol.SUSHI_SWAP_V3:
@@ -130,23 +145,29 @@ export namespace SupportedProtocol {
       case SupportedProtocol.UNISWAP_V3:
         return "https://assets-cdn.trustwallet.com/dapps/app.uniswap.org.png";
       case SupportedProtocol.VELODROME_V3:
-        return "https://icons.llamao.fi/icons/protocols/velodrome";
+        return "https://img.cryptorank.io/coins/velodrome_finance1662552933961.png";
       case SupportedProtocol.ZEBRA_V3:
-        return "https://icons.llamao.fi/icons/protocols/zebra";
+        return "https://img.cryptorank.io/coins/zebra1717767206306.png";
       case SupportedProtocol.PANCAKESWAP_INFINITY_CL:
         return "https://assets-cdn.trustwallet.com/dapps/pancakeswap.finance.png";
       case SupportedProtocol.UNISWAP_V4:
         return "https://assets-cdn.trustwallet.com/dapps/app.uniswap.org.png";
       case SupportedProtocol.GLIQUID_ALGEBRA:
-        return "https://icons.llamao.fi/icons/protocols/gliquid";
+        return "https://assets.coingecko.com/markets/images/21975/large/GLiquid_PFP_%28New_Logo%29_%281%29.png";
       case SupportedProtocol.HYPER_SWAP_V3:
-        return "https://icons.llamao.fi/icons/protocols/hyperswap";
+        return "https://img.cryptorank.io/exchanges/150x150.hyper_swap_v_21740409894268.png";
       case SupportedProtocol.PROJECT_X_V3:
-        return "https://icons.llamao.fi/icons/protocols/project-x";
+        return "https://img.cryptorank.io/exchanges/150x150.project_x1752845857616.png";
       case SupportedProtocol.HYBRA_V3:
-        return "https://icons.llamao.fi/icons/protocols/hybra";
+        return "https://img.cryptorank.io/exchanges/150x150.hybra_finance1752836948767.png";
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
-        return "https://icons.llamao.fi/icons/protocols/kittenswap-algebra";
+        return "https://img.cryptorank.io/exchanges/150x150.kittenswap1744291199109.png";
+      case SupportedProtocol.ULTRASOLID_V3:
+        return "https://img.cryptorank.io/exchanges/150x150.ultra_solid_v_31759320847099.png";
+      case SupportedProtocol.UPHEAVAL_V3:
+        return "https://assets.coingecko.com/markets/images/22071/large/upheaval-finance.jpg";
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        return "https://assets.coingecko.com/markets/images/22066/large/hx_finance.png";
     }
   }
 
@@ -188,6 +209,12 @@ export namespace SupportedProtocol {
         throw Error(`Permit2 is not available for Hybra V3`);
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         throw Error(`Permit2 is not available for KittenSwap V3`);
+      case SupportedProtocol.ULTRASOLID_V3:
+        throw Error(`Permit2 is not available for UltraSolid V3`);
+      case SupportedProtocol.UPHEAVAL_V3:
+        throw Error(`Permit2 is not available for Upheaval V3`);
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        throw Error(`Permit2 is not available for HX Finance Algebra`);
     }
   }
 
@@ -229,6 +256,12 @@ export namespace SupportedProtocol {
         throw Error(`V4 position manager is not available for Hybra V3`);
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         throw Error(`V4 position manager is not available for KittenSwap V3`);
+      case SupportedProtocol.ULTRASOLID_V3:
+        throw Error(`V4 position manager is not available for UltraSolid V3`);
+      case SupportedProtocol.UPHEAVAL_V3:
+        throw Error(`V4 position manager is not available for Upheaval V3`);
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        throw Error(`V4 position manager is not available for HX Finance Algebra`);
     }
   }
 
@@ -270,6 +303,12 @@ export namespace SupportedProtocol {
         throw Error(`V4 state view is not available for Hybra V3`);
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         throw Error(`V4 state view is not available for KittenSwap V3`);
+      case SupportedProtocol.ULTRASOLID_V3:
+        throw Error(`V4 state view is not available for UltraSolid V3`);
+      case SupportedProtocol.UPHEAVAL_V3:
+        throw Error(`V4 state view is not available for Upheaval V3`);
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        throw Error(`V4 state view is not available for HX Finance Algebra`);
     }
   }
 
@@ -311,6 +350,12 @@ export namespace SupportedProtocol {
         return V3PositionManagerAddress.hybra(network);
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         return V3PositionManagerAddress.kittenSwap(network);
+      case SupportedProtocol.ULTRASOLID_V3:
+        return V3PositionManagerAddress.ultraSolid(network);
+      case SupportedProtocol.UPHEAVAL_V3:
+        return V3PositionManagerAddress.upheaval(network);
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        return V3PositionManagerAddress.hxFinance(network);
     }
   }
 
@@ -352,6 +397,12 @@ export namespace SupportedProtocol {
         throw Error(`V2 position manager is not available for Hybra V3`);
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         throw Error(`V2 position manager is not available for KittenSwap V3`);
+      case SupportedProtocol.ULTRASOLID_V3:
+        throw Error(`V2 position manager is not available for UltraSolid V3`);
+      case SupportedProtocol.UPHEAVAL_V3:
+        throw Error(`V2 position manager is not available for Upheaval V3`);
+      case SupportedProtocol.HX_FINANCE_ALGEBRA:
+        throw Error(`V2 position manager is not available for HX Finance Algebra`);
     }
   }
 }
