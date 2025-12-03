@@ -548,4 +548,41 @@ describe("V2FactoryHandler", () => {
 
     assert.deepEqual(updatedDefiPoolData, expectedNewDefiPoolData);
   });
+
+  it("should set data point timestamps as the event timestamp when creating a pool", async () => {
+    await handleV2PoolCreated({
+      context,
+      chainId,
+      eventTimestamp,
+      token0Address,
+      token1Address,
+      poolAddress,
+      feeTier,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(
+      pool.dataPointTimestamp24h,
+      eventTimestamp,
+      "the 24h data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp7d,
+      eventTimestamp,
+      "the 7d data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp30d,
+      eventTimestamp,
+      "the 30d data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp90d,
+      eventTimestamp,
+      "the 90d data point timestamp should be the event timestamp"
+    );
+  });
 });

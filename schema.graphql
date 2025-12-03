@@ -78,10 +78,10 @@ type Pool @index(fields: ["token0", "token1", "totalValueLockedUSD"]) {
   accumulated30dYield: BigDecimal!
   accumulated7dYield: BigDecimal!
   accumulated24hYield: BigDecimal!
-  dataPointTimestamp24h: BigInt @index
-  dataPointTimestamp7d: BigInt @index
-  dataPointTimestamp30d: BigInt @index
-  dataPointTimestamp90d: BigInt @index
+  dataPointTimestamp24h: BigInt! @index
+  dataPointTimestamp7d: BigInt! @index
+  dataPointTimestamp30d: BigInt! @index
+  dataPointTimestamp90d: BigInt! @index
 }
 
 type V2PoolData {

@@ -777,7 +777,7 @@ describe("V4PoolInitialize", () => {
     assert.deepEqual(updatedPool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
   });
 
-  it("should set data point timestamps as undefined when creating a pool", async () => {
+  it("should set data point timestamps as the event timestamp when creating a pool", async () => {
     let token1Id = "sabax id";
     let token0Id = "xabas id";
     let expectedProtocolId = SupportedProtocol.UNISWAP_V4;
@@ -811,9 +811,25 @@ describe("V4PoolInitialize", () => {
       IndexerNetwork.getEntityIdFromAddress(chainId, pool.poolAddress)
     )!;
 
-    assert.equal(updatedPool.dataPointTimestamp24h, undefined, "the 24h data point timestamp should be undefined");
-    assert.equal(updatedPool.dataPointTimestamp7d, undefined, "the 7d data point timestamp should be undefined");
-    assert.equal(updatedPool.dataPointTimestamp30d, undefined, "the 30d data point timestamp should be undefined");
-    assert.equal(updatedPool.dataPointTimestamp90d, undefined, "the 90d data point timestamp should be undefined");
+    assert.equal(
+      updatedPool.dataPointTimestamp24h,
+      eventTimestamp,
+      "the 24h data point timestamp should be the eventTimestamp"
+    );
+    assert.equal(
+      updatedPool.dataPointTimestamp7d,
+      eventTimestamp,
+      "the 7d data point timestamp should be the eventTimestamp"
+    );
+    assert.equal(
+      updatedPool.dataPointTimestamp30d,
+      eventTimestamp,
+      "the 30d data point timestamp should be the eventTimestamp"
+    );
+    assert.equal(
+      updatedPool.dataPointTimestamp90d,
+      eventTimestamp,
+      "the 90d data point timestamp should be the eventTimestamp"
+    );
   });
 });

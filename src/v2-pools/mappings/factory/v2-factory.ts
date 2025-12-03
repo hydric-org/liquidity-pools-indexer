@@ -65,10 +65,10 @@ export async function handleV2PoolCreated(params: {
     algebraPoolData_id: undefined,
     chainId: params.chainId,
     poolAddress: params.poolAddress,
-    dataPointTimestamp24h: undefined,
-    dataPointTimestamp30d: undefined,
-    dataPointTimestamp7d: undefined,
-    dataPointTimestamp90d: undefined,
+    dataPointTimestamp24h: params.eventTimestamp,
+    dataPointTimestamp30d: params.eventTimestamp,
+    dataPointTimestamp7d: params.eventTimestamp,
+    dataPointTimestamp90d: params.eventTimestamp,
   };
 
   defiPoolData = {

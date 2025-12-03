@@ -77,10 +77,10 @@ export async function handleV4PoolInitialize(
     v3PoolData_id: undefined,
     v4PoolData_id: v4PoolEntity.id,
     chainId: chainId,
-    dataPointTimestamp24h: undefined,
-    dataPointTimestamp30d: undefined,
-    dataPointTimestamp7d: undefined,
-    dataPointTimestamp90d: undefined,
+    dataPointTimestamp24h: eventTimestamp,
+    dataPointTimestamp30d: eventTimestamp,
+    dataPointTimestamp7d: eventTimestamp,
+    dataPointTimestamp90d: eventTimestamp,
   };
 
   defiPoolDataEntity = {

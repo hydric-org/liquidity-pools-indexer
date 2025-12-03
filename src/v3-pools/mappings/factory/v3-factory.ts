@@ -70,10 +70,10 @@ export async function handleV3PoolCreated(
     v3PoolData_id: v3PoolEntity.id,
     chainId: chainId,
     algebraPoolData_id: algebraPoolData?.id,
-    dataPointTimestamp24h: undefined,
-    dataPointTimestamp30d: undefined,
-    dataPointTimestamp7d: undefined,
-    dataPointTimestamp90d: undefined,
+    dataPointTimestamp24h: eventTimestamp,
+    dataPointTimestamp30d: eventTimestamp,
+    dataPointTimestamp7d: eventTimestamp,
+    dataPointTimestamp90d: eventTimestamp,
   };
 
   defiPoolData = {

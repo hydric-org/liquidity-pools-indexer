@@ -685,7 +685,7 @@ describe("V3FactoryHandler", () => {
     assert.deepEqual(pool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
   });
 
-  it("should set data point timestamps as undefined when creating a pool", async () => {
+  it("should set data point timestamps as the event timestamp when creating a pool", async () => {
     await handleV3PoolCreated(
       context,
       poolAddress,
@@ -701,10 +701,26 @@ describe("V3FactoryHandler", () => {
 
     const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
 
-    assert.equal(pool.dataPointTimestamp24h, undefined, "the 24h data point timestamp should be undefined");
-    assert.equal(pool.dataPointTimestamp7d, undefined, "the 7d data point timestamp should be undefined");
-    assert.equal(pool.dataPointTimestamp30d, undefined, "the 30d data point timestamp should be undefined");
-    assert.equal(pool.dataPointTimestamp90d, undefined, "the 90d data point timestamp should be undefined");
+    assert.equal(
+      pool.dataPointTimestamp24h,
+      eventTimestamp,
+      "the 24h data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp7d,
+      eventTimestamp,
+      "the 7d data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp30d,
+      eventTimestamp,
+      "the 30d data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp90d,
+      eventTimestamp,
+      "the 90d data point timestamp should be the event timestamp"
+    );
   });
 
   it("should save the passed algebra pool data entity if provided", async () => {
