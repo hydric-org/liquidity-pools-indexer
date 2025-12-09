@@ -27,6 +27,11 @@ export enum SupportedProtocol {
   ULTRASOLID_V3 = "ultrasolid-v3",
   UPHEAVAL_V3 = "upheaval-v3",
   HX_FINANCE_ALGEBRA = "hx-finance-algebra",
+  AETHONSWAP_ALGEBRA = "aethonswap-algebra",
+  ATLANTIS_ALGEBRA = "atlantis-algebra",
+  RAMSES_V3 = "ramses-v3",
+  OCTOSWAP_CL = "octoswap-cl",
+  PINOT_FINANCE_V3 = "pinot-finance-v3",
 }
 
 export namespace SupportedProtocol {
@@ -74,6 +79,16 @@ export namespace SupportedProtocol {
         return "Upheaval V3";
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         return "HX Finance Algebra";
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        return "AethonSwap Algebra";
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        return "Atlantis Algebra";
+      case SupportedProtocol.RAMSES_V3:
+        return "Ramses V3";
+      case SupportedProtocol.OCTOSWAP_CL:
+        return "OctoSwap CL";
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        return "Pinot V3";
     }
   }
 
@@ -121,6 +136,16 @@ export namespace SupportedProtocol {
         return "https://upheaval.fi/";
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         return "https://hx.finance/";
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        return "https://aethonswap.com/";
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        return "https://atlantisdex.xyz/";
+      case SupportedProtocol.RAMSES_V3:
+        return "https://ramses.xyz/";
+      case SupportedProtocol.OCTOSWAP_CL:
+        return "https://octo.exchange/";
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        return "https://pinot.finance/";
     }
   }
 
@@ -168,6 +193,16 @@ export namespace SupportedProtocol {
         return "https://assets.coingecko.com/markets/images/22071/large/upheaval-finance.jpg";
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         return "https://assets.coingecko.com/markets/images/22066/large/hx_finance.png";
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        return "https://assets.coingecko.com/coins/images/70760/large/AethonSwap_Logo_icon.png";
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        return "https://assets.coingecko.com/markets/images/22165/large/Atlantis_Icon_Circle.png";
+      case SupportedProtocol.RAMSES_V3:
+        return "https://img.cryptorank.io/exchanges/150x150.ramses_hyper_evm1763466701004.png";
+      case SupportedProtocol.OCTOSWAP_CL:
+        return "https://octo.exchange/assets/img/logo/logo.png";
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        return "https://assets.coingecko.com/markets/images/22166/large/Pinot_Twitter_Profile.png";
     }
   }
 
@@ -215,6 +250,16 @@ export namespace SupportedProtocol {
         throw Error(`Permit2 is not available for Upheaval V3`);
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         throw Error(`Permit2 is not available for HX Finance Algebra`);
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        throw Error(`Permit2 is not available for AethonSwap Algebra`);
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        throw Error(`Permit2 is not available for Atlantis Algebra`);
+      case SupportedProtocol.RAMSES_V3:
+        throw Error(`Permit2 is not available for Ramses V3`);
+      case SupportedProtocol.OCTOSWAP_CL:
+        throw Error(`Permit2 is not available for OctoSwap CL`);
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        throw Error(`Permit2 is not available for Pinot Finance V3`);
     }
   }
 
@@ -262,6 +307,16 @@ export namespace SupportedProtocol {
         throw Error(`V4 position manager is not available for Upheaval V3`);
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         throw Error(`V4 position manager is not available for HX Finance Algebra`);
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        throw Error(`V4 position manager is not available for AethonSwap Algebra`);
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        throw Error(`V4 position manager is not available for Atlantis Algebra`);
+      case SupportedProtocol.RAMSES_V3:
+        throw Error(`V4 position manager is not available for Ramses V3`);
+      case SupportedProtocol.OCTOSWAP_CL:
+        throw Error(`V4 position manager is not available for OctoSwap CL`);
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        throw Error(`V4 position manager is not available for Pinot Finance V3`);
     }
   }
 
@@ -309,6 +364,16 @@ export namespace SupportedProtocol {
         throw Error(`V4 state view is not available for Upheaval V3`);
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         throw Error(`V4 state view is not available for HX Finance Algebra`);
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        throw Error(`V4 state view is not available for AethonSwap Algebra`);
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        throw Error(`V4 state view is not available for Atlantis Algebra`);
+      case SupportedProtocol.RAMSES_V3:
+        throw Error(`V4 state view is not available for Ramses V3`);
+      case SupportedProtocol.OCTOSWAP_CL:
+        throw Error(`V4 state view is not available for OctoSwap CL`);
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        throw Error(`V4 state view is not available for Pinot Finance V3`);
     }
   }
 
@@ -356,6 +421,16 @@ export namespace SupportedProtocol {
         return V3PositionManagerAddress.upheaval(network);
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         return V3PositionManagerAddress.hxFinance(network);
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        return V3PositionManagerAddress.aethonSwap(network);
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        return V3PositionManagerAddress.atlantis(network);
+      case SupportedProtocol.RAMSES_V3:
+        return V3PositionManagerAddress.ramses(network);
+      case SupportedProtocol.OCTOSWAP_CL:
+        return V3PositionManagerAddress.octoSwap(network);
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        return V3PositionManagerAddress.pinotFinance(network);
     }
   }
 
@@ -403,6 +478,16 @@ export namespace SupportedProtocol {
         throw Error(`V2 position manager is not available for Upheaval V3`);
       case SupportedProtocol.HX_FINANCE_ALGEBRA:
         throw Error(`V2 position manager is not available for HX Finance Algebra`);
+      case SupportedProtocol.AETHONSWAP_ALGEBRA:
+        throw Error(`V2 position manager is not available for AethonSwap Algebra`);
+      case SupportedProtocol.ATLANTIS_ALGEBRA:
+        throw Error(`V2 position manager is not available for Atlantis Algebra`);
+      case SupportedProtocol.RAMSES_V3:
+        throw Error(`V2 position manager is not available for Ramses V3`);
+      case SupportedProtocol.OCTOSWAP_CL:
+        throw Error(`V2 position manager is not available for OctoSwap CL`);
+      case SupportedProtocol.PINOT_FINANCE_V3:
+        throw Error(`V2 position manager is not available for Pinot Finance V3`);
     }
   }
 }

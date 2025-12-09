@@ -19,6 +19,10 @@ describe("V4StateViewAddress", () => {
     assert.equal(V4StateViewAddress.uniswap(IndexerNetwork.UNICHAIN), "0x86e8631a016f9068c3f085faf484ee3f5fdee8f2");
   });
 
+  it("uniswap returns correct address for monad", () => {
+    assert.equal(V4StateViewAddress.uniswap(IndexerNetwork.MONAD), "0x77395F3b2E73aE90843717371294fa97cC419D64");
+  });
+
   it("uniswap throws  for scroll", () => {
     assert.throws(() => V4StateViewAddress.uniswap(IndexerNetwork.SCROLL));
   });

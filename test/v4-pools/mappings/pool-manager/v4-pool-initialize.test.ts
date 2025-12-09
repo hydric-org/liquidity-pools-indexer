@@ -1,10 +1,12 @@
 import assert from "assert";
 import { DeFiPoolData, handlerContext } from "generated";
 import sinon from "sinon";
-import { defaultDeFiPoolData, DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "../../../../src/common/constants";
+import { DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "../../../../src/common/constants";
+import { defaultDeFiPoolData } from "../../../../src/common/default-entities";
 import { IndexerNetwork } from "../../../../src/common/enums/indexer-network";
 import { SupportedProtocol } from "../../../../src/common/enums/supported-protocol";
 import { TokenService } from "../../../../src/common/services/token-service";
+import { V4_DYNAMIC_FEE_FLAG } from "../../../../src/v4-pools/common/constants";
 import { handleV4PoolInitialize } from "../../../../src/v4-pools/mappings/pool-manager/v4-pool-initialize";
 import { handlerContextCustomMock, PoolMock, TokenMock } from "../../../mocks";
 
@@ -770,11 +772,107 @@ describe("V4PoolInitialize", () => {
       IndexerNetwork.getEntityIdFromAddress(chainId, pool.poolAddress)
     )!;
 
-    assert.deepEqual(updatedPool.accumulated24hYield, ZERO_BIG_DECIMAL, "the 24h yield should be zero");
-    assert.deepEqual(updatedPool.accumulated7dYield, ZERO_BIG_DECIMAL, "the 7d yield should be zero");
-    assert.deepEqual(updatedPool.accumulated30dYield, ZERO_BIG_DECIMAL, "the 30d yield should be zero");
-    assert.deepEqual(updatedPool.accumulated90dYield, ZERO_BIG_DECIMAL, "the 90d yield should be zero");
+    assert.deepEqual(updatedPool.accumulatedYield24h, ZERO_BIG_DECIMAL, "the 24h yield should be zero");
+    assert.deepEqual(updatedPool.accumulatedYield7d, ZERO_BIG_DECIMAL, "the 7d yield should be zero");
+    assert.deepEqual(updatedPool.accumulatedYield30d, ZERO_BIG_DECIMAL, "the 30d yield should be zero");
+    assert.deepEqual(updatedPool.accumulatedYield90d, ZERO_BIG_DECIMAL, "the 90d yield should be zero");
     assert.deepEqual(updatedPool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
+  });
+
+  it("should set all the total accumulated yield ago as zero when creating a pool", async () => {
+    let token1Id = "sabax id";
+    let token0Id = "xabas id";
+    let expectedProtocolId = SupportedProtocol.UNISWAP_V4;
+    let pool = new PoolMock();
+    let feeTier = 568;
+    let tickSpacing = 62;
+    let tick = BigInt(989756545);
+    let sqrtPriceX96 = BigInt("398789276389263782");
+    let hooks = "0xA6eB3d9dDdD2DdDdDdDdDdDdDdDdDdDdDdDdDdD";
+    let chainId = IndexerNetwork.ETHEREUM;
+    let poolManagerAddress = "0xXabas";
+
+    await handleV4PoolInitialize({
+      context,
+      poolAddress: pool.poolAddress,
+      token0Address: token0Id,
+      token1Address: token1Id,
+      feeTier,
+      tickSpacing,
+      tick,
+      sqrtPriceX96,
+      protocol: expectedProtocolId,
+      hooks,
+      eventTimestamp,
+      chainId,
+      poolManagerAddress,
+      tokenService,
+    });
+
+    const updatedPool = await context.Pool.getOrThrow(
+      IndexerNetwork.getEntityIdFromAddress(chainId, pool.poolAddress)
+    )!;
+
+    assert.deepEqual(updatedPool.totalAccumulatedYield24hAgo, ZERO_BIG_DECIMAL, "the 24h yield should be zero");
+    assert.deepEqual(updatedPool.totalAccumulatedYield7dAgo, ZERO_BIG_DECIMAL, "the 7d yield should be zero");
+    assert.deepEqual(updatedPool.totalAccumulatedYield30dAgo, ZERO_BIG_DECIMAL, "the 30d yield should be zero");
+    assert.deepEqual(updatedPool.totalAccumulatedYield90dAgo, ZERO_BIG_DECIMAL, "the 90d yield should be zero");
+  });
+
+  it("should set all the last adjust timestamps as undefined when creating a pool", async () => {
+    let token1Id = "sabax id";
+    let token0Id = "xabas id";
+    let expectedProtocolId = SupportedProtocol.UNISWAP_V4;
+    let pool = new PoolMock();
+    let feeTier = 568;
+    let tickSpacing = 62;
+    let tick = BigInt(989756545);
+    let sqrtPriceX96 = BigInt("398789276389263782");
+    let hooks = "0xA6eB3d9dDdD2DdDdDdDdDdDdDdDdDdDdDdDdDdD";
+    let chainId = IndexerNetwork.ETHEREUM;
+    let poolManagerAddress = "0xXabas";
+
+    await handleV4PoolInitialize({
+      context,
+      poolAddress: pool.poolAddress,
+      token0Address: token0Id,
+      token1Address: token1Id,
+      feeTier,
+      tickSpacing,
+      tick,
+      sqrtPriceX96,
+      protocol: expectedProtocolId,
+      hooks,
+      eventTimestamp,
+      chainId,
+      poolManagerAddress,
+      tokenService,
+    });
+
+    const updatedPool = await context.Pool.getOrThrow(
+      IndexerNetwork.getEntityIdFromAddress(chainId, pool.poolAddress)
+    )!;
+
+    assert.deepEqual(
+      updatedPool.lastAdjustTimestamp24h,
+      undefined,
+      "the last adjust timestamp should be undefined for the 24h"
+    );
+    assert.deepEqual(
+      updatedPool.lastAdjustTimestamp7d,
+      undefined,
+      "the last adjust timestamp should be undefined for the 7d"
+    );
+    assert.deepEqual(
+      updatedPool.lastAdjustTimestamp30d,
+      undefined,
+      "the last adjust timestamp should be undefined for the 30d"
+    );
+    assert.deepEqual(
+      updatedPool.lastAdjustTimestamp90d,
+      undefined,
+      "the last adjust timestamp should be undefined for the 290d"
+    );
   });
 
   it("should set data point timestamps as the event timestamp when creating a pool", async () => {
@@ -812,24 +910,98 @@ describe("V4PoolInitialize", () => {
     )!;
 
     assert.equal(
-      updatedPool.dataPointTimestamp24h,
+      updatedPool.dataPointTimestamp24hAgo,
       eventTimestamp,
       "the 24h data point timestamp should be the eventTimestamp"
     );
     assert.equal(
-      updatedPool.dataPointTimestamp7d,
+      updatedPool.dataPointTimestamp7dAgo,
       eventTimestamp,
       "the 7d data point timestamp should be the eventTimestamp"
     );
     assert.equal(
-      updatedPool.dataPointTimestamp30d,
+      updatedPool.dataPointTimestamp30dAgo,
       eventTimestamp,
       "the 30d data point timestamp should be the eventTimestamp"
     );
     assert.equal(
-      updatedPool.dataPointTimestamp90d,
+      updatedPool.dataPointTimestamp90dAgo,
       eventTimestamp,
       "the 90d data point timestamp should be the eventTimestamp"
     );
+  });
+
+  it("should set is dynamic fee true if the passed fee tier has the dynamic fee flag", async () => {
+    let token1Id = "sabax id";
+    let token0Id = "xabas id";
+    let expectedProtocolId = SupportedProtocol.UNISWAP_V4;
+    let pool = new PoolMock();
+    let feeTier = V4_DYNAMIC_FEE_FLAG;
+    let tickSpacing = 62;
+    let tick = BigInt(989756545);
+    let sqrtPriceX96 = BigInt("398789276389263782");
+    let hooks = "0xA6eB3d9dDdD2DdDdDdDdDdDdDdDdDdDdDdDdDdD";
+    let chainId = IndexerNetwork.ETHEREUM;
+    let poolManagerAddress = "0xXabas";
+
+    await handleV4PoolInitialize({
+      context,
+      poolAddress: pool.poolAddress,
+      token0Address: token0Id,
+      token1Address: token1Id,
+      feeTier,
+      tickSpacing,
+      tick,
+      sqrtPriceX96,
+      protocol: expectedProtocolId,
+      hooks,
+      eventTimestamp,
+      chainId,
+      poolManagerAddress,
+      tokenService,
+    });
+
+    const updatedPool = await context.Pool.getOrThrow(
+      IndexerNetwork.getEntityIdFromAddress(chainId, pool.poolAddress)
+    )!;
+
+    assert.equal(updatedPool.isDynamicFee, true, "the pool should be dynamic fee");
+  });
+
+  it("should set is dynamic fee false if the passed fee tier hasn't the dynamic fee flag", async () => {
+    let token1Id = "sabax id";
+    let token0Id = "xabas id";
+    let expectedProtocolId = SupportedProtocol.UNISWAP_V4;
+    let pool = new PoolMock();
+    let feeTier = 568;
+    let tickSpacing = 62;
+    let tick = BigInt(989756545);
+    let sqrtPriceX96 = BigInt("398789276389263782");
+    let hooks = "0xA6eB3d9dDdD2DdDdDdDdDdDdDdDdDdDdDdDdDdD";
+    let chainId = IndexerNetwork.ETHEREUM;
+    let poolManagerAddress = "0xXabas";
+
+    await handleV4PoolInitialize({
+      context,
+      poolAddress: pool.poolAddress,
+      token0Address: token0Id,
+      token1Address: token1Id,
+      feeTier,
+      tickSpacing,
+      tick,
+      sqrtPriceX96,
+      protocol: expectedProtocolId,
+      hooks,
+      eventTimestamp,
+      chainId,
+      poolManagerAddress,
+      tokenService,
+    });
+
+    const updatedPool = await context.Pool.getOrThrow(
+      IndexerNetwork.getEntityIdFromAddress(chainId, pool.poolAddress)
+    )!;
+
+    assert.equal(updatedPool.isDynamicFee, false);
   });
 });

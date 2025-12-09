@@ -1,5 +1,5 @@
 import { DeFiPoolData as DeFiPoolDataEntity, handlerContext, Token as TokenEntity } from "generated";
-import { defaultDeFiPoolDailyData, defaultDeFiPoolHourlyData } from "./constants";
+import { defaultDeFiPoolDailyData, defaultDeFiPoolHourlyData } from "./default-entities";
 import { getDeFiPoolDailyDataId, getDeFiPoolHourlyDataId } from "./defi-pool-data-commons";
 import { getLiquidityInflowAndOutflowFromRawAmounts } from "./pool-commons";
 import { formatFromTokenAmount } from "./token-commons";

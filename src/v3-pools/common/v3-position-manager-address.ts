@@ -26,6 +26,8 @@ export class V3PositionManagerAddress {
         throw Error(`Uniswap is not supported on HyperEVM`);
       case IndexerNetwork.PLASMA:
         return "0x743E03cceB4af2efA3CC76838f6E8B50B63F184c";
+      case IndexerNetwork.MONAD:
+        return "0x7197e214c0b767cfb76fb734ab638e2c192f4e53";
     }
   }
 
@@ -45,6 +47,8 @@ export class V3PositionManagerAddress {
         throw Error(`PancakeSwap is not supported on HyperEVM`);
       case IndexerNetwork.PLASMA:
         throw Error(`PancakeSwap is not supported on Plasma`);
+      case IndexerNetwork.MONAD:
+        return "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364";
     }
   }
 
@@ -64,6 +68,8 @@ export class V3PositionManagerAddress {
         throw Error(`SushiSwap is not supported on HyperEVM`);
       case IndexerNetwork.PLASMA:
         throw Error(`SushiSwap is not supported on Plasma`);
+      case IndexerNetwork.MONAD:
+        throw Error(`SushiSwap is not supported on Monad`);
     }
   }
 
@@ -110,6 +116,8 @@ export class V3PositionManagerAddress {
         throw Error(`Velodrome is not supported on HyperEVM`);
       case IndexerNetwork.PLASMA:
         throw Error(`Velodrome is not supported on Plasma`);
+      case IndexerNetwork.MONAD:
+        throw Error(`Velodrome is not supported on Monad`);
     }
   }
   static honeypop(network: IndexerNetwork): string {
@@ -190,6 +198,50 @@ export class V3PositionManagerAddress {
         return "0x578D8A2D07B60b12993559f1DDF90EB2af3eA496";
       default:
         throw Error(`HX Finance is not supported on ${network}`);
+    }
+  }
+
+  static aethonSwap(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.MONAD:
+        return "0xB879564EE31F841d8049c21227c6109856409bc7";
+      default:
+        throw Error(`AethonSwap is not supported on ${network}`);
+    }
+  }
+
+  static atlantis(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.MONAD:
+        return "0x69D57B9D705eaD73a5d2f2476C30c55bD755cc2F";
+      default:
+        throw Error(`Atlantis is not supported on ${network}`);
+    }
+  }
+
+  static ramses(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.HYPER_EVM:
+        return "0xB3F77C5134D643483253D22E0Ca24627aE42ED51";
+      default:
+        throw Error(`Ramses is not supported on ${network}`);
+    }
+  }
+  static octoSwap(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.MONAD:
+        return "0x16eb676BbBe51EB6E4E9DDF57BfBEe0537aA4d7B";
+      default:
+        throw Error(`OctoSwap is not supported on ${network}`);
+    }
+  }
+
+  static pinotFinance(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.MONAD:
+        return "0xb8058cDbC6CdC4b0aA0Aa00A7Ecf7CAAF1441392";
+      default:
+        throw Error(`Pinot Finance is not supported on ${network}`);
     }
   }
 }

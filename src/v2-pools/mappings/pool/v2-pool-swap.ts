@@ -1,4 +1,5 @@
 import { handlerContext, Pool as PoolEntity, Token as TokenEntity } from "generated";
+import { safeDiv } from "../../../common/math";
 import { getSwapFeesFromRawAmounts, getSwapVolumeFromAmounts } from "../../../common/pool-commons";
 import { PoolSetters } from "../../../common/pool-setters";
 import { formatFromTokenAmount } from "../../../common/token-commons";
@@ -67,7 +68,7 @@ export async function handleV2PoolSwap(params: {
     params.token1Entity
   );
 
-  const swapYield = swapFees.feesUSD.div(updatedPoolTotalValueLockedUSD).times(100);
+  const swapYield = safeDiv(swapFees.feesUSD, updatedPoolTotalValueLockedUSD).times(100);
 
   params.poolEntity = {
     ...params.poolEntity,
@@ -76,10 +77,6 @@ export async function handleV2PoolSwap(params: {
     swapVolumeToken0: params.poolEntity.swapVolumeToken0.plus(swapVolumeWithNewPrices.volumeToken0),
     swapVolumeToken1: params.poolEntity.swapVolumeToken1.plus(swapVolumeWithNewPrices.volumeToken1),
     swapVolumeUSD: params.poolEntity.swapVolumeUSD.plus(swapVolumeWithNewPrices.volumeUSD),
-    accumulated24hYield: params.poolEntity.accumulated24hYield.plus(swapYield),
-    accumulated7dYield: params.poolEntity.accumulated7dYield.plus(swapYield),
-    accumulated30dYield: params.poolEntity.accumulated30dYield.plus(swapYield),
-    accumulated90dYield: params.poolEntity.accumulated90dYield.plus(swapYield),
     totalAccumulatedYield: params.poolEntity.totalAccumulatedYield.plus(swapYield),
   };
 
@@ -109,7 +106,10 @@ export async function handleV2PoolSwap(params: {
     rawAmount1
   );
 
-  params.poolEntity = await params.v2PoolSetters.updatePoolAccumulatedYield(params.eventTimestamp, params.poolEntity);
+  params.poolEntity = await params.v2PoolSetters.updatePoolTimeframedAccumulatedYield(
+    params.eventTimestamp,
+    params.poolEntity
+  );
 
   params.context.Pool.set(params.poolEntity);
   params.context.Token.set(params.token0Entity);

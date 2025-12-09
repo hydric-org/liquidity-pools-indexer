@@ -9,6 +9,7 @@ export enum IndexerNetwork {
   SEPOLIA = 11155111,
   HYPER_EVM = 999,
   PLASMA = 9745,
+  MONAD = 143,
 }
 
 export namespace IndexerNetwork {
@@ -28,25 +29,29 @@ export namespace IndexerNetwork {
         return "https://hyperliquid.drpc.org";
       case IndexerNetwork.PLASMA:
         return "https://rpc.plasma.to";
+      case IndexerNetwork.MONAD:
+        return "https://rpc-mainnet.monadinfra.com";
     }
   }
 
   export function getPaidRPCUrl(network: IndexerNetwork): string {
     switch (network) {
       case IndexerNetwork.ETHEREUM:
-        return `${process.env.ENVIO_PAID_ETHEREUM_RPC_URL}`;
+        return process.env.ENVIO_PAID_ETHEREUM_RPC_URL!;
       case IndexerNetwork.BASE:
-        return `${process.env.ENVIO_PAID_BASE_RPC_URL}`;
+        return process.env.ENVIO_PAID_BASE_RPC_URL!;
       case IndexerNetwork.SCROLL:
-        return `${process.env.ENVIO_PAID_SCROLL_RPC_URL}`;
+        return process.env.ENVIO_PAID_SCROLL_RPC_URL!;
       case IndexerNetwork.UNICHAIN:
-        return `${process.env.ENVIO_PAID_UNICHAIN_RPC_URL}`;
+        return process.env.ENVIO_PAID_UNICHAIN_RPC_URL!;
       case IndexerNetwork.SEPOLIA:
-        return `${process.env.ENVIO_PAID_SEPOLIA_RPC_URL}`;
+        return process.env.ENVIO_PAID_SEPOLIA_RPC_URL!;
       case IndexerNetwork.HYPER_EVM:
-        return `${process.env.ENVIO_PAID_HYPER_EVM_RPC_URL}`;
+        return process.env.ENVIO_PAID_HYPER_EVM_RPC_URL!;
       case IndexerNetwork.PLASMA:
-        return `${process.env.ENVIO_PAID_PLASMA_RPC_URL}`;
+        return process.env.ENVIO_PAID_PLASMA_RPC_URL!;
+      case IndexerNetwork.MONAD:
+        return process.env.ENVIO_PAID_MONAD_RPC_URL!;
     }
   }
 
@@ -70,6 +75,8 @@ export namespace IndexerNetwork {
         return NetworkToken.metadata(NetworkToken.HYPE);
       case IndexerNetwork.PLASMA:
         return NetworkToken.metadata(NetworkToken.XPL);
+      case IndexerNetwork.MONAD:
+        return NetworkToken.metadata(NetworkToken.MON);
     }
   }
 
@@ -119,6 +126,13 @@ export namespace IndexerNetwork {
           "0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34", // USDe
           "0x0a1a1a107e45b7ced86833863f482bc5f4ed82ef", // USDai
         ];
+      case IndexerNetwork.MONAD:
+        return [
+          "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", // USDC
+          "0xe7cd86e13AC4309349F30B3435a9d337750fC82D", // USDT0
+          "0xfd44b35139ae53fff7d8f2a9869c503d987f00d1", // LVUSD
+          "0x00000000efe302beaa2b3e6e1b18d08d69a9012a", // AUSD
+        ];
     }
   }
 
@@ -138,6 +152,8 @@ export namespace IndexerNetwork {
         return "0x5555555555555555555555555555555555555555";
       case IndexerNetwork.PLASMA:
         return "0x6100e367285b01f48d07953803a2d8dca5d19873";
+      case IndexerNetwork.MONAD:
+        return "0x3bd359c1119da7da1d913d1c4d2b7c461115433a";
     }
   }
 }

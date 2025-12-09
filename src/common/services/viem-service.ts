@@ -25,13 +25,13 @@ export class ViemService {
       },
       transport: this.viemModule.fallback(
         [
-          this.viemModule.http(IndexerNetwork.getFreeRPCUrl(forNetwork), { batch: true }),
           this.viemModule.http(IndexerNetwork.getPaidRPCUrl(forNetwork), { batch: true }),
+          this.viemModule.http(IndexerNetwork.getFreeRPCUrl(forNetwork), { batch: true }),
         ],
         {
           rank: false,
           retryCount: 5,
-          retryDelay: 10000,
+          retryDelay: 2000,
         }
       ),
     });

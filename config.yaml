@@ -23,6 +23,12 @@ contracts:
     events:
       - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
 
+  - name: PinotFinanceV3Factory
+    abi_file_path: ./abis/factories/UniswapV3Factory.json
+    handler: ./src/v3-pools/mappings/factory/dexs/pinot-finance-v3-factory.ts
+    events:
+      - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
+
   - name: HoneyPopV3Factory
     abi_file_path: ./abis/factories/UniswapV3Factory.json
     handler: ./src/v3-pools/mappings/factory/dexs/honeypop-v3-factory.ts
@@ -48,29 +54,43 @@ contracts:
       - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
 
   - name: GLiquidAlgebraFactory
-    abi_file_path: ./abis/factories/AlgebraFactory_1_2_1.json
-    handler: ./src/v3-pools/mappings/factory/dexs/gliquid-algebra-factory.ts
+    abi_file_path: ./abis/factories/AlgebraFactory_1_2_0.json
+    handler: ./src/algebra-pools/mappings/factory/dexs/gliquid-algebra-factory.ts
     events:
       - event: Pool(address indexed token0, address indexed token1, address pool)
       - event: CustomPool(address indexed deployer, address indexed token0, address indexed token1, address pool)
 
   - name: KittenSwapAlgebraFactory
     abi_file_path: ./abis/factories/AlgebraFactory_1_2_2.json
-    handler: ./src/v3-pools/mappings/factory/dexs/kittenswap-algebra-factory.ts
+    handler: ./src/algebra-pools/mappings/factory/dexs/kittenswap-algebra-factory.ts
+    events:
+      - event: Pool(address indexed token0, address indexed token1, address pool)
+      - event: CustomPool(address indexed deployer, address indexed token0, address indexed token1, address pool)
+
+  - name: AtlantisAlgebraFactory
+    abi_file_path: ./abis/factories/AlgebraFactory_1_2_2.json
+    handler: ./src/algebra-pools/mappings/factory/dexs/atlantis-algebra-factory.ts
+    events:
+      - event: Pool(address indexed token0, address indexed token1, address pool)
+      - event: CustomPool(address indexed deployer, address indexed token0, address indexed token1, address pool)
+
+  - name: AethonSwapAlgebraFactory
+    abi_file_path: ./abis/factories/AlgebraFactory_1_2_0.json
+    handler: ./src/algebra-pools/mappings/factory/dexs/aethonswap-algebra-factory.ts
     events:
       - event: Pool(address indexed token0, address indexed token1, address pool)
       - event: CustomPool(address indexed deployer, address indexed token0, address indexed token1, address pool)
 
   - name: HxFinanceAlgebraFactory
     abi_file_path: ./abis/factories/AlgebraFactory_1_2_2.json
-    handler: ./src/v3-pools/mappings/factory/dexs/hx-finance-algebra-factory.ts
+    handler: ./src/algebra-pools/mappings/factory/dexs/hx-finance-algebra-factory.ts
     events:
       - event: Pool(address indexed token0, address indexed token1, address pool)
       - event: CustomPool(address indexed deployer, address indexed token0, address indexed token1, address pool)
 
-  - name: AlgebraPool_1_2_1
-    abi_file_path: ./abis/pools/AlgebraPool_1_2_1.json
-    handler: ./src/v3-pools/mappings/pool/algebra/v1.2.1/index.ts
+  - name: AlgebraPool_1_2_0
+    abi_file_path: ./abis/pools/AlgebraPool_1_2_0.json
+    handler: ./src/algebra-pools/mappings/pool/versions/v1.2.0/index.ts
     events:
       - event: Mint(address sender, address indexed owner, int24 indexed bottomTick, int24 indexed topTick, uint128 liquidityAmount, uint256 amount0, uint256 amount1)
       - event: Initialize(uint160 price, int24 tick)
@@ -80,10 +100,14 @@ contracts:
       - event: TickSpacing(int24 newTickSpacing)
       - event: CommunityFee(uint16 communityFeeNew)
       - event: Burn(address indexed owner, int24 indexed bottomTick, int24 indexed topTick, uint128 liquidityAmount, uint256 amount0, uint256 amount1)
+      - event: Plugin(address newPluginAddress)
+        name: PluginEvent
+      - event: PluginConfig(uint8 newPluginConfig)
+      - event: ExcessTokens(uint256 amount0, uint256 amount1)
 
   - name: AlgebraPool_1_2_2
     abi_file_path: ./abis/pools/AlgebraPool_1_2_2.json
-    handler: ./src/v3-pools/mappings/pool/algebra/v1.2.2/index.ts
+    handler: ./src/algebra-pools/mappings/pool/versions/v1.2.2/index.ts
     events:
       - event: Mint(address sender, address indexed owner, int24 indexed bottomTick, int24 indexed topTick, uint128 liquidityAmount, uint256 amount0, uint256 amount1)
       - event: Initialize(uint160 price, int24 tick)
@@ -94,6 +118,10 @@ contracts:
       - event: SwapFee(address indexed sender, uint24 overrideFee, uint24 pluginFee)
       - event: CommunityFee(uint16 communityFeeNew)
       - event: Burn(address indexed owner, int24 indexed bottomTick, int24 indexed topTick, uint128 liquidityAmount, uint256 amount0, uint256 amount1)
+      - event: Plugin(address newPluginAddress)
+        name: PluginEvent
+      - event: PluginConfig(uint8 newPluginConfig)
+      - event: ExcessTokens(uint256 amount0, uint256 amount1)
 
   - name: UniswapV3Pool
     abi_file_path: ./abis/pools/UniswapV3Pool.json
@@ -139,6 +167,12 @@ contracts:
     events:
       - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
 
+  - name: OctoSwapCLFactory
+    abi_file_path: ./abis/factories/UniswapV3Factory.json
+    handler: ./src/v3-pools/mappings/factory/dexs/octoswap-cl-factory.ts
+    events:
+      - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
+
   - name: BaseSwapV3Factory
     abi_file_path: ./abis/factories/UniswapV3Factory.json
     handler: ./src/v3-pools/mappings/factory/dexs/baseswap-v3-factory.ts
@@ -168,6 +202,18 @@ contracts:
       - event: CollectProtocol(address indexed sender, address indexed recipient, uint128 amount0, uint128 amount1)
       - event: Burn(address indexed owner, int24 indexed tickLower, int24 indexed tickUpper, uint128 amount, uint256 amount0, uint256 amount1)
 
+  - name: RamsesV3Pool
+    abi_file_path: ./abis/pools/RamsesV3Pool.json
+    handler: ./src/v3-pools/mappings/pool/dexs/ramses/index.ts
+    events:
+      - event: Mint(address sender, address indexed owner, uint256 index, int24 indexed tickLower, int24 indexed tickUpper, uint128 amount, uint256 amount0, uint256 amount1)
+      - event: Initialize(uint160 sqrtPriceX96, int24 tick)
+      - event: Collect(address indexed owner, address recipient, int24 indexed tickLower, int24 indexed tickUpper, uint128 amount0, uint128 amount1)
+      - event: Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)
+      - event: CollectProtocol(address indexed sender, address indexed recipient, uint128 amount0, uint128 amount1)
+      - event: Burn(address indexed owner, int24 indexed tickLower, int24 indexed tickUpper, uint128 amount, uint256 amount0, uint256 amount1)
+      - event: FeeAdjustment(uint24 oldFee, uint24 newFee)
+
   - name: UltrasolidV3Factory
     abi_file_path: ./abis/factories/UniswapV3Factory.json
     handler: ./src/v3-pools/mappings/factory/dexs/ultrasolid-v3-factory.ts
@@ -183,6 +229,12 @@ contracts:
   - name: SushiSwapV3Factory
     abi_file_path: ./abis/factories/UniswapV3Factory.json
     handler: ./src/v3-pools/mappings/factory/dexs/sushi-swap-v3-factory.ts
+    events:
+      - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
+
+  - name: RamsesV3Factory
+    abi_file_path: ./abis/factories/RamsesV3Factory.json
+    handler: ./src/v3-pools/mappings/factory/dexs/ramses-v3-factory.ts
     events:
       - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
 
@@ -281,10 +333,13 @@ networks:
         address: 0x2566163ea012C9E67c1C7080e0a073f20B548030
       - name: HxFinanceAlgebraFactory
         address: 0x41ba59415eC75AC4242dd157F2a7A282F1e75652
+      - name: RamsesV3Factory
+        address: 0x07E60782535752be279929e2DFfDd136Db2e6b45
       - name: UniswapV3Pool
-      - name: AlgebraPool_1_2_1
+      - name: AlgebraPool_1_2_0
       - name: AlgebraPool_1_2_2
       - name: PancakeSwapV3Pool
+      - name: RamsesV3Pool
   - id: 8453 # Base
     start_block: 1371680
     confirmed_block_threshold: 200
@@ -315,6 +370,28 @@ networks:
       - name: OkuV3Factory
         address: 0xcb2436774C3e191c85056d248EF4260ce5f27A9D
       - name: UniswapV3Pool
+  - id: 143 # Monad
+    start_block: 23058782
+    confirmed_block_threshold: 200
+    contracts:
+      - name: UniswapV3Factory
+        address: 0x204faca1764b154221e35c0d20abb3c525710498
+      - name: UniswapV4PoolManager
+        address: 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e
+      - name: PancakeSwapV3Factory
+        address: 0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865
+      - name: AethonSwapAlgebraFactory
+        address: 0x05aA1d36F78D1242C40b3680d38EB1feE7060c20
+      - name: AtlantisAlgebraFactory
+        address: 0x10253594A832f967994b44f33411940533302ACb
+      - name: OctoSwapCLFactory
+        address: 0x30Db57A29ACf3641dfc3885AF2e5f1F5A408D9CB
+      - name: PinotFinanceV3Factory
+        address: 0x7716F310d62Aee3d009fd94067c627fe7E2f2aA9
+      - name: UniswapV3Pool
+      - name: PancakeSwapV3Pool
+      - name: AlgebraPool_1_2_0
+      - name: AlgebraPool_1_2_2
 
 unordered_multichain_mode: true
 preload_handlers: true

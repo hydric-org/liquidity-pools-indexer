@@ -985,4 +985,284 @@ describe("SupportedProtocol enum values", () => {
       );
     });
   });
+
+  describe("AethonSwap Algebra", () => {
+    it("should return the correct id for AethonSwap algebra", () => {
+      assert.equal(SupportedProtocol.AETHONSWAP_ALGEBRA, "aethonswap-algebra");
+    });
+
+    it("should return the correct name for AethonSwap algebra", () => {
+      assert.equal(SupportedProtocol.getName(SupportedProtocol.AETHONSWAP_ALGEBRA), "AethonSwap Algebra");
+    });
+
+    it("should return the correct url for AethonSwap algebra", () => {
+      assert.equal(SupportedProtocol.getUrl(SupportedProtocol.AETHONSWAP_ALGEBRA), "https://aethonswap.com/");
+    });
+
+    it("should return the correct logo url for AethonSwap algebra", () => {
+      assert.equal(
+        SupportedProtocol.getLogoUrl(SupportedProtocol.AETHONSWAP_ALGEBRA),
+        "https://assets.coingecko.com/coins/images/70760/large/AethonSwap_Logo_icon.png"
+      );
+    });
+
+    it("should throw for AethonSwap algebra when calling getPermit2Address", () => {
+      assert.throws(
+        () => SupportedProtocol.getPermit2Address(SupportedProtocol.AETHONSWAP_ALGEBRA, IndexerNetwork.BASE),
+        /Permit2 is not available for AethonSwap Algebra/
+      );
+    });
+
+    it("should throw for AethonSwap algebra when calling getV4PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4PositionManager(SupportedProtocol.AETHONSWAP_ALGEBRA, IndexerNetwork.BASE),
+        /V4 position manager is not available for AethonSwap Algebra/
+      );
+    });
+
+    it("should throw for AethonSwap algebra when calling getV4StateView", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4StateView(SupportedProtocol.AETHONSWAP_ALGEBRA, IndexerNetwork.BASE),
+        /V4 state view is not available for AethonSwap Algebra/
+      );
+    });
+
+    it("should return the correct v3 position manager for AethonSwap algebra when calling getV3PositionManager", () => {
+      assert.equal(
+        SupportedProtocol.getV3PositionManager(SupportedProtocol.AETHONSWAP_ALGEBRA, IndexerNetwork.MONAD),
+        V3PositionManagerAddress.aethonSwap(IndexerNetwork.MONAD)
+      );
+    });
+
+    it("should throw for AethonSwap algebra when calling getV2PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV2PositionManager(SupportedProtocol.AETHONSWAP_ALGEBRA, IndexerNetwork.BASE),
+        /V2 position manager is not available for AethonSwap Algebra/
+      );
+    });
+  });
+
+  describe("Atlantis Algebra", () => {
+    it("should return the correct id for Atlantis Algebra", () => {
+      assert.equal(SupportedProtocol.ATLANTIS_ALGEBRA, "atlantis-algebra");
+    });
+
+    it("should return the correct name for Atlantis Algebra", () => {
+      assert.equal(SupportedProtocol.getName(SupportedProtocol.ATLANTIS_ALGEBRA), "Atlantis Algebra");
+    });
+
+    it("should return the correct url for Atlantis Algebra", () => {
+      assert.equal(SupportedProtocol.getUrl(SupportedProtocol.ATLANTIS_ALGEBRA), "https://atlantisdex.xyz/");
+    });
+
+    it("should return the correct logo url for Atlantis Algebra", () => {
+      assert.equal(
+        SupportedProtocol.getLogoUrl(SupportedProtocol.ATLANTIS_ALGEBRA),
+        "https://assets.coingecko.com/markets/images/22165/large/Atlantis_Icon_Circle.png"
+      );
+    });
+
+    it("should throw for Atlantis Algebra when calling getPermit2Address", () => {
+      assert.throws(
+        () => SupportedProtocol.getPermit2Address(SupportedProtocol.ATLANTIS_ALGEBRA, IndexerNetwork.BASE),
+        /Permit2 is not available for Atlantis Algebra/
+      );
+    });
+
+    it("should throw for Atlantis Algebra when calling getV4PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4PositionManager(SupportedProtocol.ATLANTIS_ALGEBRA, IndexerNetwork.BASE),
+        /V4 position manager is not available for Atlantis Algebra/
+      );
+    });
+
+    it("should throw for Atlantis Algebra when calling getV4StateView", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4StateView(SupportedProtocol.ATLANTIS_ALGEBRA, IndexerNetwork.BASE),
+        /V4 state view is not available for Atlantis Algebra/
+      );
+    });
+
+    it("should return the correct v3 position manager for Atlantis Algebra when calling getV3PositionManager", () => {
+      assert.equal(
+        SupportedProtocol.getV3PositionManager(SupportedProtocol.ATLANTIS_ALGEBRA, IndexerNetwork.MONAD),
+        V3PositionManagerAddress.atlantis(IndexerNetwork.MONAD)
+      );
+    });
+
+    it("should throw for Atlantis Algebra when calling getV2PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV2PositionManager(SupportedProtocol.ATLANTIS_ALGEBRA, IndexerNetwork.BASE),
+        /V2 position manager is not available for Atlantis Algebra/
+      );
+    });
+  });
+
+  describe("Ramses V3", () => {
+    it("should return the correct id for Ramses V3", () => {
+      assert.equal(SupportedProtocol.RAMSES_V3, "ramses-v3");
+    });
+
+    it("should return the correct name for Ramses V3", () => {
+      assert.equal(SupportedProtocol.getName(SupportedProtocol.RAMSES_V3), "Ramses V3");
+    });
+
+    it("should return the correct url for Ramses V3", () => {
+      assert.equal(SupportedProtocol.getUrl(SupportedProtocol.RAMSES_V3), "https://ramses.xyz/");
+    });
+
+    it("should return the correct logo url for Ramses V3", () => {
+      assert.equal(
+        SupportedProtocol.getLogoUrl(SupportedProtocol.RAMSES_V3),
+        "https://img.cryptorank.io/exchanges/150x150.ramses_hyper_evm1763466701004.png"
+      );
+    });
+
+    it("should return the correct v3 position manager for Ramses V3 when calling getV3PositionManager", () => {
+      assert.equal(
+        SupportedProtocol.getV3PositionManager(SupportedProtocol.RAMSES_V3, IndexerNetwork.HYPER_EVM),
+        V3PositionManagerAddress.ramses(IndexerNetwork.HYPER_EVM)
+      );
+    });
+
+    it("should throw for Ramses V3 when calling getV2PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV2PositionManager(SupportedProtocol.RAMSES_V3, IndexerNetwork.BASE),
+        /V2 position manager is not available for Ramses V3/
+      );
+    });
+
+    it("should throw for Ramses V3 when calling getV4PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4PositionManager(SupportedProtocol.RAMSES_V3, IndexerNetwork.BASE),
+        /V4 position manager is not available for Ramses V3/
+      );
+    });
+
+    it("should throw for Ramses V3 when calling getV4StateView", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4StateView(SupportedProtocol.RAMSES_V3, IndexerNetwork.BASE),
+        /V4 state view is not available for Ramses V3/
+      );
+    });
+
+    it("should throw for Ramses V3 when calling getPermit2Address", () => {
+      assert.throws(
+        () => SupportedProtocol.getPermit2Address(SupportedProtocol.RAMSES_V3, IndexerNetwork.BASE),
+        /Permit2 is not available for Ramses V3/
+      );
+    });
+  });
+
+  describe("OctoSwap CL", () => {
+    it("should return the correct id for OctoSwap CL", () => {
+      assert.equal(SupportedProtocol.OCTOSWAP_CL, "octoswap-cl");
+    });
+
+    it("should return the correct name for OctoSwap CL", () => {
+      assert.equal(SupportedProtocol.getName(SupportedProtocol.OCTOSWAP_CL), "OctoSwap CL");
+    });
+
+    it("should return the correct url for OctoSwap CL", () => {
+      assert.equal(SupportedProtocol.getUrl(SupportedProtocol.OCTOSWAP_CL), "https://octo.exchange/");
+    });
+
+    it("should return the correct logo url for OctoSwap CL", () => {
+      assert.equal(
+        SupportedProtocol.getLogoUrl(SupportedProtocol.OCTOSWAP_CL),
+        "https://octo.exchange/assets/img/logo/logo.png"
+      );
+    });
+
+    it("should throw for OctoSwap CL when calling getPermit2Address", () => {
+      assert.throws(
+        () => SupportedProtocol.getPermit2Address(SupportedProtocol.OCTOSWAP_CL, IndexerNetwork.BASE),
+        /Permit2 is not available for OctoSwap CL/
+      );
+    });
+
+    it("should throw for OctoSwap CL when calling getV4PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4PositionManager(SupportedProtocol.OCTOSWAP_CL, IndexerNetwork.BASE),
+        /V4 position manager is not available for OctoSwap CL/
+      );
+    });
+
+    it("should throw for OctoSwap CL when calling getV4StateView", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4StateView(SupportedProtocol.OCTOSWAP_CL, IndexerNetwork.BASE),
+        /V4 state view is not available for OctoSwap CL/
+      );
+    });
+
+    it("should return the correct v3 position manager for OctoSwap CL when calling getV3PositionManager", () => {
+      assert.equal(
+        SupportedProtocol.getV3PositionManager(SupportedProtocol.OCTOSWAP_CL, IndexerNetwork.MONAD),
+        V3PositionManagerAddress.octoSwap(IndexerNetwork.MONAD)
+      );
+    });
+
+    it("should throw for OctoSwap CL when calling getV2PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV2PositionManager(SupportedProtocol.OCTOSWAP_CL, IndexerNetwork.BASE),
+        /V2 position manager is not available for OctoSwap CL/
+      );
+    });
+  });
+
+  describe("Pinot Finance", () => {
+    it("should return the correct id for Pinot Finance", () => {
+      assert.equal(SupportedProtocol.PINOT_FINANCE_V3, "pinot-finance-v3");
+    });
+
+    it("should return the correct name for Pinot Finance", () => {
+      assert.equal(SupportedProtocol.getName(SupportedProtocol.PINOT_FINANCE_V3), "Pinot V3");
+    });
+
+    it("should return the correct url for Pinot Finance", () => {
+      assert.equal(SupportedProtocol.getUrl(SupportedProtocol.PINOT_FINANCE_V3), "https://pinot.finance/");
+    });
+
+    it("should return the correct logo url for Pinot Finance", () => {
+      assert.equal(
+        SupportedProtocol.getLogoUrl(SupportedProtocol.PINOT_FINANCE_V3),
+        "https://assets.coingecko.com/markets/images/22166/large/Pinot_Twitter_Profile.png"
+      );
+    });
+
+    it("should throw for Pinot Finance when calling getPermit2Address", () => {
+      assert.throws(
+        () => SupportedProtocol.getPermit2Address(SupportedProtocol.PINOT_FINANCE_V3, IndexerNetwork.BASE),
+        /Permit2 is not available for Pinot Finance/
+      );
+    });
+
+    it("should throw for Pinot Finance when calling getV4PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4PositionManager(SupportedProtocol.PINOT_FINANCE_V3, IndexerNetwork.BASE),
+        /V4 position manager is not available for Pinot Finance/
+      );
+    });
+
+    it("should throw for Pinot Finance when calling getV4StateView", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4StateView(SupportedProtocol.PINOT_FINANCE_V3, IndexerNetwork.BASE),
+        /V4 state view is not available for Pinot Finance/
+      );
+    });
+
+    it("should return the correct v3 position manager for Pinot Finance when calling getV3PositionManager", () => {
+      assert.equal(
+        SupportedProtocol.getV3PositionManager(SupportedProtocol.PINOT_FINANCE_V3, IndexerNetwork.MONAD),
+        V3PositionManagerAddress.pinotFinance(IndexerNetwork.MONAD)
+      );
+    });
+
+    it("should throw for Pinot Finance when calling getV2PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV2PositionManager(SupportedProtocol.PINOT_FINANCE_V3, IndexerNetwork.BASE),
+        /V2 position manager is not available for Pinot Finance/
+      );
+    });
+  });
 });

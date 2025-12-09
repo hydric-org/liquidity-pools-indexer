@@ -11,3 +11,7 @@ export function subtractDaysFromSecondsTimestamp(currentTimestamp: bigint, days:
 export function isSecondsTimestampMoreThanDaysAgo(timestamp: bigint, days: number): boolean {
   return timestamp < subtractDaysFromSecondsTimestamp(BigInt(Math.floor(Date.now() / 1000)), days);
 }
+
+export function isSecondsTimestampMoreThanHoursAgo(timestamp: bigint, hours: number): boolean {
+  return timestamp < subtractHoursFromSecondsTimestamp(BigInt(Math.floor(Date.now() / 1000)), hours);
+}

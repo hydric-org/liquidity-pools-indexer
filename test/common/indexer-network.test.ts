@@ -29,6 +29,10 @@ describe("IndexerNetworkTests", () => {
     assert.equal(IndexerNetwork.SEPOLIA, 11155111);
   });
 
+  it("should return the correct chain id for monad", () => {
+    assert.equal(IndexerNetwork.MONAD, 143);
+  });
+
   it("should return the correct rpc url for ethereum when using paid RPC url", () => {
     process.env.ENVIO_PAID_ETHEREUM_RPC_URL = "https://eth-mainnet.g.alchemy.com/v2/paid-eth-key";
     assert.equal(IndexerNetwork.getPaidRPCUrl(IndexerNetwork.ETHEREUM), process.env.ENVIO_PAID_ETHEREUM_RPC_URL);
@@ -64,6 +68,11 @@ describe("IndexerNetworkTests", () => {
     assert.equal(IndexerNetwork.getPaidRPCUrl(IndexerNetwork.PLASMA), process.env.ENVIO_PAID_PLASMA_RPC_URL);
   });
 
+  it("should return the correct rpc url for monad when using paid RPC url", () => {
+    process.env.ENVIO_PAID_MONAD_RPC_URL = "https://monad-mainnet.g.alchemy.com/v2/paid-monad-key";
+    assert.equal(IndexerNetwork.getPaidRPCUrl(IndexerNetwork.MONAD), process.env.ENVIO_PAID_MONAD_RPC_URL);
+  });
+
   it("should return the correct rpc url for ethereum when using free RPC url", () => {
     assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.ETHEREUM), `https://mainnet.gateway.tenderly.co`);
   });
@@ -90,6 +99,10 @@ describe("IndexerNetworkTests", () => {
 
   it("should return the correct rpc url for Plasma when using free RPC url", () => {
     assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.PLASMA), `https://rpc.plasma.to`);
+  });
+
+  it("should return the correct rpc url for monad when using free RPC url", () => {
+    assert.equal(IndexerNetwork.getFreeRPCUrl(IndexerNetwork.MONAD), `https://rpc-mainnet.monadinfra.com`);
   });
 
   it(`should return the right entity id for the given address,
@@ -127,6 +140,10 @@ describe("IndexerNetworkTests", () => {
 
   it("should return the correct native token object for plasma", () => {
     assert.deepEqual(IndexerNetwork.nativeToken(IndexerNetwork.PLASMA), NetworkToken.metadata(NetworkToken.XPL));
+  });
+
+  it("should return the correct native token object for monad", () => {
+    assert.deepEqual(IndexerNetwork.nativeToken(IndexerNetwork.MONAD), NetworkToken.metadata(NetworkToken.MON));
   });
 
   it("should return the correct stablecoin addresses defined for ethereum", () => {
@@ -187,6 +204,15 @@ describe("IndexerNetworkTests", () => {
     ]);
   });
 
+  it("should return the correct stablecoin addresses defined for monad", () => {
+    assert.deepEqual(IndexerNetwork.stablecoinsAddresses(IndexerNetwork.MONAD), [
+      "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", // USDC
+      "0xe7cd86e13AC4309349F30B3435a9d337750fC82D", // USDT0
+      "0xfd44b35139ae53fff7d8f2a9869c503d987f00d1", // LVUSD
+      "0x00000000efe302beaa2b3e6e1b18d08d69a9012a", // AUSD
+    ]);
+  });
+
   it("should return the correct wrapped native address for ethereum", () => {
     assert.equal(
       IndexerNetwork.wrappedNativeAddress(IndexerNetwork.ETHEREUM),
@@ -233,6 +259,13 @@ describe("IndexerNetworkTests", () => {
     assert.equal(
       IndexerNetwork.wrappedNativeAddress(IndexerNetwork.PLASMA),
       "0x6100e367285b01f48d07953803a2d8dca5d19873"
+    );
+  });
+
+  it("should return the correct wrapped native address for monad", () => {
+    assert.equal(
+      IndexerNetwork.wrappedNativeAddress(IndexerNetwork.MONAD),
+      "0x3bd359c1119da7da1d913d1c4d2b7c461115433a"
     );
   });
 });

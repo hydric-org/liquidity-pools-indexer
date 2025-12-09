@@ -56,7 +56,7 @@ export async function handleV3PoolCollect(
   };
 
   await v3PoolSetters.setIntervalDataTVL(eventTimestamp, poolEntity);
-  poolEntity = await v3PoolSetters.updatePoolAccumulatedYield(eventTimestamp, poolEntity);
+  poolEntity = await v3PoolSetters.updatePoolTimeframedAccumulatedYield(eventTimestamp, poolEntity);
 
   context.Pool.set(poolEntity);
   context.Token.set(token0Entity);

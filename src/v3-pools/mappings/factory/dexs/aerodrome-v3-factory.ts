@@ -13,7 +13,6 @@ AerodromeV3Factory.PoolCreated.handler(async ({ event, context }) => {
     poolAddress: event.params.pool,
     token0Address: event.params.token0,
     token1Address: event.params.token1,
-    feeTier: 0,
     tickSpacing: Number.parseInt(event.params.tickSpacing.toString()),
     eventTimestamp: BigInt(event.block.timestamp),
     chainId: event.chainId,

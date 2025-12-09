@@ -2,6 +2,7 @@ import assert from "assert";
 import sinon from "sinon";
 import {
   isSecondsTimestampMoreThanDaysAgo,
+  isSecondsTimestampMoreThanHoursAgo,
   subtractDaysFromSecondsTimestamp,
   subtractHoursFromSecondsTimestamp,
 } from "../../src/common/date-commons";
@@ -35,5 +36,19 @@ describe("DateCommons", () => {
     const result = isSecondsTimestampMoreThanDaysAgo(BigInt(1764111909), 3);
 
     assert.equal(result, false);
+  });
+
+  it("should return false if the passed timestamp is less than the passed hours ago", () => {
+    sinon.useFakeTimers(1764198309000);
+    const result = isSecondsTimestampMoreThanHoursAgo(BigInt(1764198309), 3);
+
+    assert.equal(result, false);
+  });
+
+  it("should return true if the passed timestamp is more than the passed hours ago", () => {
+    sinon.useFakeTimers(1764198309000);
+    const result = isSecondsTimestampMoreThanHoursAgo(BigInt(1664198309), 3);
+
+    assert.equal(result, true);
   });
 });

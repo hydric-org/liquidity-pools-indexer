@@ -17,6 +17,8 @@ export class V2PositionManagerAddress {
         throw Error(`Uniswap V2 position manager is not available on Hyper EVM`);
       case IndexerNetwork.PLASMA:
         throw Error(`Uniswap V2 position manager is not available on Plasma`);
+      case IndexerNetwork.MONAD:
+        return "0x4b2ab38dbf28d31d467aa8993f6c2585981d6804";
     }
   }
 }

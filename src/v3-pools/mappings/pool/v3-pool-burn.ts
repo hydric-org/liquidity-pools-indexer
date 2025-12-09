@@ -51,7 +51,7 @@ export async function handleV3PoolBurn(
     token1: token1Entity,
   });
 
-  poolEntity = await v3PoolSetters.updatePoolAccumulatedYield(eventTimestamp, poolEntity);
+  poolEntity = await v3PoolSetters.updatePoolTimeframedAccumulatedYield(eventTimestamp, poolEntity);
 
   // TODO: Maybe implement -> Currently removed as is not needed and it makes the sync slower
   // if (isPoolSwapVolumeValid(poolEntity)) {

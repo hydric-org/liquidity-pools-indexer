@@ -1,7 +1,8 @@
-import assert from "assert";
+import { assert } from "chai";
 import { DeFiPoolData, handlerContext } from "generated";
 import sinon from "sinon";
-import { defaultDeFiPoolData, DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "../../../../src/common/constants";
+import { DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "../../../../src/common/constants";
+import { defaultDeFiPoolData } from "../../../../src/common/default-entities";
 import { IndexerNetwork } from "../../../../src/common/enums/indexer-network";
 import { SupportedProtocol } from "../../../../src/common/enums/supported-protocol";
 import { TokenService } from "../../../../src/common/services/token-service";
@@ -30,25 +31,6 @@ describe("V2FactoryHandler", () => {
 
   afterEach(() => {
     sinon.restore();
-  });
-
-  it("should set the pool id in the v2 pool data entity id and assign it to the pool", async () => {
-    await handleV2PoolCreated({
-      context,
-      chainId,
-      eventTimestamp,
-      token0Address,
-      token1Address,
-      poolAddress,
-      feeTier,
-      protocol,
-      tokenService,
-    });
-
-    const expectedPoolId = IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress);
-    const pool = await context.Pool.get(expectedPoolId)!;
-
-    assert.equal(pool!.v2PoolData_id, expectedPoolId);
   });
 
   it("should set the pool address in the pool entity, exactly the same as the one passed in the event", async () => {
@@ -565,24 +547,127 @@ describe("V2FactoryHandler", () => {
     const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
 
     assert.equal(
-      pool.dataPointTimestamp24h,
+      pool.dataPointTimestamp24hAgo,
       eventTimestamp,
       "the 24h data point timestamp should be the event timestamp"
     );
     assert.equal(
-      pool.dataPointTimestamp7d,
+      pool.dataPointTimestamp7dAgo,
       eventTimestamp,
       "the 7d data point timestamp should be the event timestamp"
     );
     assert.equal(
-      pool.dataPointTimestamp30d,
+      pool.dataPointTimestamp30dAgo,
       eventTimestamp,
       "the 30d data point timestamp should be the event timestamp"
     );
     assert.equal(
-      pool.dataPointTimestamp90d,
+      pool.dataPointTimestamp90dAgo,
       eventTimestamp,
       "the 90d data point timestamp should be the event timestamp"
     );
+  });
+
+  it("should set is dynamic fee to false when creating a pool", async () => {
+    await handleV2PoolCreated({
+      context,
+      chainId,
+      eventTimestamp,
+      token0Address,
+      token1Address,
+      poolAddress,
+      feeTier,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.isDynamicFee, false);
+  });
+
+  it("should set the last adjust timestamps as undefined when creating a pool", async () => {
+    await handleV2PoolCreated({
+      context,
+      chainId,
+      eventTimestamp,
+      token0Address,
+      token1Address,
+      poolAddress,
+      feeTier,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.lastAdjustTimestamp24h, undefined, "the 24h last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp7d, undefined, "the 7d last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp30d, undefined, "the 30d last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp90d, undefined, "the 90d last adjust timestamp should be undefined");
+  });
+
+  it("should set the yearly yields as zero when creating a pool", async () => {
+    await handleV2PoolCreated({
+      context,
+      chainId,
+      eventTimestamp,
+      token0Address,
+      token1Address,
+      poolAddress,
+      feeTier,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.yearlyYield24h, ZERO_BIG_DECIMAL, "the 24h yearly yield should be zero");
+    assert.equal(pool.yearlyYield7d, ZERO_BIG_DECIMAL, "the 7d yearly yield should be zero");
+    assert.equal(pool.yearlyYield30d, ZERO_BIG_DECIMAL, "the 30d yearly yield should be zero");
+    assert.equal(pool.yearlyYield90d, ZERO_BIG_DECIMAL, "the 90d yearly yield should be zero");
+  });
+
+  it("should set the total accumulated yields as zero when creating a pool", async () => {
+    await handleV2PoolCreated({
+      context,
+      chainId,
+      eventTimestamp,
+      token0Address,
+      token1Address,
+      poolAddress,
+      feeTier,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield24hAgo, ZERO_BIG_DECIMAL, "the 24h total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield7dAgo, ZERO_BIG_DECIMAL, "the 7d total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield30dAgo, ZERO_BIG_DECIMAL, "the 30d total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield90dAgo, ZERO_BIG_DECIMAL, "the 90d total accumulated yield should be zero");
+  });
+
+  it("should set the accumulated yields as zero when creating a pool", async () => {
+    await handleV2PoolCreated({
+      context,
+      chainId,
+      eventTimestamp,
+      token0Address,
+      token1Address,
+      poolAddress,
+      feeTier,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.accumulatedYield24h, ZERO_BIG_DECIMAL, "the 24h accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield7d, ZERO_BIG_DECIMAL, "the 7d accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield30d, ZERO_BIG_DECIMAL, "the 30d accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield90d, ZERO_BIG_DECIMAL, "the 90d accumulated yield should be zero");
   });
 });

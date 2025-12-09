@@ -6,6 +6,7 @@ import {
   V4PoolData as V4PoolDataEntity,
 } from "generated";
 import { sqrtPriceX96toPrice } from "../../../common/cl-pool-converters";
+import { safeDiv } from "../../../common/math";
 import { getSwapFeesFromRawAmounts, getSwapVolumeFromAmounts } from "../../../common/pool-commons";
 import { PoolSetters } from "../../../common/pool-setters";
 import { formatFromTokenAmount } from "../../../common/token-commons";
@@ -58,6 +59,7 @@ export async function handleV4PoolSwap(
   const updatedToken1TotalTokenPooledAmount = token1Entity.totalTokenPooledAmount.plus(tokenAmount1Formatted);
 
   const updatedToken0TotalValuePooledUsd = updatedToken0TotalTokenPooledAmount.times(token0Entity.usdPrice);
+
   const updatedToken1TotalValuePooledUsd = updatedToken1TotalTokenPooledAmount.times(token1Entity.usdPrice);
 
   const swapFees = getSwapFeesFromRawAmounts(
@@ -68,7 +70,7 @@ export async function handleV4PoolSwap(
     token1Entity
   );
 
-  const swapYield = swapFees.feesUSD.div(updatedPoolTotalValueLockedUSD).times(100);
+  const swapYield = safeDiv(swapFees.feesUSD, updatedPoolTotalValueLockedUSD).times(100);
 
   v4PoolEntity = {
     ...v4PoolEntity,
@@ -84,10 +86,6 @@ export async function handleV4PoolSwap(
     swapVolumeToken1: poolEntity.swapVolumeToken1.plus(swapVolumeWithNewPrices.volumeToken1),
     swapVolumeUSD: poolEntity.swapVolumeUSD.plus(swapVolumeWithNewPrices.volumeUSD),
     totalAccumulatedYield: poolEntity.totalAccumulatedYield.plus(swapYield),
-    accumulated24hYield: poolEntity.accumulated24hYield.plus(swapYield),
-    accumulated7dYield: poolEntity.accumulated7dYield.plus(swapYield),
-    accumulated30dYield: poolEntity.accumulated30dYield.plus(swapYield),
-    accumulated90dYield: poolEntity.accumulated90dYield.plus(swapYield),
   };
 
   token0Entity = {
@@ -117,7 +115,7 @@ export async function handleV4PoolSwap(
     swapFee
   );
 
-  poolEntity = await v4PoolSetters.updatePoolAccumulatedYield(eventTimestamp, poolEntity);
+  poolEntity = await v4PoolSetters.updatePoolTimeframedAccumulatedYield(eventTimestamp, poolEntity);
 
   context.Pool.set(poolEntity);
   context.Token.set(token0Entity);

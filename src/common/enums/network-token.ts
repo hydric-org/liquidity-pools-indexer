@@ -4,6 +4,7 @@ export enum NetworkToken {
   ETH,
   HYPE,
   XPL,
+  MON,
 }
 
 export namespace NetworkToken {
@@ -26,6 +27,12 @@ export namespace NetworkToken {
           decimals: 18,
           name: "Plasma",
           symbol: "XPL",
+        };
+      case NetworkToken.MON:
+        return {
+          decimals: 18,
+          name: "Monad",
+          symbol: "MON",
         };
     }
   }

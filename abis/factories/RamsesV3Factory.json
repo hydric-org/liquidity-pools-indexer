@@ -1,26 +1,62 @@
 [
     {
-        "inputs": [],
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_accessHub",
+                "type": "address"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "constructor"
+    },
+    {
+        "inputs": [],
+        "name": "ADDRESS_ZERO",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "F0",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "FEE_TOO_LARGE",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "IDENTICAL_TOKENS",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NOT_ACCESSHUB",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "PAIR_EXISTS",
+        "type": "error"
     },
     {
         "anonymous": false,
         "inputs": [
             {
-                "indexed": true,
-                "internalType": "uint24",
-                "name": "fee",
-                "type": "uint24"
+                "indexed": false,
+                "internalType": "address",
+                "name": "pool",
+                "type": "address"
             },
             {
-                "indexed": true,
-                "internalType": "int24",
-                "name": "tickSpacing",
-                "type": "int24"
+                "indexed": false,
+                "internalType": "uint24",
+                "name": "newFee",
+                "type": "uint24"
             }
         ],
-        "name": "FeeAmountEnabled",
+        "name": "FeeAdjustment",
         "type": "event"
     },
     {
@@ -40,63 +76,6 @@
             }
         ],
         "name": "FeeCollectorChanged",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "oldSetter",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newSetter",
-                "type": "address"
-            }
-        ],
-        "name": "FeeSetterChanged",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "oldImplementation",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newImplementation",
-                "type": "address"
-            }
-        ],
-        "name": "ImplementationChanged",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "oldOwner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnerChanged",
         "type": "event"
     },
     {
@@ -141,27 +120,15 @@
         "inputs": [
             {
                 "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol0Old",
-                "type": "uint8"
+                "internalType": "uint24",
+                "name": "feeProtocolOld",
+                "type": "uint24"
             },
             {
                 "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol1Old",
-                "type": "uint8"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol0New",
-                "type": "uint8"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol1New",
-                "type": "uint8"
+                "internalType": "uint24",
+                "name": "feeProtocolNew",
+                "type": "uint24"
             }
         ],
         "name": "SetFeeProtocol",
@@ -178,40 +145,60 @@
             },
             {
                 "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol0Old",
-                "type": "uint8"
+                "internalType": "uint24",
+                "name": "feeProtocolOld",
+                "type": "uint24"
             },
             {
                 "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol1Old",
-                "type": "uint8"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol0New",
-                "type": "uint8"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint8",
-                "name": "feeProtocol1New",
-                "type": "uint8"
+                "internalType": "uint24",
+                "name": "feeProtocolNew",
+                "type": "uint24"
             }
         ],
         "name": "SetPoolFeeProtocol",
         "type": "event"
     },
     {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "int24",
+                "name": "tickSpacing",
+                "type": "int24"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint24",
+                "name": "fee",
+                "type": "uint24"
+            }
+        ],
+        "name": "TickSpacingEnabled",
+        "type": "event"
+    },
+    {
         "inputs": [],
-        "name": "POOL_INIT_CODE_HASH",
+        "name": "DEFAULT_FEE_FLAG",
         "outputs": [
             {
-                "internalType": "bytes32",
+                "internalType": "uint24",
                 "name": "",
-                "type": "bytes32"
+                "type": "uint24"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "accessHub",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
             }
         ],
         "stateMutability": "view",
@@ -230,9 +217,14 @@
                 "type": "address"
             },
             {
-                "internalType": "uint24",
-                "name": "fee",
-                "type": "uint24"
+                "internalType": "int24",
+                "name": "tickSpacing",
+                "type": "int24"
+            },
+            {
+                "internalType": "uint160",
+                "name": "sqrtPriceX96",
+                "type": "uint160"
             }
         ],
         "name": "createPool",
@@ -249,38 +241,19 @@
     {
         "inputs": [
             {
-                "internalType": "uint24",
-                "name": "fee",
-                "type": "uint24"
-            },
-            {
                 "internalType": "int24",
                 "name": "tickSpacing",
                 "type": "int24"
-            }
-        ],
-        "name": "enableFeeAmount",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
+            },
             {
                 "internalType": "uint24",
-                "name": "",
+                "name": "initialFee",
                 "type": "uint24"
             }
         ],
-        "name": "feeAmountTickSpacing",
-        "outputs": [
-            {
-                "internalType": "int24",
-                "name": "",
-                "type": "int24"
-            }
-        ],
-        "stateMutability": "view",
+        "name": "enableTickSpacing",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -301,22 +274,9 @@
         "name": "feeProtocol",
         "outputs": [
             {
-                "internalType": "uint8",
+                "internalType": "uint24",
                 "name": "",
-                "type": "uint8"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "feeSetter",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                "type": "uint24"
             }
         ],
         "stateMutability": "view",
@@ -326,38 +286,38 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "",
+                "name": "pool",
+                "type": "address"
+            }
+        ],
+        "name": "gaugeFeeSplitEnable",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "tokenA",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "",
+                "name": "tokenB",
                 "type": "address"
             },
             {
-                "internalType": "uint24",
-                "name": "",
-                "type": "uint24"
+                "internalType": "int24",
+                "name": "tickSpacing",
+                "type": "int24"
             }
         ],
         "name": "getPool",
         "outputs": [
             {
                 "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "implementation",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
+                "name": "pool",
                 "type": "address"
             }
         ],
@@ -368,22 +328,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_nfpManager",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_veRam",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_voter",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_implementation",
+                "name": "_ramsesV3PoolDeployer",
                 "type": "address"
             }
         ],
@@ -393,13 +338,19 @@
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "nfpManager",
-        "outputs": [
+        "inputs": [
             {
                 "internalType": "address",
-                "name": "",
+                "name": "pool",
                 "type": "address"
+            }
+        ],
+        "name": "isPairV3",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "isV3",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -407,12 +358,32 @@
     },
     {
         "inputs": [],
-        "name": "owner",
+        "name": "parameters",
         "outputs": [
             {
                 "internalType": "address",
-                "name": "",
+                "name": "factory",
                 "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "token0",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "token1",
+                "type": "address"
+            },
+            {
+                "internalType": "uint24",
+                "name": "fee",
+                "type": "uint24"
+            },
+            {
+                "internalType": "int24",
+                "name": "tickSpacing",
+                "type": "int24"
             }
         ],
         "stateMutability": "view",
@@ -429,9 +400,22 @@
         "name": "poolFeeProtocol",
         "outputs": [
             {
-                "internalType": "uint8",
+                "internalType": "uint24",
                 "name": "__poolFeeProtocol",
-                "type": "uint8"
+                "type": "uint24"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "ramsesV3PoolDeployer",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
             }
         ],
         "stateMutability": "view",
@@ -471,9 +455,9 @@
     {
         "inputs": [
             {
-                "internalType": "uint8",
+                "internalType": "uint24",
                 "name": "_feeProtocol",
-                "type": "uint8"
+                "type": "uint24"
             }
         ],
         "name": "setFeeProtocol",
@@ -485,52 +469,13 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_newFeeSetter",
-                "type": "address"
-            }
-        ],
-        "name": "setFeeSetter",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_implementation",
-                "type": "address"
-            }
-        ],
-        "name": "setImplementation",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_owner",
-                "type": "address"
-            }
-        ],
-        "name": "setOwner",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
                 "name": "pool",
                 "type": "address"
             },
             {
-                "internalType": "uint8",
+                "internalType": "uint24",
                 "name": "_feeProtocol",
-                "type": "uint8"
+                "type": "uint24"
             }
         ],
         "name": "setPoolFeeProtocol",
@@ -542,33 +487,29 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "pool",
+                "name": "_voter",
                 "type": "address"
-            },
-            {
-                "internalType": "uint8",
-                "name": "feeProtocol0",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint8",
-                "name": "feeProtocol1",
-                "type": "uint8"
             }
         ],
-        "name": "setPoolFeeProtocol",
+        "name": "setVoter",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "veRam",
+        "inputs": [
+            {
+                "internalType": "int24",
+                "name": "tickSpacing",
+                "type": "int24"
+            }
+        ],
+        "name": "tickSpacingInitialFee",
         "outputs": [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                "internalType": "uint24",
+                "name": "initialFee",
+                "type": "uint24"
             }
         ],
         "stateMutability": "view",

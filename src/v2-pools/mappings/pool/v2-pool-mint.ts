@@ -90,7 +90,7 @@ export async function handleV2PoolMint(
     amount1AddedOrRemoved: amount1,
   });
 
-  poolEntity = await v2PoolSetters.updatePoolAccumulatedYield(eventTimestamp, poolEntity);
+  poolEntity = await v2PoolSetters.updatePoolTimeframedAccumulatedYield(eventTimestamp, poolEntity);
 
   context.Pool.set(poolEntity);
   context.Token.set(token0Entity);

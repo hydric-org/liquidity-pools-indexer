@@ -7,19 +7,23 @@ import {
   Token as TokenEntity,
 } from "generated";
 import {
-  defaultPoolDailyData,
-  defaultPoolHourlyData,
   OUTLIER_POOL_TVL_PERCENT_THRESHOLD,
   OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD,
   ZERO_ADDRESS,
   ZERO_BIG_DECIMAL,
 } from "./constants";
-import { isSecondsTimestampMoreThanDaysAgo } from "./date-commons";
+import {
+  isSecondsTimestampMoreThanDaysAgo,
+  isSecondsTimestampMoreThanHoursAgo,
+  subtractDaysFromSecondsTimestamp,
+} from "./date-commons";
+import { defaultPoolDailyData, defaultPoolHourlyData } from "./default-entities";
 import { IndexerNetwork } from "./enums/indexer-network";
 import { isPercentageDifferenceWithinThreshold } from "./math";
 import {
   calculateDayYearlyYield,
   calculateHourYearlyYield,
+  calculateYearlyYieldFromAccumulated,
   findNativeToken,
   findStableToken,
   findWrappedNative,
@@ -45,17 +49,15 @@ export class PoolSetters {
     let [poolDailyDataEntity, poolHourlyDataEntity]: [PoolDailyData, PoolHourlyData] = await Promise.all([
       this.context.PoolDailyData.getOrCreate(
         defaultPoolDailyData({
-          dayDataId: getPoolDailyDataId(eventTimestamp, poolEntity),
-          dayStartTimestamp: eventTimestamp,
-          poolId: poolEntity.id,
+          eventTimestamp: eventTimestamp,
+          poolEntity: poolEntity,
         })
       ),
 
       this.context.PoolHourlyData.getOrCreate(
         defaultPoolHourlyData({
-          hourlyDataId: getPoolHourlyDataId(eventTimestamp, poolEntity),
-          hourStartTimestamp: eventTimestamp,
-          poolId: poolEntity.id,
+          eventTimestamp: eventTimestamp,
+          poolEntity: poolEntity,
         })
       ),
     ]);
@@ -120,17 +122,15 @@ export class PoolSetters {
     let [poolDailyData, poolHourlyData]: [PoolDailyData, PoolHourlyData] = await Promise.all([
       this.context.PoolDailyData.getOrCreate(
         defaultPoolDailyData({
-          dayDataId: getPoolDailyDataId(params.eventTimestamp, params.poolEntity),
-          dayStartTimestamp: params.eventTimestamp,
-          poolId: params.poolEntity.id,
+          eventTimestamp: params.eventTimestamp,
+          poolEntity: params.poolEntity,
         })
       ),
 
       this.context.PoolHourlyData.getOrCreate(
         defaultPoolHourlyData({
-          hourlyDataId: getPoolHourlyDataId(params.eventTimestamp, params.poolEntity),
-          hourStartTimestamp: params.eventTimestamp,
-          poolId: params.poolEntity.id,
+          eventTimestamp: params.eventTimestamp,
+          poolEntity: params.poolEntity,
         })
       ),
     ]);
@@ -243,66 +243,135 @@ export class PoolSetters {
     context.PoolHourlyData.set(poolHourlyDataEntity);
   }
 
-  async updatePoolAccumulatedYield(eventTimestamp: bigint, poolEntity: PoolEntity): Promise<PoolEntity> {
+  async updatePoolTimeframedAccumulatedYield(eventTimestamp: bigint, poolEntity: PoolEntity): Promise<PoolEntity> {
+    // Do not update it while indexer is still far catching up because it doesn't make sense as it's not the latest data.
+    // use 100 days to start to update beucase the max timeframe is 90d ago
     if (isSecondsTimestampMoreThanDaysAgo(eventTimestamp, 100)) return poolEntity;
 
-    let [currentPoolDailyData, currentPoolHourlyData]: [PoolDailyData, PoolHourlyData] = await Promise.all([
-      this.context.PoolDailyData.getOrThrow(getPoolDailyDataId(eventTimestamp, poolEntity)),
-      this.context.PoolHourlyData.getOrThrow(getPoolHourlyDataId(eventTimestamp, poolEntity)),
-    ]);
+    // This cannot be done in parallel, because each one needs to update the most recent pool
+    poolEntity = await this._getUpdated24hTimeframeData(eventTimestamp, poolEntity);
+    poolEntity = await this._getUpdatedDaysTimeframeData(eventTimestamp, poolEntity, 7);
+    poolEntity = await this._getUpdatedDaysTimeframeData(eventTimestamp, poolEntity, 30);
+    poolEntity = await this._getUpdatedDaysTimeframeData(eventTimestamp, poolEntity, 90);
 
-    const isEventSettingNewDay = currentPoolDailyData.dayStartTimestamp == eventTimestamp;
-    const isEventSettingNewHour = currentPoolHourlyData.hourStartTimestamp == eventTimestamp;
+    return poolEntity;
+  }
 
-    if (isEventSettingNewHour) {
+  private async _getUpdated24hTimeframeData(eventTimestamp: bigint, poolEntity: PoolEntity): Promise<PoolEntity> {
+    const shouldRefresh = isSecondsTimestampMoreThanHoursAgo(poolEntity.lastAdjustTimestamp24h ?? 0n, 1);
+
+    if (shouldRefresh) {
       const data24hAgo = await getPoolHourlyDataAgo(24, eventTimestamp, this.context, poolEntity);
 
       if (data24hAgo) {
-        poolEntity = {
+        const accumulatedYield24h = poolEntity.totalAccumulatedYield.minus(data24hAgo.totalAccumulatedYield);
+
+        return {
           ...poolEntity,
-          accumulated24hYield: poolEntity.totalAccumulatedYield.minus(data24hAgo?.totalAccumulatedYield ?? 0),
-          dataPointTimestamp24h: data24hAgo?.hourStartTimestamp ?? poolEntity.dataPointTimestamp24h,
+          accumulatedYield24h: accumulatedYield24h,
+          lastAdjustTimestamp24h: eventTimestamp,
+          totalAccumulatedYield24hAgo: data24hAgo.totalAccumulatedYield,
+          yearlyYield24h: calculateYearlyYieldFromAccumulated(1, accumulatedYield24h),
+          dataPointTimestamp24hAgo: data24hAgo.hourStartTimestamp,
         };
       }
     }
 
-    if (isEventSettingNewDay) {
-      const [data7dAgo, data30dAgo, data90dAgo]: [
-        PoolDailyData | null | undefined,
-        PoolDailyData | null | undefined,
-        PoolDailyData | null | undefined
-      ] = await Promise.all([
-        getPoolDailyDataAgo(7, eventTimestamp, this.context, poolEntity),
-        getPoolDailyDataAgo(30, eventTimestamp, this.context, poolEntity),
-        getPoolDailyDataAgo(90, eventTimestamp, this.context, poolEntity),
-      ]);
+    return this._getYieldFromSavedData({ eventTimestamp, poolEntity, days: 1 });
+  }
 
-      if (data7dAgo) {
-        poolEntity = {
-          ...poolEntity,
-          accumulated7dYield: poolEntity.totalAccumulatedYield.minus(data7dAgo?.totalAccumulatedYield ?? 0),
-          dataPointTimestamp7d: data7dAgo?.dayStartTimestamp ?? poolEntity.dataPointTimestamp7d,
-        };
-      }
+  private async _getUpdatedDaysTimeframeData(
+    eventTimestamp: bigint,
+    poolEntity: PoolEntity,
+    days: 7 | 30 | 90
+  ): Promise<PoolEntity> {
+    const shouldRefresh = isSecondsTimestampMoreThanDaysAgo(poolEntity[`lastAdjustTimestamp${days}d`] ?? 0n, 1);
 
-      if (data30dAgo) {
-        poolEntity = {
-          ...poolEntity,
-          accumulated30dYield: poolEntity.totalAccumulatedYield.minus(data30dAgo?.totalAccumulatedYield ?? 0),
-          dataPointTimestamp30d: data30dAgo?.dayStartTimestamp ?? poolEntity.dataPointTimestamp30d,
-        };
-      }
+    if (shouldRefresh) {
+      const dataDaysAgo = await getPoolDailyDataAgo(days, eventTimestamp, this.context, poolEntity);
 
-      if (data90dAgo) {
-        poolEntity = {
-          ...poolEntity,
-          accumulated90dYield: poolEntity.totalAccumulatedYield.minus(data90dAgo?.totalAccumulatedYield ?? 0),
-          dataPointTimestamp90d: data90dAgo?.dayStartTimestamp ?? poolEntity.dataPointTimestamp90d,
-        };
+      if (dataDaysAgo) {
+        const accumulatedYield = poolEntity.totalAccumulatedYield.minus(dataDaysAgo.totalAccumulatedYield);
+
+        switch (days) {
+          case 7:
+            return {
+              ...poolEntity,
+              accumulatedYield7d: accumulatedYield,
+              lastAdjustTimestamp7d: eventTimestamp,
+              totalAccumulatedYield7dAgo: dataDaysAgo.totalAccumulatedYield,
+              yearlyYield7d: calculateYearlyYieldFromAccumulated(7, accumulatedYield),
+              dataPointTimestamp7dAgo: dataDaysAgo.dayStartTimestamp,
+            };
+
+          case 30:
+            return {
+              ...poolEntity,
+              accumulatedYield30d: accumulatedYield,
+              lastAdjustTimestamp30d: eventTimestamp,
+              totalAccumulatedYield30dAgo: dataDaysAgo.totalAccumulatedYield,
+              yearlyYield30d: calculateYearlyYieldFromAccumulated(30, accumulatedYield),
+              dataPointTimestamp30dAgo: dataDaysAgo.dayStartTimestamp,
+            };
+
+          case 90:
+            return {
+              ...poolEntity,
+              accumulatedYield90d: accumulatedYield,
+              lastAdjustTimestamp90d: eventTimestamp,
+              totalAccumulatedYield90dAgo: dataDaysAgo.totalAccumulatedYield,
+              yearlyYield90d: calculateYearlyYieldFromAccumulated(90, accumulatedYield),
+              dataPointTimestamp90dAgo: dataDaysAgo.dayStartTimestamp,
+            };
+        }
       }
     }
 
-    return poolEntity;
+    return this._getYieldFromSavedData({ eventTimestamp, poolEntity, days });
+  }
+
+  private _getYieldFromSavedData(params: {
+    eventTimestamp: bigint;
+    poolEntity: PoolEntity;
+    days: 1 | 7 | 30 | 90;
+  }): PoolEntity {
+    const timeframeKey: "24h" | "7d" | "30d" | "90d" = params.days == 1 ? "24h" : `${params.days}d`;
+    const isPoolOlderThanTimeframe =
+      params.poolEntity.createdAtTimestamp < subtractDaysFromSecondsTimestamp(params.eventTimestamp, params.days);
+
+    const totalAccumulatedYieldTimeframeAgo = params.poolEntity[`totalAccumulatedYield${timeframeKey}Ago`];
+    if (totalAccumulatedYieldTimeframeAgo.isZero() && isPoolOlderThanTimeframe) return params.poolEntity;
+
+    const accumulatedYieldSinceTimeframe = !isPoolOlderThanTimeframe
+      ? params.poolEntity.totalAccumulatedYield
+      : params.poolEntity.totalAccumulatedYield.minus(totalAccumulatedYieldTimeframeAgo);
+
+    switch (params.days) {
+      case 1:
+        return {
+          ...params.poolEntity,
+          accumulatedYield24h: accumulatedYieldSinceTimeframe,
+          yearlyYield24h: calculateYearlyYieldFromAccumulated(1, accumulatedYieldSinceTimeframe),
+        };
+      case 7:
+        return {
+          ...params.poolEntity,
+          accumulatedYield7d: accumulatedYieldSinceTimeframe,
+          yearlyYield7d: calculateYearlyYieldFromAccumulated(7, accumulatedYieldSinceTimeframe),
+        };
+      case 30:
+        return {
+          ...params.poolEntity,
+          accumulatedYield30d: accumulatedYieldSinceTimeframe,
+          yearlyYield30d: calculateYearlyYieldFromAccumulated(30, accumulatedYieldSinceTimeframe),
+        };
+      case 90:
+        return {
+          ...params.poolEntity,
+          accumulatedYield90d: accumulatedYieldSinceTimeframe,
+          yearlyYield90d: calculateYearlyYieldFromAccumulated(90, accumulatedYieldSinceTimeframe),
+        };
+    }
   }
 
   private async _maybeUpdateTokenPrice(

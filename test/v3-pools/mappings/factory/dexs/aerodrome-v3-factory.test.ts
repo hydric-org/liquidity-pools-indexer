@@ -42,8 +42,8 @@ describe("AerodromeV3Factory", () => {
     assert.equal(passedProtocol, SupportedProtocol.AERODROME_V3);
   });
 
-  it("should pass the fee tier as zero when calling the pool created handler", async () => {
-    let passedFeeTier: number | undefined;
+  it("should not pass the fee tier when calling the pool created handler", async () => {
+    let passedFeeTier: number | undefined = 0;
 
     sinon.restore();
     sinon.stub(factoryHandler, "handleV3PoolCreated").callsFake(async (params) => {
@@ -52,7 +52,7 @@ describe("AerodromeV3Factory", () => {
 
     await mockDb.processEvents([event]);
 
-    assert.equal(passedFeeTier, 0);
+    assert.equal(passedFeeTier, undefined);
   });
 
   it("should register the pool create in the dynamic contract registry", async () => {

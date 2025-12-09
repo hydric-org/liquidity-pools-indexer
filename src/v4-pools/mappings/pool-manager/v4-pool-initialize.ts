@@ -5,10 +5,12 @@ import {
   Token as TokenEntity,
   V4PoolData as V4PoolEntity,
 } from "generated";
-import { defaultDeFiPoolData, ZERO_BIG_DECIMAL } from "../../../common/constants";
+import { ZERO_BIG_DECIMAL } from "../../../common/constants";
+import { defaultDeFiPoolData } from "../../../common/default-entities";
 import { IndexerNetwork } from "../../../common/enums/indexer-network";
 import { SupportedProtocol } from "../../../common/enums/supported-protocol";
 import { TokenService } from "../../../common/services/token-service";
+import { V4_DYNAMIC_FEE_FLAG } from "../../common/constants";
 
 export async function handleV4PoolInitialize(params: {
   context: handlerContext;
@@ -53,7 +55,6 @@ export async function handleV4PoolInitialize(params: {
     createdAtTimestamp: params.eventTimestamp,
     currentFeeTier: params.feeTier,
     initialFeeTier: params.feeTier,
-    isStablePool: undefined,
     poolType: "V4",
     protocol_id: params.protocol,
     token0_id: token0Entity.id,
@@ -68,19 +69,31 @@ export async function handleV4PoolInitialize(params: {
     swapVolumeToken0: ZERO_BIG_DECIMAL,
     swapVolumeToken1: ZERO_BIG_DECIMAL,
     swapVolumeUSD: ZERO_BIG_DECIMAL,
-    accumulated24hYield: ZERO_BIG_DECIMAL,
-    accumulated30dYield: ZERO_BIG_DECIMAL,
-    accumulated7dYield: ZERO_BIG_DECIMAL,
-    accumulated90dYield: ZERO_BIG_DECIMAL,
+    accumulatedYield24h: ZERO_BIG_DECIMAL,
+    accumulatedYield7d: ZERO_BIG_DECIMAL,
+    accumulatedYield30d: ZERO_BIG_DECIMAL,
+    accumulatedYield90d: ZERO_BIG_DECIMAL,
     totalAccumulatedYield: ZERO_BIG_DECIMAL,
-    v2PoolData_id: undefined,
     v3PoolData_id: undefined,
     v4PoolData_id: v4PoolEntity.id,
     chainId: params.chainId,
-    dataPointTimestamp24h: params.eventTimestamp,
-    dataPointTimestamp30d: params.eventTimestamp,
-    dataPointTimestamp7d: params.eventTimestamp,
-    dataPointTimestamp90d: params.eventTimestamp,
+    lastAdjustTimestamp24h: undefined,
+    lastAdjustTimestamp7d: undefined,
+    lastAdjustTimestamp30d: undefined,
+    lastAdjustTimestamp90d: undefined,
+    totalAccumulatedYield24hAgo: ZERO_BIG_DECIMAL,
+    totalAccumulatedYield30dAgo: ZERO_BIG_DECIMAL,
+    totalAccumulatedYield7dAgo: ZERO_BIG_DECIMAL,
+    totalAccumulatedYield90dAgo: ZERO_BIG_DECIMAL,
+    yearlyYield24h: ZERO_BIG_DECIMAL,
+    yearlyYield30d: ZERO_BIG_DECIMAL,
+    yearlyYield7d: ZERO_BIG_DECIMAL,
+    yearlyYield90d: ZERO_BIG_DECIMAL,
+    dataPointTimestamp24hAgo: params.eventTimestamp,
+    dataPointTimestamp7dAgo: params.eventTimestamp,
+    dataPointTimestamp30dAgo: params.eventTimestamp,
+    dataPointTimestamp90dAgo: params.eventTimestamp,
+    isDynamicFee: params.feeTier === V4_DYNAMIC_FEE_FLAG,
   };
 
   defiPoolDataEntity = {

@@ -1,12 +1,13 @@
 import assert from "assert";
 import { DeFiPoolData, handlerContext } from "generated";
 import sinon from "sinon";
-import { defaultDeFiPoolData, DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "../../../../src/common/constants";
+import { DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "../../../../src/common/constants";
+import { defaultDeFiPoolData } from "../../../../src/common/default-entities";
 import { IndexerNetwork } from "../../../../src/common/enums/indexer-network";
 import { SupportedProtocol } from "../../../../src/common/enums/supported-protocol";
 import { TokenService } from "../../../../src/common/services/token-service";
 import { handleV3PoolCreated } from "../../../../src/v3-pools/mappings/factory/v3-factory";
-import { AlgebraPoolDataMock, handlerContextCustomMock, TokenMock } from "../../../mocks";
+import { handlerContextCustomMock, TokenMock } from "../../../mocks";
 
 describe("V3FactoryHandler", () => {
   let context: handlerContext;
@@ -396,29 +397,6 @@ describe("V3FactoryHandler", () => {
     assert.deepEqual(pool.chainId, expectedChainId);
   });
 
-  it("should assing the algebra pool id if algebra pool data is passed in the params", async () => {
-    const expectedAlgebraPoolId = "xabas-for-algebra-pool-id";
-    const algebraPoolData = new AlgebraPoolDataMock(expectedAlgebraPoolId);
-
-    await handleV3PoolCreated({
-      context,
-      poolAddress,
-      token0Address,
-      token1Address,
-      feeTier,
-      tickSpacing,
-      eventTimestamp,
-      chainId,
-      protocol,
-      tokenService,
-      algebraPoolData,
-    });
-
-    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
-
-    assert.deepEqual(pool.algebraPoolData_id, algebraPoolData.id);
-  });
-
   it("should save the token0 entity", async () => {
     const expectedToken0Id = "xabas-for-token0-id";
     const expectedToken0 = new TokenMock(expectedToken0Id);
@@ -678,10 +656,10 @@ describe("V3FactoryHandler", () => {
 
     const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
 
-    assert.deepEqual(pool.accumulated24hYield, ZERO_BIG_DECIMAL, "the 24h yield should be zero");
-    assert.deepEqual(pool.accumulated7dYield, ZERO_BIG_DECIMAL, "the 7d yield should be zero");
-    assert.deepEqual(pool.accumulated30dYield, ZERO_BIG_DECIMAL, "the 30d yield should be zero");
-    assert.deepEqual(pool.accumulated90dYield, ZERO_BIG_DECIMAL, "the 90d yield should be zero");
+    assert.deepEqual(pool.accumulatedYield24h, ZERO_BIG_DECIMAL, "the 24h yield should be zero");
+    assert.deepEqual(pool.accumulatedYield7d, ZERO_BIG_DECIMAL, "the 7d yield should be zero");
+    assert.deepEqual(pool.accumulatedYield30d, ZERO_BIG_DECIMAL, "the 30d yield should be zero");
+    assert.deepEqual(pool.accumulatedYield90d, ZERO_BIG_DECIMAL, "the 90d yield should be zero");
     assert.deepEqual(pool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
   });
 
@@ -702,30 +680,28 @@ describe("V3FactoryHandler", () => {
     const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
 
     assert.equal(
-      pool.dataPointTimestamp24h,
+      pool.dataPointTimestamp24hAgo,
       eventTimestamp,
       "the 24h data point timestamp should be the event timestamp"
     );
     assert.equal(
-      pool.dataPointTimestamp7d,
+      pool.dataPointTimestamp7dAgo,
       eventTimestamp,
       "the 7d data point timestamp should be the event timestamp"
     );
     assert.equal(
-      pool.dataPointTimestamp30d,
+      pool.dataPointTimestamp30dAgo,
       eventTimestamp,
       "the 30d data point timestamp should be the event timestamp"
     );
     assert.equal(
-      pool.dataPointTimestamp90d,
+      pool.dataPointTimestamp90dAgo,
       eventTimestamp,
       "the 90d data point timestamp should be the event timestamp"
     );
   });
 
-  it("should save the passed algebra pool data entity if provided", async () => {
-    const algebraPoolData = new AlgebraPoolDataMock("xabas-algebra-pool-id");
-
+  it("should set is dynamic fee to false when creating a pool", async () => {
     await handleV3PoolCreated({
       context,
       poolAddress,
@@ -737,11 +713,99 @@ describe("V3FactoryHandler", () => {
       chainId,
       protocol,
       tokenService,
-      algebraPoolData,
     });
 
-    const savedAlgebraPoolData = await context.AlgebraPoolData.getOrThrow(algebraPoolData.id)!;
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
 
-    assert.deepEqual(savedAlgebraPoolData, algebraPoolData);
+    assert.equal(pool.isDynamicFee, false);
+  });
+
+  it("should set the last adjust timestamps as undefined when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.lastAdjustTimestamp24h, undefined, "the 24h last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp7d, undefined, "the 7d last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp30d, undefined, "the 30d last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp90d, undefined, "the 90d last adjust timestamp should be undefined");
+  });
+
+  it("should set the yearly yields as zero when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.yearlyYield24h, ZERO_BIG_DECIMAL, "the 24h yearly yield should be zero");
+    assert.equal(pool.yearlyYield7d, ZERO_BIG_DECIMAL, "the 7d yearly yield should be zero");
+    assert.equal(pool.yearlyYield30d, ZERO_BIG_DECIMAL, "the 30d yearly yield should be zero");
+    assert.equal(pool.yearlyYield90d, ZERO_BIG_DECIMAL, "the 90d yearly yield should be zero");
+  });
+
+  it("should set the total accumulated yields as zero when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield24hAgo, ZERO_BIG_DECIMAL, "the 24h total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield7dAgo, ZERO_BIG_DECIMAL, "the 7d total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield30dAgo, ZERO_BIG_DECIMAL, "the 30d total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield90dAgo, ZERO_BIG_DECIMAL, "the 90d total accumulated yield should be zero");
+  });
+
+  it("should set the accumulated yields as zero when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.accumulatedYield24h, ZERO_BIG_DECIMAL, "the 24h accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield7d, ZERO_BIG_DECIMAL, "the 7d accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield30d, ZERO_BIG_DECIMAL, "the 30d accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield90d, ZERO_BIG_DECIMAL, "the 90d accumulated yield should be zero");
   });
 });

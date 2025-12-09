@@ -17,6 +17,8 @@ export class Permit2Address {
         throw Error(`Uniswap is not supported on HyperEVM`);
       case IndexerNetwork.PLASMA:
         throw Error(`Uniswap is not supported on Plasma`);
+      case IndexerNetwork.MONAD:
+        return "0x000000000022D473030F116dDEE9F6B43aC78BA3";
     }
   }
 
@@ -36,6 +38,8 @@ export class Permit2Address {
         throw Error(`PancakeSwap is not supported on HyperEVM`);
       case IndexerNetwork.PLASMA:
         throw Error(`PancakeSwap is not supported on Plasma`);
+      case IndexerNetwork.MONAD:
+        throw Error(`PancakeSwap is not supported on Monad`);
     }
   }
 }

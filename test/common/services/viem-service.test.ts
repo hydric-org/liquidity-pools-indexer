@@ -41,7 +41,7 @@ describe("ViemService", () => {
     let expectedOptions: viem.FallbackTransportConfig = {
       rank: false,
       retryCount: 5,
-      retryDelay: 10000,
+      retryDelay: 2000,
     };
 
     const fakeViem = {
@@ -73,7 +73,7 @@ describe("ViemService", () => {
     assert.deepEqual(receivedBatch, [true, true], "clients were not batched");
     assert.deepEqual(
       receivedUrls,
-      [IndexerNetwork.getFreeRPCUrl(IndexerNetwork.HYPER_EVM), IndexerNetwork.getPaidRPCUrl(IndexerNetwork.HYPER_EVM)],
+      [IndexerNetwork.getPaidRPCUrl(IndexerNetwork.HYPER_EVM), IndexerNetwork.getFreeRPCUrl(IndexerNetwork.HYPER_EVM)],
       "url was not correct"
     );
 

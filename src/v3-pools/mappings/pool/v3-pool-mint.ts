@@ -90,7 +90,7 @@ export async function handleV3PoolMint(
     token1: token1Entity,
   });
 
-  poolEntity = await v3PoolSetters.updatePoolAccumulatedYield(eventTimestamp, poolEntity);
+  poolEntity = await v3PoolSetters.updatePoolTimeframedAccumulatedYield(eventTimestamp, poolEntity);
 
   context.Pool.set(poolEntity);
   context.Token.set(token0Entity);

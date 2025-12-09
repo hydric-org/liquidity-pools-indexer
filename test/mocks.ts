@@ -10,7 +10,6 @@ import {
   PoolHourlyData,
   Protocol,
   Token,
-  V2PoolData,
   V3PoolData,
   V4PoolData,
 } from "generated";
@@ -22,7 +21,6 @@ import {
   PoolDailyData_t,
   PoolHourlyData_t,
   Token_t,
-  V2PoolData_t,
   V3PoolData_t,
   V4PoolData_t,
 } from "generated/src/db/Entities.gen";
@@ -112,13 +110,6 @@ export const handlerContextCustomMock = (): handlerContext => {
         v3PoolDataSaves[entity.id] = entity;
       },
     },
-    V2PoolData: {
-      getOrCreate: async (entity: V2PoolData_t) => getOrCreateEntity(entity, v2PoolDataSaves),
-      get: async (id: string) => v2PoolDataSaves[id],
-      set: (entity: V2PoolData) => {
-        v2PoolDataSaves[entity.id] = entity;
-      },
-    },
     V4PoolData: {
       getOrThrow: (id: string) => getOrThrow(id, v4PoolDataSaves),
       getOrCreate: async (entity: V4PoolData_t) => getOrCreateEntity(entity, v4PoolDataSaves),
@@ -201,14 +192,15 @@ export class TokenMock implements Token {
 
 export class AlgebraPoolDataMock implements AlgebraPoolData {
   constructor(readonly customId: string = "mock-algebra-pool-data-id") {}
-
+  plugin: string = ZERO_ADDRESS;
+  pluginConfig: number = 0;
+  sqrtPriceX96: bigint = BigInt("4024415889252221097743020");
+  tick: bigint = BigInt("-197765");
+  tickSpacing: number = 60;
+  version: string = "1.2.0";
   id: string = this.customId;
   deployer: string = "0x0000000000000000000000000000000000000001";
   communityFee: number = 0;
-}
-
-export class V2PoolDataMock implements V2PoolData {
-  id: string = "mock-v2-pool-data-id";
 }
 
 export class V3PoolDataMock implements V3PoolData {
@@ -235,6 +227,10 @@ export class V4PoolDataMock implements V4PoolData {
 
 export class PoolMock implements Pool {
   constructor(readonly customId: string = "mock-pool-id") {}
+  lastAdjustTimestamp24h: bigint | undefined;
+  lastAdjustTimestamp7d: bigint | undefined;
+  lastAdjustTimestamp30d: bigint | undefined;
+  lastAdjustTimestamp90d: bigint | undefined;
   liquidityVolumeToken0: BigDecimal = BigDecimal("0");
   liquidityVolumeToken1: BigDecimal = BigDecimal("0");
   liquidityVolumeUSD: BigDecimal = BigDecimal("0");
@@ -257,18 +253,26 @@ export class PoolMock implements Pool {
   totalValueLockedToken0: BigDecimal = BigDecimal("112671.3223");
   totalValueLockedToken1: BigDecimal = BigDecimal("32323.3223");
   totalValueLockedUSD: BigDecimal = BigDecimal("1927182781.3223");
-  v2PoolData_id: string | undefined = new V2PoolDataMock().id;
   v3PoolData_id: string | undefined = new V3PoolDataMock().id;
   v4PoolData_id: string | undefined = new V4PoolDataMock().id;
-  accumulated24hYield: BigDecimal = BigDecimal("2.2");
-  accumulated30dYield: BigDecimal = BigDecimal("0.22");
-  accumulated7dYield: BigDecimal = BigDecimal("9.2");
-  accumulated90dYield: BigDecimal = BigDecimal("12.92");
+  accumulatedYield24h: BigDecimal = BigDecimal("2.2");
+  accumulatedYield7d: BigDecimal = BigDecimal("0.22");
+  accumulatedYield30d: BigDecimal = BigDecimal("9.2");
+  accumulatedYield90d: BigDecimal = BigDecimal("12.92");
   totalAccumulatedYield: BigDecimal = BigDecimal("24.56");
-  dataPointTimestamp24h: bigint = BigInt((Date.now() / 1000).toFixed(0));
-  dataPointTimestamp30d: bigint = BigInt((Date.now() / 1000).toFixed(0));
-  dataPointTimestamp7d: bigint = BigInt((Date.now() / 1000).toFixed(0));
-  dataPointTimestamp90d: bigint = BigInt((Date.now() / 1000).toFixed(0));
+  dataPointTimestamp24hAgo: bigint = BigInt((Date.now() / 1000).toFixed(0));
+  dataPointTimestamp7dAgo: bigint = BigInt((Date.now() / 1000).toFixed(0));
+  dataPointTimestamp30dAgo: bigint = BigInt((Date.now() / 1000).toFixed(0));
+  dataPointTimestamp90dAgo: bigint = BigInt((Date.now() / 1000).toFixed(0));
+  isDynamicFee: boolean = false;
+  totalAccumulatedYield24hAgo: BigDecimal = BigDecimal("67121.211");
+  totalAccumulatedYield30dAgo: BigDecimal = BigDecimal("972.11");
+  totalAccumulatedYield7dAgo: BigDecimal = BigDecimal("112.11");
+  totalAccumulatedYield90dAgo: BigDecimal = BigDecimal("211.11");
+  yearlyYield24h: BigDecimal = BigDecimal("11.11");
+  yearlyYield7d: BigDecimal = BigDecimal("20.12");
+  yearlyYield30d: BigDecimal = BigDecimal("30.12");
+  yearlyYield90d: BigDecimal = BigDecimal("40.12");
 }
 
 export class PoolHourlyDataMock implements PoolHourlyData {

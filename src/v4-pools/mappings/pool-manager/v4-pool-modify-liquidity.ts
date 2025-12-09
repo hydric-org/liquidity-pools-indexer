@@ -99,7 +99,7 @@ export async function handleV4PoolModifyLiquidity(
     token1: token1Entity,
   });
 
-  poolEntity = await v4PoolSetters.updatePoolAccumulatedYield(eventTimestamp, poolEntity);
+  poolEntity = await v4PoolSetters.updatePoolTimeframedAccumulatedYield(eventTimestamp, poolEntity);
 
   context.Pool.set(poolEntity);
   context.Token.set(token0Entity);

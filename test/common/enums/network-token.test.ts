@@ -28,4 +28,14 @@ describe("NetworkToken", () => {
       symbol: "XPL",
     });
   });
+
+  it("should return the correct metadata for Monad", () => {
+    const metadata = NetworkToken.metadata(NetworkToken.MON);
+
+    assert.deepEqual(metadata, {
+      decimals: 18,
+      name: "Monad",
+      symbol: "MON",
+    });
+  });
 });

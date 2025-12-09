@@ -6,6 +6,7 @@ import { IndexerNetwork } from "../../src/common/enums/indexer-network";
 import {
   calculateDayYearlyYield,
   calculateHourYearlyYield,
+  calculateYearlyYieldFromAccumulated,
   findNativeToken,
   findStableToken,
   findWrappedNative,
@@ -1419,6 +1420,38 @@ describe("PoolCommons", () => {
     assert.deepEqual(calculateDayYearlyYield(tvl, dayFees), expectedYield);
   });
 
+  it(`should return zero as yearly yield when calling 'calculateDayYearlyYield'
+    passing zero as tvl`, () => {
+    const dayFees = BigDecimal("10");
+    const tvl = BigDecimal("0");
+
+    assert.deepEqual(calculateDayYearlyYield(tvl, dayFees), ZERO_BIG_DECIMAL);
+  });
+
+  it(`should return zero as yearly yield when calling 'calculateDayYearlyYield'
+    passing zero as fees`, () => {
+    const dayFees = BigDecimal("0");
+    const tvl = BigDecimal("1000");
+
+    assert.deepEqual(calculateDayYearlyYield(tvl, dayFees), ZERO_BIG_DECIMAL);
+  });
+
+  it(`should return zero as yearly yield when calling 'calculateHourYearlyYield'
+    passing zero as tvl`, () => {
+    const dayFees = BigDecimal("10");
+    const tvl = BigDecimal("0");
+
+    assert.deepEqual(calculateHourYearlyYield(tvl, dayFees), ZERO_BIG_DECIMAL);
+  });
+
+  it(`should return zero as yearly yield when calling 'calculateHourYearlyYield'
+    passing zero as fees`, () => {
+    const dayFees = BigDecimal("0");
+    const tvl = BigDecimal("1000");
+
+    assert.deepEqual(calculateHourYearlyYield(tvl, dayFees), ZERO_BIG_DECIMAL);
+  });
+
   it(`should calculate the correct yearly yield from hour fees
     and tvl when calling 'calculateHourYearlyYield'`, () => {
     const hourFees = BigDecimal("0.4166666667");
@@ -1518,5 +1551,45 @@ describe("PoolCommons", () => {
     const result = await getPoolDailyDataAgo(daysAgo, eventTimestamp, contextMock, pool);
 
     assert.deepEqual(result, undefined);
+  });
+
+  it(`should return the correct yearly yield when calling 'calculateYearlyYieldFromAccumulated'
+    passing 1 day accumulated yield`, () => {
+    const dayAccumulatedYield = BigDecimal("100");
+    const expectedYearlyYield = BigDecimal("36500");
+
+    const result = calculateYearlyYieldFromAccumulated(1, dayAccumulatedYield);
+
+    assert.deepEqual(result, expectedYearlyYield);
+  });
+
+  it(`should return the correct yearly yield when calling 'calculateYearlyYieldFromAccumulated'
+    passing 7 day accumulated yield`, () => {
+    const dayAccumulatedYield = BigDecimal("100");
+    const expectedYearlyYield = BigDecimal("5214.2857142857142857158500000000");
+
+    const result = calculateYearlyYieldFromAccumulated(7, dayAccumulatedYield);
+
+    assert.deepEqual(result, expectedYearlyYield);
+  });
+
+  it(`should return the correct yearly yield when calling 'calculateYearlyYieldFromAccumulated'
+    passing 30 day accumulated yield`, () => {
+    const dayAccumulatedYield = BigDecimal("100");
+    const expectedYearlyYield = BigDecimal("1216.6666666666666666654500000000");
+
+    const result = calculateYearlyYieldFromAccumulated(30, dayAccumulatedYield);
+
+    assert.deepEqual(result, expectedYearlyYield);
+  });
+
+  it(`should return the correct yearly yield when calling 'calculateYearlyYieldFromAccumulated'
+    passing 90 day accumulated yield`, () => {
+    const dayAccumulatedYield = BigDecimal("100");
+    const expectedYearlyYield = BigDecimal("405.5555555555555555551500000000");
+
+    const result = calculateYearlyYieldFromAccumulated(90, dayAccumulatedYield);
+
+    assert.deepEqual(result, expectedYearlyYield);
   });
 });

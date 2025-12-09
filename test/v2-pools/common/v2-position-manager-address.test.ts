@@ -21,11 +21,15 @@ describe("V2PositionManagerAddress", () => {
     );
   });
 
-  it("should return the correct Uniswap V2 position manager address for unichain", () => {
+  it("should return the correct Uniswap V2 position manager address for sepolia", () => {
     assert.equal(
       V2PositionManagerAddress.uniswap(IndexerNetwork.SEPOLIA),
       "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3"
     );
+  });
+
+  it("should return the correct Uniswap V2 position manager address for monad", () => {
+    assert.equal(V2PositionManagerAddress.uniswap(IndexerNetwork.MONAD), "0x4b2ab38dbf28d31d467aa8993f6c2585981d6804");
   });
 
   it("should throw when calling uniswap on scroll", () => {

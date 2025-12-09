@@ -5,6 +5,7 @@ import "../../src/common/string.extension";
 import { ONE_HOUR_IN_SECONDS, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "./constants";
 import { subtractDaysFromSecondsTimestamp, subtractHoursFromSecondsTimestamp } from "./date-commons";
 import { IndexerNetwork } from "./enums/indexer-network";
+import { safeDiv } from "./math";
 import { formatFromTokenAmount } from "./token-commons";
 
 export function isPoolSwapVolumeValid(pool: PoolEntity) {
@@ -222,12 +223,11 @@ export function getTokenAmountInPool(pool: PoolEntity, token: TokenEntity): BigD
 }
 
 export function calculateDayYearlyYield(totalValueLockedUSD: BigDecimal, dayFeesUSD: BigDecimal) {
-  return dayFeesUSD.div(totalValueLockedUSD).times(100).times(365);
+  return safeDiv(dayFeesUSD, totalValueLockedUSD).times(100).times(365);
 }
 
 export function calculateHourYearlyYield(totalValueLockedUSD: BigDecimal, feesUSD: BigDecimal) {
-  return feesUSD
-    .div(totalValueLockedUSD)
+  return safeDiv(feesUSD, totalValueLockedUSD)
     .times(100)
     .times(24 * 365);
 }
@@ -254,4 +254,8 @@ export async function getPoolDailyDataAgo(
   if (timestampAgo < pool.createdAtTimestamp) return null;
 
   return await context.PoolDailyData.get(getPoolDailyDataId(timestampAgo, pool));
+}
+
+export function calculateYearlyYieldFromAccumulated(days: 1 | 7 | 30 | 90, accumulatedYield: BigDecimal): BigDecimal {
+  return accumulatedYield.div(days).times(365);
 }

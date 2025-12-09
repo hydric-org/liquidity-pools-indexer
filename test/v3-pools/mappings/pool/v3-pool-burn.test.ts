@@ -31,7 +31,7 @@ describe("V3PoolBurn", () => {
     poolSetters = sinon.createStubInstance(PoolSetters);
     defiPoolDataSetters = sinon.createStubInstance(DeFiPoolDataSetters);
 
-    poolSetters.updatePoolAccumulatedYield.resolvesArg(1);
+    poolSetters.updatePoolTimeframedAccumulatedYield.resolvesArg(1);
   });
 
   afterEach(() => {
@@ -467,7 +467,7 @@ describe("V3PoolBurn", () => {
     assert(defiPoolDataSetters.setIntervalLiquidityData.notCalled);
   });
 
-  it("should update the pool entity with the result from 'updatePoolAccumulatedYield'", async () => {
+  it("should update the pool entity with the result from 'updatePoolTimeframedAccumulatedYield'", async () => {
     const token0: Token = {
       ...new TokenMock(),
     };
@@ -482,25 +482,29 @@ describe("V3PoolBurn", () => {
 
     const resultPool: Pool = {
       ...pool,
-      accumulated24hYield: BigDecimal("212121"),
-      accumulated7dYield: BigDecimal("555555"),
-      accumulated90dYield: BigDecimal("333333"),
-      accumulated30dYield: BigDecimal("8181818"),
+      accumulatedYield24h: BigDecimal("212121"),
+      accumulatedYield7d: BigDecimal("555555"),
+      accumulatedYield90d: BigDecimal("333333"),
+      accumulatedYield30d: BigDecimal("8181818"),
       totalAccumulatedYield: BigDecimal("9999999"),
-      dataPointTimestamp24h: 0x10n,
-      dataPointTimestamp7d: 0x20n,
-      dataPointTimestamp30d: 0x30n,
-      dataPointTimestamp90d: 0x40n,
+      dataPointTimestamp24hAgo: 0x10n,
+      dataPointTimestamp7dAgo: 0x20n,
+      dataPointTimestamp30dAgo: 0x30n,
+      dataPointTimestamp90dAgo: 0x40n,
     };
 
     context.Pool.set(pool);
     context.Token.set(token0);
     context.Token.set(token1);
 
-    poolSetters.updatePoolAccumulatedYield.reset();
-    poolSetters.updatePoolAccumulatedYield.resolves(resultPool);
+    poolSetters.updatePoolTimeframedAccumulatedYield.reset();
+    poolSetters.updatePoolTimeframedAccumulatedYield.resolves(resultPool);
 
-    sinon.replace(poolSetters, "updatePoolAccumulatedYield", poolSetters.updatePoolAccumulatedYield);
+    sinon.replace(
+      poolSetters,
+      "updatePoolTimeframedAccumulatedYield",
+      poolSetters.updatePoolTimeframedAccumulatedYield
+    );
 
     await handleV3PoolBurn(context, pool, token0, token1, 0n, 0n, eventTimestamp, poolSetters, defiPoolDataSetters);
     const updatedPool = await context.Pool.getOrThrow(pool.id)!;

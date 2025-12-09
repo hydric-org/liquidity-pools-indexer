@@ -2,11 +2,7 @@ import assert from "assert";
 import { BigDecimal, handlerContext, Pool, Token } from "generated";
 import sinon from "sinon";
 import { sqrtPriceX96toPrice } from "../../../../src/common/cl-pool-converters";
-import {
-  getPoolDailyDataId,
-  getPoolHourlyDataId,
-  getSwapFeesFromRawAmounts,
-} from "../../../../src/common/pool-commons";
+import { getPoolDailyDataId, getPoolHourlyDataId } from "../../../../src/common/pool-commons";
 import { PoolSetters } from "../../../../src/common/pool-setters";
 import { formatFromTokenAmount } from "../../../../src/common/token-commons";
 import { handleV3PoolSwap } from "../../../../src/v3-pools/mappings/pool/v3-pool-swap";
@@ -33,7 +29,7 @@ describe("V3PoolSwapHandler", () => {
       { ...new TokenMock(), usdPrice: BigDecimal("1300") },
     ]);
 
-    poolSetters.updatePoolAccumulatedYield.resolvesArg(1);
+    poolSetters.updatePoolTimeframedAccumulatedYield.resolvesArg(1);
   });
 
   afterEach(() => {
@@ -1253,82 +1249,7 @@ describe("V3PoolSwapHandler", () => {
     assert.equal(token1After.swapVolumeUSD.toString(), expectedToken1SwapVolumeUSD.toString());
   });
 
-  it("should sum the single swap yield to the accumulated yields in the pool entity", async () => {
-    let token0 = new TokenMock("0x01");
-    let token1 = new TokenMock("0x02");
-
-    const sqrtPriceX96 = BigInt(3432);
-    const tick = BigInt(989756545);
-
-    let pool = new PoolMock();
-    pool.token0_id = token0.id;
-    pool.token1_id = token1.id;
-
-    const amount0 = BigInt(123) * 10n ** BigInt(token0.decimals);
-    const amount1 = BigInt(456) * 10n ** BigInt(token1.decimals);
-
-    context.Pool.set(pool);
-    context.Token.set(token0);
-    context.Token.set(token1);
-
-    poolSetters.updateTokenPricesFromPoolPrices.resolves([
-      { ...token0, usdPrice: BigDecimal("1200") },
-      { ...token1, usdPrice: BigDecimal("1300") },
-    ]);
-
-    await handleV3PoolSwap({
-      context,
-      poolEntity: pool,
-      token0Entity: token0,
-      token1Entity: token1,
-      swapAmount0: amount0,
-      swapAmount1: amount1,
-      sqrtPriceX96,
-      tick,
-      eventTimestamp,
-      v3PoolSetters: poolSetters,
-      v3PoolEntity: new V3PoolDataMock(),
-    });
-
-    const updatedPool = await context.Pool.getOrThrow(pool.id);
-    const updatedToken0 = await context.Token.getOrThrow(token0.id);
-    const updatedToken1 = await context.Token.getOrThrow(token1.id);
-
-    const swapFees = getSwapFeesFromRawAmounts(amount0, amount1, pool.currentFeeTier, updatedToken0, updatedToken1);
-    const swapYield = swapFees.feesUSD.div(updatedPool.totalValueLockedUSD).times(100);
-
-    assert.deepEqual(
-      updatedPool.accumulated24hYield,
-      pool.accumulated24hYield.plus(swapYield),
-      "accumulated 24h yield should be updated correctly"
-    );
-
-    assert.deepEqual(
-      updatedPool.accumulated7dYield,
-      pool.accumulated7dYield.plus(swapYield),
-      "accumulated 7d yield should be updated correctly"
-    );
-
-    assert.deepEqual(
-      updatedPool.accumulated30dYield,
-      pool.accumulated30dYield.plus(swapYield),
-      "accumulated 30d yield should be updated correctly"
-    );
-
-    assert.deepEqual(
-      updatedPool.accumulated90dYield,
-      pool.accumulated90dYield.plus(swapYield),
-      "accumulated 90d yield should be updated correctly"
-    );
-
-    assert.deepEqual(
-      updatedPool.totalAccumulatedYield,
-      pool.totalAccumulatedYield.plus(swapYield),
-      "total accumulated yield should be updated correctly"
-    );
-  });
-
-  it("should update the pool entity with the result from 'updatePoolAccumulatedYield'", async () => {
+  it("should update the pool entity with the result from 'updatePoolTimeframedAccumulatedYield'", async () => {
     const token0: Token = {
       ...new TokenMock(),
     };
@@ -1343,23 +1264,23 @@ describe("V3PoolSwapHandler", () => {
 
     const resultPool: Pool = {
       ...pool,
-      accumulated24hYield: BigDecimal("212121"),
-      accumulated7dYield: BigDecimal("555555"),
-      accumulated90dYield: BigDecimal("333333"),
-      accumulated30dYield: BigDecimal("8181818"),
+      accumulatedYield24h: BigDecimal("212121"),
+      accumulatedYield7d: BigDecimal("555555"),
+      accumulatedYield90d: BigDecimal("333333"),
+      accumulatedYield30d: BigDecimal("8181818"),
       totalAccumulatedYield: BigDecimal("9999999"),
-      dataPointTimestamp24h: 0x10n,
-      dataPointTimestamp7d: 0x20n,
-      dataPointTimestamp30d: 0x30n,
-      dataPointTimestamp90d: 0x40n,
+      dataPointTimestamp24hAgo: 0x10n,
+      dataPointTimestamp7dAgo: 0x20n,
+      dataPointTimestamp30dAgo: 0x30n,
+      dataPointTimestamp90dAgo: 0x40n,
     };
 
     context.Pool.set(pool);
     context.Token.set(token0);
     context.Token.set(token1);
 
-    poolSetters.updatePoolAccumulatedYield.reset();
-    poolSetters.updatePoolAccumulatedYield.resolves(resultPool);
+    poolSetters.updatePoolTimeframedAccumulatedYield.reset();
+    poolSetters.updatePoolTimeframedAccumulatedYield.resolves(resultPool);
 
     await handleV3PoolSwap({
       context,
