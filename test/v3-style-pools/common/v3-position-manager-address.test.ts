@@ -336,14 +336,14 @@ describe("V3PositionManagerAddress", () => {
   describe("Hybra", () => {
     it("should return the correct address for hybra on hyper_evm", async () => {
       assert.equal(
-        V3PositionManagerAddress.hybra(IndexerNetwork.HYPER_EVM),
+        V3PositionManagerAddress.hybraV3(IndexerNetwork.HYPER_EVM),
         "0x934C4f47B2D3FfcA0156A45DEb3A436202aF1efa"
       );
     });
 
     it("should throw when calling hybra on unsupported network", async () => {
       assert.throws(() => {
-        V3PositionManagerAddress.hybra(IndexerNetwork.BASE);
+        V3PositionManagerAddress.hybraV3(IndexerNetwork.BASE);
       }, Error(`Hybra is not supported on ${IndexerNetwork.BASE}`));
     });
   });

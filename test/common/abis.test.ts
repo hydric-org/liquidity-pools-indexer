@@ -1,37 +1,7 @@
 import assert from "assert";
-import { algebraPool1_2_1FactoryAbi, ERC20_ABI } from "../../src/common/abis";
+import { ERC20_ABI } from "../../src/common/abis";
 
 describe("ABIs", () => {
-  it("Should return the correct abi for algebra 1.2.1 pool", () => {
-    const expectedAbi = [
-      {
-        inputs: [],
-        name: "defaultConfigurationForPool",
-        outputs: [
-          {
-            internalType: "uint16",
-            name: "communityFee",
-            type: "uint16",
-          },
-          {
-            internalType: "int24",
-            name: "tickSpacing",
-            type: "int24",
-          },
-          {
-            internalType: "uint16",
-            name: "fee",
-            type: "uint16",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-    ];
-
-    assert.deepEqual(expectedAbi, algebraPool1_2_1FactoryAbi);
-  });
-
   it("Should return the correct abi when calling ERC20_ABI", () => {
     const expectedAbi = [
       {

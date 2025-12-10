@@ -700,7 +700,7 @@ describe("SupportedProtocol enum values", () => {
   it("should return hybra address when calling getV3PositionManager", () => {
     assert.equal(
       SupportedProtocol.getV3PositionManager(SupportedProtocol.HYBRA_V3, IndexerNetwork.HYPER_EVM),
-      V3PositionManagerAddress.hybra(IndexerNetwork.HYPER_EVM)
+      V3PositionManagerAddress.hybraV3(IndexerNetwork.HYPER_EVM)
     );
   });
   it("should return kittenswap address when calling getV3PositionManager", () => {
@@ -1262,6 +1262,62 @@ describe("SupportedProtocol enum values", () => {
       assert.throws(
         () => SupportedProtocol.getV2PositionManager(SupportedProtocol.PINOT_FINANCE_V3, IndexerNetwork.BASE),
         /V2 position manager is not available for Pinot Finance/
+      );
+    });
+  });
+
+  describe("Hybra Slipstream", () => {
+    it("should return the correct id for Hybra Slipstream", () => {
+      assert.equal(SupportedProtocol.HYBRA_SLIPSTREAM, "hybra-slipstream");
+    });
+
+    it("should return the correct name for Hybra Slipstream", () => {
+      assert.equal(SupportedProtocol.getName(SupportedProtocol.HYBRA_SLIPSTREAM), "Hybra V3 Slipstream");
+    });
+
+    it("should return the correct url for Hybra Slipstream", () => {
+      assert.equal(SupportedProtocol.getUrl(SupportedProtocol.HYBRA_SLIPSTREAM), "https://hybra.finance/");
+    });
+
+    it("should return the correct logo url for Hybra Slipstream", () => {
+      assert.equal(
+        SupportedProtocol.getLogoUrl(SupportedProtocol.HYBRA_SLIPSTREAM),
+        "https://img.cryptorank.io/exchanges/150x150.hybra_finance1752836948767.png"
+      );
+    });
+
+    it("should throw for Hybra Slipstream when calling getPermit2Address", () => {
+      assert.throws(
+        () => SupportedProtocol.getPermit2Address(SupportedProtocol.HYBRA_SLIPSTREAM, IndexerNetwork.BASE),
+        /Permit2 is not available for Hybra Slipstream/
+      );
+    });
+
+    it("should throw for Hybra Slipstream when calling getV4PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4PositionManager(SupportedProtocol.HYBRA_SLIPSTREAM, IndexerNetwork.BASE),
+        /V4 position manager is not available for Hybra Slipstream/
+      );
+    });
+
+    it("should throw for Hybra Slipstream when calling getV4StateView", () => {
+      assert.throws(
+        () => SupportedProtocol.getV4StateView(SupportedProtocol.HYBRA_SLIPSTREAM, IndexerNetwork.BASE),
+        /V4 state view is not available for Hybra Slipstream/
+      );
+    });
+
+    it("should return the correct v3 position manager for Hybra Slipstream when calling getV3PositionManager", () => {
+      assert.equal(
+        SupportedProtocol.getV3PositionManager(SupportedProtocol.HYBRA_SLIPSTREAM, IndexerNetwork.HYPER_EVM),
+        V3PositionManagerAddress.hybraSlipstream(IndexerNetwork.HYPER_EVM)
+      );
+    });
+
+    it("should throw for Hybra Slipstream when calling getV2PositionManager", () => {
+      assert.throws(
+        () => SupportedProtocol.getV2PositionManager(SupportedProtocol.HYBRA_SLIPSTREAM, IndexerNetwork.BASE),
+        /V2 position manager is not available for Hybra Slipstream/
       );
     });
   });

@@ -1,10 +1,8 @@
-import { experimental_createEffect, S } from "envio";
 import { Pool as PoolEntity, SlipstreamPool, Token as TokenEntity, V3PoolData as V3PoolDataEntity } from "generated";
-import { getContract } from "viem";
 import { IndexerNetwork } from "../../../../common/enums/indexer-network";
 import { PoolSetters } from "../../../../common/pool-setters";
-import { ViemService } from "../../../../common/services/viem-service";
 import { handleV3PoolSwap } from "../v3-pool-swap";
+import { SlipsteamEffects } from "./common/slipstream-effects";
 
 SlipstreamPool.Swap.handler(async ({ event, context }) => {
   const poolId = IndexerNetwork.getEntityIdFromAddress(event.chainId, event.srcAddress);
@@ -19,7 +17,10 @@ SlipstreamPool.Swap.handler(async ({ event, context }) => {
     context.Token.getOrThrow(poolEntity.token1_id),
   ]);
 
-  const swapFee = await context.effect(swapFeeEffect, { chainId: event.chainId, poolAddress: event.srcAddress });
+  const swapFee = await context.effect(SlipsteamEffects.swapFeeEffect, {
+    chainId: event.chainId,
+    poolAddress: event.srcAddress,
+  });
 
   await handleV3PoolSwap({
     context,
@@ -36,54 +37,3 @@ SlipstreamPool.Swap.handler(async ({ event, context }) => {
     newFeeTier: swapFee,
   });
 });
-
-const SwapFeeSchemaInput = S.tuple((t) => ({
-  poolAddress: t.item(0, S.string),
-  chainId: t.item(1, S.number),
-}));
-
-const SwapFeeSchemaOutput = S.number;
-
-type SwapFeeSchemaOutput = S.Output<typeof SwapFeeSchemaOutput>;
-type SwapFeeSchemaInput = S.Input<typeof SwapFeeSchemaInput>;
-
-const swapFeeEffect = experimental_createEffect(
-  {
-    name: "aerodrome-v3-pool-swap-fee",
-    input: SwapFeeSchemaInput,
-    output: SwapFeeSchemaOutput,
-    cache: true, // setting true as hotfix for rpc pricing -> we shouldn’t cache it since the fee can change, and it’s too complex and error-prone to calculate every time, so we don’t
-  },
-  async ({ input }) => {
-    return await _getPoolSwapFee(input.chainId, input.poolAddress);
-  }
-);
-
-async function _getPoolSwapFee(network: IndexerNetwork, poolAddress: string): Promise<number> {
-  const client = ViemService.shared.getClient(network);
-
-  const contract = getContract({
-    abi: SlipstreamPoolSwapFeeAbi,
-    client,
-    address: poolAddress as `0x${string}`,
-  });
-
-  const swapFee = await contract.read.fee();
-  return swapFee;
-}
-
-const SlipstreamPoolSwapFeeAbi = [
-  {
-    inputs: [],
-    name: "fee",
-    outputs: [
-      {
-        internalType: "uint24",
-        name: "",
-        type: "uint24",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-] as const;

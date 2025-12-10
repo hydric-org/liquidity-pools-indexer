@@ -156,10 +156,19 @@ export class V3PositionManagerAddress {
     }
   }
 
-  static hybra(network: IndexerNetwork): string {
+  static hybraV3(network: IndexerNetwork): string {
     switch (network) {
       case IndexerNetwork.HYPER_EVM:
         return "0x934C4f47B2D3FfcA0156A45DEb3A436202aF1efa";
+      default:
+        throw Error(`Hybra is not supported on ${network}`);
+    }
+  }
+
+  static hybraSlipstream(network: IndexerNetwork): string {
+    switch (network) {
+      case IndexerNetwork.HYPER_EVM:
+        return "0xcc9E3991360229Fd13694022b9456D371f1a2568";
       default:
         throw Error(`Hybra is not supported on ${network}`);
     }

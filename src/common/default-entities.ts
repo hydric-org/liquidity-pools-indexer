@@ -1,14 +1,12 @@
 import {
-  AlgebraPoolData as AlgebraPoolDataEntity,
   DeFiPoolDailyData as DeFiPoolDailyDataEntity,
   DeFiPoolData as DeFiPoolDataEntity,
   DeFiPoolHourlyData as DeFiPoolHourlyDataEntity,
   PoolDailyData as PoolDailyDataEntity,
   Pool as PoolEntity,
   PoolHourlyData as PoolHourlyDataEntity,
-  V3PoolData as V3PoolDataEntity,
 } from "generated";
-import { DEFI_POOL_DATA_ID, ZERO_ADDRESS, ZERO_BIG_DECIMAL, ZERO_BIG_INT } from "./constants";
+import { DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "./constants";
 import { getPoolDailyDataId, getPoolHourlyDataId } from "./pool-commons";
 
 export const defaultPoolHourlyData = (params: {
@@ -103,27 +101,4 @@ export const defaultDeFiPoolHourlyData = (params: {
   liquidityOutflowUSD: ZERO_BIG_DECIMAL,
   liquidityVolumeUSD: ZERO_BIG_DECIMAL,
   hourStartTimestamp: params.hourStartTimestamp,
-});
-
-export const defaultV3PoolData = (params: { poolId: string }): V3PoolDataEntity => ({
-  id: params.poolId,
-  sqrtPriceX96: ZERO_BIG_INT,
-  tick: ZERO_BIG_INT,
-  tickSpacing: 0,
-});
-
-export const defaultAlgebraPoolData = (params: {
-  poolId: string;
-  version: string;
-  deployer?: string;
-}): AlgebraPoolDataEntity => ({
-  id: params.poolId,
-  sqrtPriceX96: ZERO_BIG_INT,
-  tick: ZERO_BIG_INT,
-  tickSpacing: 0,
-  communityFee: 0,
-  deployer: params.deployer ?? ZERO_ADDRESS,
-  plugin: ZERO_ADDRESS,
-  pluginConfig: 0,
-  version: params.version,
 });

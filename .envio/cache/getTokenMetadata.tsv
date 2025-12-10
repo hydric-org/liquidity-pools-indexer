@@ -13156,6 +13156,7 @@ id	output
 ["0x8d2affcfafd10763eafae90e4f022a38e9ae6ca5",143]	{"name": "Mini Novel", "symbol": "MININOVEL", "decimals": 18}
 ["0x8c8f287c3586aa58e6730af4e077dc3f7bf6bb07",143]	{"name": "Spiky Smirk", "symbol": "VIRUS", "decimals": 18}
 ["0xa0ba2f3580cd9cca4110274086e5354420208888",143]	{"name": "MONTHERA", "symbol": "MONTHERA", "decimals": 18}
+["0xfffde90dc956ca4540fa47cd543c0ccc6c644b07",143]	{"name": "Cell2Sentence", "symbol": "C2S", "decimals": 18}
 ["0xb00b6f0658bf75f905337df51714e07d41e3cbf8",143]	{"name": "Lady Monad, the magical being who brings peace and prosperity to the Monad chain.", "symbol": "LADY", "decimals": 18}
 ["0x6cf240e58ad19f3efaae21769d55fd42e5828563",143]	{"name": "MONAD OG", "symbol": "MG", "decimals": 18}
 ["0xdf9df4ca43e7ca8ec65c090b38b5354cc8213b07",143]	{"name": "Stackdotcast", "symbol": "STACK", "decimals": 18}
@@ -15445,7 +15446,6 @@ id	output
 ["0xd2b9248b9171a8ccbd049f9b8d6192c5e37e8888",143]	{"name": "Monad Energy", "symbol": "MONERGY", "decimals": 18}
 ["0x4f2cc777f2f101a7183fd5ac6e8b6936ebeb8888",143]	{"name": "MONHONK!!!", "symbol": "MONHONK", "decimals": 18}
 ["0x1017f7d059f20c62830ee313dfa34f2534758aed",143]	{"name": "MonPump", "symbol": "MP", "decimals": 18}
-["0xfffde90dc956ca4540fa47cd543c0ccc6c644b07",143]	{"name": "Cell2Sentence", "symbol": "C2S", "decimals": 18}
 ["0x2cfffc79341e52e44ce4272ccba1aea1790b3b07",143]	{"name": "Dont buy this token", "symbol": "X", "decimals": 18}
 ["0x808f50cde8b3ae4d840e1e4dd1c96bcbf622f18e",143]	{"name": "printer01", "symbol": "printer01", "decimals": 18}
 ["0xdf6139b5be70a30991b614260081b2128e422d58",143]	{"name": "dogeshprintr", "symbol": "dogee", "decimals": 18}
@@ -15659,6 +15659,7 @@ id	output
 ["0x7eca5be4a660c3e390103c3a50b52deaa4fd8888",143]	{"name": "NADS", "symbol": "NADS", "decimals": 18}
 ["0xc746a8310c94b3960566e7df1941fd3aea40d916",143]	{"name": "Sphere", "symbol": "SPH", "decimals": 18}
 ["0x79f89cc3b92c9a8f917b6a61fe4bc0704e603b07",143]	{"name": "Elon Sphinx", "symbol": "ElonSph", "decimals": 18}
+["0x067b0c72aa4c6bd3bfefff443c536dcd6a25a9c8",999]	{"name": "HYBR", "symbol": "HYBR", "decimals": 18}
 ["0xb00b1d323d7c9d27b45c96d58579233bcac53fb6",143]	{"name": "​\\"Monad is about speed, but CLIN is the notification sound you've been waiting for. We are the Minimalist Digital Meme Unit coming to sweep the charts in the booming Monad ecosystem. ​In a world that takes itself too seriously, CLIN is simplicity. We aren't promising a complicated web3.0; we are promising pure fun and the fastest momentum built on top of Monad's cutting-edge technology foundation. ​Forget the thick Whitepaper. We come with a Blackpaper exactly 4 letters thick: C. L. I. N.\\"", "symbol": "CLIN", "decimals": 18}
 ["0x5fa9a787e7b0cfa6ebb05f25a0442c09dc99fb07",143]	{"name": "Quarter stonks", "symbol": "ZIPSTON", "decimals": 18}
 ["0xa09118fe57482b99b7a911ce2da44f71c20c909f",143]	{"name": "Doman", "symbol": "DOMAN", "decimals": 18}
@@ -16135,6 +16136,7 @@ id	output
 ["0xe55cdcd48820044459bd7a9221aae5240a776b07",143]	{"name": "England Food", "symbol": "ef00d", "decimals": 18}
 ["0x3e3231b692d4535d16e377669633e03530a58b07",143]	{"name": "Ai MON", "symbol": "AIMON", "decimals": 18}
 ["0xc0b62fa2b45dcfb532cfda2636ce2112a8129b07",143]	{"name": "Wojak", "symbol": "WOJAK", "decimals": 18}
+["0x348b11cbb801fab12834e66691b7f25fe72b8aa5",999]	{"name": "Growth HYBR", "symbol": "gHYBR", "decimals": 18}
 ["0x9750552fc785c33afc9c0f639099c04eec4aeb07",143]	{"name": "2025 Season Has Come To an En", "symbol": "2026", "decimals": 18}
 ["0xb00b53e1a3d10ca4a0aea54c4abfc6051d0b580d",143]	{"name": "Shiba on Monad", "symbol": "SHIMON", "decimals": 18}
 ["0x971545bcd492645019fcf817c75d30bd84c75b07",143]	{"name": "SteveWillJewIt", "symbol": "JEWIT", "decimals": 18}
@@ -17297,3 +17299,4 @@ id	output
 ["0xc35f9178a8fe24e4b91c093871df7d8fc1756b07",143]	{"name": "#67 on dexscreener", "symbol": "#67", "decimals": 18}
 ["0x07efb10347f33c05885c11ea61387190f9a83e1c",143]	{"name": "My Token", "symbol": "MTK", "decimals": 18}
 ["0xd3307e6a33267fd966153dc8941e5ef1991fab07",143]	{"name": "t funding Geo-Eng", "symbol": "TFG", "decimals": 18}
+["0x360c140e5344a1a0593d44b4ea6fc7c3daf0c473",999]	{"name": "Kinetiq Markets LST", "symbol": "kmHYPE", "decimals": 18}

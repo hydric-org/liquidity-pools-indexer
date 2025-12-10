@@ -142,7 +142,7 @@ contracts:
 
   - name: HybraSlipstreamFactory
     abi_file_path: ./abis/factories/SlipstreamFactory.json
-    handler: ./src/v3-style-pools/mappings/factory/dexs/aerodrome-slipstream-factory.ts
+    handler: ./src/v3-style-pools/mappings/factory/dexs/hybra-slipstream-factory.ts
     events:
       - event: PoolCreated(address indexed token0, address indexed token1, int24 indexed tickSpacing, address pool)
 
@@ -341,11 +341,14 @@ networks:
         address: 0x41ba59415eC75AC4242dd157F2a7A282F1e75652
       - name: RamsesV3Factory
         address: 0x07E60782535752be279929e2DFfDd136Db2e6b45
+      - name: HybraSlipstreamFactory
+        address: 0x32b9dA73215255d50D84FeB51540B75acC1324c2
       - name: UniswapV3Pool
       - name: AlgebraPool_1_2_0
       - name: AlgebraPool_1_2_2
       - name: PancakeSwapV3Pool
       - name: RamsesV3Pool
+      - name: SlipstreamPool
   - id: 8453 # Base
     start_block: 1371680
     confirmed_block_threshold: 200

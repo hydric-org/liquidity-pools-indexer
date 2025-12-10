@@ -23,6 +23,7 @@ export enum SupportedProtocol {
   HYPER_SWAP_V3 = "hyperswap-v3",
   PROJECT_X_V3 = "projectx-v3",
   HYBRA_V3 = "hybra-v3",
+  HYBRA_SLIPSTREAM = "hybra-slipstream",
   KITTENSWAP_ALGEBRA = "kittenswap-v3",
   ULTRASOLID_V3 = "ultrasolid-v3",
   UPHEAVAL_V3 = "upheaval-v3",
@@ -89,6 +90,8 @@ export namespace SupportedProtocol {
         return "OctoSwap CL";
       case SupportedProtocol.PINOT_FINANCE_V3:
         return "Pinot V3";
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        return "Hybra V3 Slipstream";
     }
   }
 
@@ -146,6 +149,8 @@ export namespace SupportedProtocol {
         return "https://octo.exchange/";
       case SupportedProtocol.PINOT_FINANCE_V3:
         return "https://pinot.finance/";
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        return "https://hybra.finance/";
     }
   }
 
@@ -203,6 +208,8 @@ export namespace SupportedProtocol {
         return "https://octo.exchange/assets/img/logo/logo.png";
       case SupportedProtocol.PINOT_FINANCE_V3:
         return "https://assets.coingecko.com/markets/images/22166/large/Pinot_Twitter_Profile.png";
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        return "https://img.cryptorank.io/exchanges/150x150.hybra_finance1752836948767.png";
     }
   }
 
@@ -260,6 +267,8 @@ export namespace SupportedProtocol {
         throw Error(`Permit2 is not available for OctoSwap CL`);
       case SupportedProtocol.PINOT_FINANCE_V3:
         throw Error(`Permit2 is not available for Pinot Finance V3`);
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        throw Error(`Permit2 is not available for Hybra Slipstream`);
     }
   }
 
@@ -317,6 +326,8 @@ export namespace SupportedProtocol {
         throw Error(`V4 position manager is not available for OctoSwap CL`);
       case SupportedProtocol.PINOT_FINANCE_V3:
         throw Error(`V4 position manager is not available for Pinot Finance V3`);
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        throw Error(`V4 position manager is not available for Hybra Slipstream`);
     }
   }
 
@@ -374,6 +385,8 @@ export namespace SupportedProtocol {
         throw Error(`V4 state view is not available for OctoSwap CL`);
       case SupportedProtocol.PINOT_FINANCE_V3:
         throw Error(`V4 state view is not available for Pinot Finance V3`);
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        throw Error(`V4 state view is not available for Hybra Slipstream`);
     }
   }
 
@@ -412,7 +425,7 @@ export namespace SupportedProtocol {
       case SupportedProtocol.PROJECT_X_V3:
         return V3PositionManagerAddress.projectX(network);
       case SupportedProtocol.HYBRA_V3:
-        return V3PositionManagerAddress.hybra(network);
+        return V3PositionManagerAddress.hybraV3(network);
       case SupportedProtocol.KITTENSWAP_ALGEBRA:
         return V3PositionManagerAddress.kittenSwap(network);
       case SupportedProtocol.ULTRASOLID_V3:
@@ -431,6 +444,8 @@ export namespace SupportedProtocol {
         return V3PositionManagerAddress.octoSwap(network);
       case SupportedProtocol.PINOT_FINANCE_V3:
         return V3PositionManagerAddress.pinotFinance(network);
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        return V3PositionManagerAddress.hybraSlipstream(network);
     }
   }
 
@@ -488,6 +503,8 @@ export namespace SupportedProtocol {
         throw Error(`V2 position manager is not available for OctoSwap CL`);
       case SupportedProtocol.PINOT_FINANCE_V3:
         throw Error(`V2 position manager is not available for Pinot Finance V3`);
+      case SupportedProtocol.HYBRA_SLIPSTREAM:
+        throw Error(`V2 position manager is not available for Hybra Slipstream`);
     }
   }
 }

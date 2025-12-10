@@ -114,7 +114,7 @@ export function getSwapFeesFromRawAmounts(
 }
 
 export function getRawFeeFromTokenAmount(rawTokenAmount: bigint, rawFee: number): bigint {
-  return (rawTokenAmount * BigInt(rawFee)) / BigInt(1000000);
+  return (rawTokenAmount * BigInt(rawFee)) / BigInt(1_000_000);
 }
 
 export function isVariableWithStablePool(token0: TokenEntity, token1: TokenEntity, network: IndexerNetwork): boolean {

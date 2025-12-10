@@ -13,9 +13,9 @@ export class ViemService {
     return this._instance;
   }
 
-  private clients: Record<IndexerNetwork, viem.Client> = {} as Record<IndexerNetwork, viem.Client>;
+  private clients: Record<IndexerNetwork, viem.PublicClient> = {} as Record<IndexerNetwork, viem.PublicClient>;
 
-  getClient(forNetwork: IndexerNetwork): viem.Client {
+  getClient(forNetwork: IndexerNetwork): viem.PublicClient {
     let client = this.clients[forNetwork];
     if (client) return client;
 
