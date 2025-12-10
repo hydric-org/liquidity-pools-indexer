@@ -1,7 +1,7 @@
-import { V2PositionManagerAddress } from "../../v2-pools/common/v2-position-manager-address";
-import { V3PositionManagerAddress } from "../../v3-pools/common/v3-position-manager-address";
-import { V4PositionManagerAddress } from "../../v4-pools/common/v4-position-manager-address";
-import { V4StateViewAddress } from "../../v4-pools/common/v4-state-view-address";
+import { V2PositionManagerAddress } from "../../v2-style-pools/common/v2-position-manager-address";
+import { V3PositionManagerAddress } from "../../v3-style-pools/common/v3-position-manager-address";
+import { V4PositionManagerAddress } from "../../v4-style-pools/common/v4-position-manager-address";
+import { V4StateViewAddress } from "../../v4-style-pools/common/v4-state-view-address";
 import { Permit2Address } from "../permit2-address";
 import { IndexerNetwork } from "./indexer-network";
 

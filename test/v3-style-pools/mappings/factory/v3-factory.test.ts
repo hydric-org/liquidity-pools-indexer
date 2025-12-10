@@ -1,0 +1,831 @@
+import assert from "assert";
+import { DeFiPoolData, handlerContext } from "generated";
+import sinon from "sinon";
+import { DEFI_POOL_DATA_ID, ZERO_BIG_DECIMAL } from "../../../../src/common/constants";
+import { defaultDeFiPoolData } from "../../../../src/common/default-entities";
+import { IndexerNetwork } from "../../../../src/common/enums/indexer-network";
+import { SupportedProtocol } from "../../../../src/common/enums/supported-protocol";
+import { TokenService } from "../../../../src/common/services/token-service";
+import { handleV3PoolCreated } from "../../../../src/v3-style-pools/mappings/factory/v3-factory";
+import { handlerContextCustomMock, TokenMock } from "../../../mocks";
+
+describe("V3FactoryHandler", () => {
+  let context: handlerContext;
+  let tokenService: sinon.SinonStubbedInstance<TokenService>;
+  let poolAddress = "0xP00L4Ddr3ss";
+  let token0Address = "0x0000000000000000000000000000000000000001";
+  let token1Address = "0x0000000000000000000000000000000000000002";
+  let feeTier = 0;
+  let tickSpacing = 0;
+  let eventTimestamp = BigInt(Math.floor(Date.now() / 1000));
+  let chainId = 1;
+  let protocol = SupportedProtocol.UNISWAP_V3;
+
+  beforeEach(() => {
+    context = handlerContextCustomMock();
+    tokenService = sinon.createStubInstance(TokenService);
+
+    tokenService.getOrCreateTokenEntity.resolves(new TokenMock());
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should set the pool id in the v3 pool data entity id and assign it to the pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const expectedPoolId = IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress);
+    const pool = await context.Pool.get(expectedPoolId)!;
+
+    assert.equal(pool!.v3PoolData_id, expectedPoolId);
+  });
+
+  it("should set the tick spacing of the v3 pool data, with the one passed in the event", async () => {
+    const expectedTickSpacing = 1261892691;
+    tickSpacing = expectedTickSpacing;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const v3PoolData = await context.V3PoolData.get(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(v3PoolData!.tickSpacing, expectedTickSpacing);
+  });
+
+  it("should set the sqrtPriceX96 of the v3 pool data, as zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const v3PoolData = await context.V3PoolData.get(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(v3PoolData!.sqrtPriceX96, 0n);
+  });
+
+  it("should set the tick of the v3 pool data, as zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const v3PoolData = await context.V3PoolData.get(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(v3PoolData!.tick, 0n);
+  });
+
+  it("should set the pool address in the pool entity, exactly the same as the one passed in the event", async () => {
+    const expectedPoolAddress = "xabas address";
+    poolAddress = expectedPoolAddress;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.poolAddress, expectedPoolAddress);
+  });
+
+  it("should get the v3 position manager for the passed protocol at the passed chain id and set it in the pool", async () => {
+    const expectedProtocol = SupportedProtocol.AERODROME_V3;
+    const expectedChainId = IndexerNetwork.BASE;
+    const expectedPositionManagerAddress = SupportedProtocol.getV3PositionManager(expectedProtocol, expectedChainId);
+
+    chainId = IndexerNetwork.BASE;
+    protocol = expectedProtocol;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.positionManager, expectedPositionManagerAddress);
+  });
+
+  it("should set the token 0 id in the pool entity, the exactly one got from the token service", async () => {
+    const expectedToken0Id = "Xabas ma token 0 id";
+
+    tokenService.getOrCreateTokenEntity
+      .withArgs(context, chainId, token0Address)
+      .resolves(new TokenMock(expectedToken0Id));
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.token0_id, expectedToken0Id);
+  });
+
+  it("should set the token 1 id in the pool entity, the exactly one got from the token service", async () => {
+    const expectedToken1Id = "Xabas ma token 1  11111";
+
+    tokenService.getOrCreateTokenEntity
+      .withArgs(context, chainId, token1Address)
+      .resolves(new TokenMock(expectedToken1Id));
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.token1_id, expectedToken1Id);
+  });
+
+  it("should set the pool current fee tier, the one passed in the event", async () => {
+    const expectedFeeTier = 12518;
+    feeTier = expectedFeeTier;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.currentFeeTier, expectedFeeTier);
+  });
+
+  it("should set the pool initial fee tier, the one passed in the event", async () => {
+    const expectedFeeTier = 12518;
+    feeTier = expectedFeeTier;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.initialFeeTier, expectedFeeTier);
+  });
+
+  it("should set the pool total value locked usd to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.totalValueLockedUSD, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the pool total value locked token 0 to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.totalValueLockedToken0, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the pool total value locked token 1 to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.totalValueLockedToken1, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the pool created timestamp to the same as the event timestamp", async () => {
+    const expectedEventTimestamp = BigInt("555155155155155551777");
+    eventTimestamp = expectedEventTimestamp;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.createdAtTimestamp, expectedEventTimestamp);
+  });
+
+  it("should set the protocol in the pool, the same as the one passed in the event", async () => {
+    const expectedProtocol = SupportedProtocol.SUSHI_SWAP_V3;
+
+    protocol = expectedProtocol;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.protocol_id, expectedProtocol);
+  });
+
+  it("should set the pool type to v3", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.poolType, "V3");
+  });
+
+  it("should assign the chain id passed from the event to the pool", async () => {
+    const expectedChainId = IndexerNetwork.SCROLL;
+    chainId = expectedChainId;
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.chainId, expectedChainId);
+  });
+
+  it("should save the token0 entity", async () => {
+    const expectedToken0Id = "xabas-for-token0-id";
+    const expectedToken0 = new TokenMock(expectedToken0Id);
+
+    tokenService.getOrCreateTokenEntity.withArgs(context, chainId, token0Address).resolves(expectedToken0);
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const token0Created = await context.Token.getOrThrow(expectedToken0Id)!;
+
+    assert.deepEqual(token0Created.id, expectedToken0Id);
+  });
+
+  it("should save the token1 entity", async () => {
+    const expectedToken1Id = "xabas-for-token1-id";
+    const expectedToken1 = new TokenMock(expectedToken1Id);
+
+    tokenService.getOrCreateTokenEntity.withArgs(context, chainId, token1Address).resolves(expectedToken1);
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const token1Created = await context.Token.getOrThrow(expectedToken1Id)!;
+
+    assert.deepEqual(token1Created.id, expectedToken1Id);
+  });
+
+  it("should correctly save the protocol entity with the correct params based on the protocol from the event", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const protocolCreated = await context.Protocol.getOrThrow(protocol)!;
+
+    assert.deepEqual(
+      protocolCreated.logo,
+      SupportedProtocol.getLogoUrl(protocol),
+      "the protocol logo should be correct"
+    );
+
+    assert.deepEqual(protocolCreated.name, SupportedProtocol.getName(protocol), "the protocol name should be correct");
+    assert.deepEqual(protocolCreated.url, SupportedProtocol.getUrl(protocol), "the protocol url should be correct");
+    assert.deepEqual(
+      protocolCreated.logo,
+      SupportedProtocol.getLogoUrl(protocol),
+      "the protocol logo url should be correct"
+    );
+  });
+
+  it("should set the liquidity volume token 0 to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+    assert.deepEqual(pool.liquidityVolumeToken0, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the liquidity volume token 1 to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+    assert.deepEqual(pool.liquidityVolumeToken1, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the liquidity volume USD to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+    assert.deepEqual(pool.liquidityVolumeUSD, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the swap volume USD to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+    assert.deepEqual(pool.swapVolumeUSD, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the swap volume token 0 to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.swapVolumeToken0, ZERO_BIG_DECIMAL);
+  });
+
+  it("should set the swap volume token 1 to zero", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+    assert.deepEqual(pool.swapVolumeToken1, ZERO_BIG_DECIMAL);
+  });
+
+  it("should modify the existing defiPoolData entity to increase the poolsCount", async () => {
+    const existingDefiPoolData: DeFiPoolData = {
+      id: DEFI_POOL_DATA_ID,
+      poolsCount: 21,
+      startedAtTimestamp: 1758582407n,
+    };
+
+    context.DeFiPoolData.set(existingDefiPoolData);
+
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const updatedDefiPoolData = await context.DeFiPoolData.getOrThrow(DEFI_POOL_DATA_ID)!;
+    const expectedNewDefiPoolData: DeFiPoolData = {
+      ...existingDefiPoolData,
+      poolsCount: existingDefiPoolData.poolsCount + 1,
+    };
+
+    assert.deepEqual(updatedDefiPoolData, expectedNewDefiPoolData);
+  });
+
+  it(`should create a new defiPoolData entity if it doesn't exist and
+      assign one as poolsCount. `, async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const updatedDefiPoolData = await context.DeFiPoolData.getOrThrow(DEFI_POOL_DATA_ID)!;
+    const expectedNewDefiPoolData: DeFiPoolData = {
+      ...defaultDeFiPoolData(eventTimestamp),
+      poolsCount: 1,
+    };
+
+    assert.deepEqual(updatedDefiPoolData, expectedNewDefiPoolData);
+  });
+
+  it("should set all the accumulated yield as zero when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.deepEqual(pool.accumulatedYield24h, ZERO_BIG_DECIMAL, "the 24h yield should be zero");
+    assert.deepEqual(pool.accumulatedYield7d, ZERO_BIG_DECIMAL, "the 7d yield should be zero");
+    assert.deepEqual(pool.accumulatedYield30d, ZERO_BIG_DECIMAL, "the 30d yield should be zero");
+    assert.deepEqual(pool.accumulatedYield90d, ZERO_BIG_DECIMAL, "the 90d yield should be zero");
+    assert.deepEqual(pool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
+  });
+
+  it("should set data point timestamps as the event timestamp when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(
+      pool.dataPointTimestamp24hAgo,
+      eventTimestamp,
+      "the 24h data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp7dAgo,
+      eventTimestamp,
+      "the 7d data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp30dAgo,
+      eventTimestamp,
+      "the 30d data point timestamp should be the event timestamp"
+    );
+    assert.equal(
+      pool.dataPointTimestamp90dAgo,
+      eventTimestamp,
+      "the 90d data point timestamp should be the event timestamp"
+    );
+  });
+
+  it("should set is dynamic fee to false when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.isDynamicFee, false);
+  });
+
+  it("should set the last adjust timestamps as undefined when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.lastAdjustTimestamp24h, undefined, "the 24h last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp7d, undefined, "the 7d last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp30d, undefined, "the 30d last adjust timestamp should be undefined");
+    assert.equal(pool.lastAdjustTimestamp90d, undefined, "the 90d last adjust timestamp should be undefined");
+  });
+
+  it("should set the yearly yields as zero when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.yearlyYield24h, ZERO_BIG_DECIMAL, "the 24h yearly yield should be zero");
+    assert.equal(pool.yearlyYield7d, ZERO_BIG_DECIMAL, "the 7d yearly yield should be zero");
+    assert.equal(pool.yearlyYield30d, ZERO_BIG_DECIMAL, "the 30d yearly yield should be zero");
+    assert.equal(pool.yearlyYield90d, ZERO_BIG_DECIMAL, "the 90d yearly yield should be zero");
+  });
+
+  it("should set the total accumulated yields as zero when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.totalAccumulatedYield, ZERO_BIG_DECIMAL, "the total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield24hAgo, ZERO_BIG_DECIMAL, "the 24h total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield7dAgo, ZERO_BIG_DECIMAL, "the 7d total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield30dAgo, ZERO_BIG_DECIMAL, "the 30d total accumulated yield should be zero");
+    assert.equal(pool.totalAccumulatedYield90dAgo, ZERO_BIG_DECIMAL, "the 90d total accumulated yield should be zero");
+  });
+
+  it("should set the accumulated yields as zero when creating a pool", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.accumulatedYield24h, ZERO_BIG_DECIMAL, "the 24h accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield7d, ZERO_BIG_DECIMAL, "the 7d accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield30d, ZERO_BIG_DECIMAL, "the 30d accumulated yield should be zero");
+    assert.equal(pool.accumulatedYield90d, ZERO_BIG_DECIMAL, "the 90d accumulated yield should be zero");
+  });
+
+  it("should set isDynamicFee as true in the pool if passing true to the param", async () => {
+    await handleV3PoolCreated({
+      context,
+      poolAddress,
+      token0Address,
+      token1Address,
+      feeTier,
+      tickSpacing,
+      eventTimestamp,
+      chainId,
+      protocol,
+      tokenService,
+      isDynamicFee: true,
+    });
+
+    const pool = await context.Pool.getOrThrow(IndexerNetwork.getEntityIdFromAddress(chainId, poolAddress))!;
+
+    assert.equal(pool.isDynamicFee, true);
+  });
+});

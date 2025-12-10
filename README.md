@@ -66,11 +66,11 @@ To add a new network to the indexer, you need to do a few things:
 3. Add a new entry for every function in `IndexerNetwork` namespace, that needs to be configured per network, at [indexer-network.ts](./src/common/enums/indexer-network.ts). Things such RPC urls, stablecoins addresses, wrapped native addresses, etc.
 4. Modify all the files that are using the `IndexerNetwork` networks to specify addresses or params per network, and if applicable add a new entry specifying the address for the new network, in case it's not applicable, should throw an error.
 
-   - [V2 Position Manager Address](./src/v2-pools/common/v2-position-manager-address.ts)
-   - [V3 Position Manager Address](./src/v3-pools/common/v3-position-manager-address.ts)
-   - [V4 Position Manager Address](./src/v4-pools/common/v4-position-manager-address.ts)
+   - [V2 Position Manager Address](./src/v2-style-pools/common/v2-position-manager-address.ts)
+   - [V3 Position Manager Address](./src/v3-style-pools/common/v3-position-manager-address.ts)
+   - [V4 Position Manager Address](./src/v4-style-pools/common/v4-position-manager-address.ts)
    - [Permit2 Address](./src/common/permit2-address.ts)
-   - [V4 State View Address](./src/v4-pools/common/v4-state-view-address.ts)
+   - [V4 State View Address](./src/v4-style-pools/common/v4-state-view-address.ts)
 
 ## Adding new DEXs
 
@@ -82,9 +82,9 @@ To add a new network to the indexer, you need to do a few things:
    - In case that this new DEX pool events are different from the original UniswapV2, some additional things are required:
      - You should add its ABI in the [abis](./abis/) folder. For the Pair and the Factory.
      - A new contract for this DEX pool must be added in the config file, with the correct events and handlers.
-     - You should create personalized handlers for this new DEXs, to handle events emitted by this personalized template, following the pattern of the other ones at [v2-pools/mappings/pool/dexs](./src/v2-pools/mappings/pool/dexs/)
+     - You should create personalized handlers for this new DEXs, to handle events emitted by this personalized template, following the pattern of the other ones at [v2-pools/mappings/pool/dexs](./src/v2-style-pools/mappings/pool/dexs/)
 
-2. Create a factory handler specific for the new DEX in [v2-pools/mappings/factory/dexs](./src/v2-pools/mappings/factory/dexs), following the pattern of the other ones.
+2. Create a factory handler specific for the new DEX in [v2-pools/mappings/factory/dexs](./src/v2-style-pools/mappings/factory/dexs), following the pattern of the other ones.
 
    - You should not forget to register the pool dynamic contract in this file, for example:
 
@@ -96,7 +96,7 @@ To add a new network to the indexer, you need to do a few things:
 
    In case that the new DEX events are not compatible with the UniswapV2 events, you should then instead of registering an UniswapV2Pool, register the new DEX pool contract created, at the previous step. if the new DEX events are compatible with the UniswapV2 events, you can just copy and paste the one above.
 
-3. Create a new function in [v2-position-manager-address.ts](./src/v2-pools/common/v2-position-manager-address.ts) to return the address of the position
+3. Create a new function in [v2-position-manager-address.ts](./src/v2-style-pools/common/v2-position-manager-address.ts) to return the address of the position
    manager for this new DEX for each network.
 
 4. Create a new entry in the `SupportedProtocol` enum at [supported-protocol.ts](./src/common/enums/supported-protocol.ts) for the new DEX, and add all needed returns (e.g., logo url, name, etc...) for the new DEX in the enum namespace at the same file, below the enum itself.
@@ -109,9 +109,9 @@ To add a new network to the indexer, you need to do a few things:
    - In case that this new DEX pool events are different from the original UniswapV3, some additional things are required:
      - You should add its ABI in the [abis](./abis/) folder. For the Pair and the Factory.
      - A new contract for this DEX pool must be added in the config file, with the correct events and handlers.
-     - You should create peronsalized handlers for this new DEXs, to handle events emitted by this personalized template, following the pattern of the other ones at [v3-pools/mappings/factory/dexs](./src/v3-pools/mappings/pool/dexs/)
+     - You should create peronsalized handlers for this new DEXs, to handle events emitted by this personalized template, following the pattern of the other ones at [v3-pools/mappings/factory/dexs](./src/v3-style-pools/mappings/pool/dexs/)
 
-2. Create a factory handler specific for the new DEX in [v3-pools/mappings/factory/dexs](./src/v3-pools/mappings/factory/dexs), following the pattern of the other ones.
+2. Create a factory handler specific for the new DEX in [v3-pools/mappings/factory/dexs](./src/v3-style-pools/mappings/factory/dexs), following the pattern of the other ones.
 
    - You should not forget to register the pool dynamic contract in this file, for example:
 
@@ -123,7 +123,7 @@ To add a new network to the indexer, you need to do a few things:
 
    In case that the new DEX events are not compatible with the UniswapV3 events, you should then instead of registering an UniswapV3Pool, register the new DEX pool contract created, at the previous step. if the new DEX events are compatible with the UniswapV3 events, you can just copy and paste the one above.
 
-3. Create a new function in [v3-position-manager-address.ts](./src/v3-pools/common/v3-position-manager-address.ts) to return the address of the position
+3. Create a new function in [v3-position-manager-address.ts](./src/v3-style-pools/common/v3-position-manager-address.ts) to return the address of the position
    manager for this new DEX.
 
 4. Create a new entry in the `SupportedProtocol` enum at [supported-protocol.ts](./src/common/enums/supported-protocol.ts) for the new DEX, and add all needed returns (e.g logo url, name, etc...) for the new DEX in the enum namespace at the same file, below the enum itself.
@@ -132,11 +132,11 @@ To add a new network to the indexer, you need to do a few things:
 
 1. Add the DEX V4 Pool manager and its handlers in the `contracts` section in the [config.yaml](./config.yaml) for the new DEX
 
-2. Create handlers for this new DEX in [v4-pools/mappings/pool-manager/dexs](./src/v4-pools/mappings/pool-manager/dexs), following the pattern of the other ones
+2. Create handlers for this new DEX in [v4-pools/mappings/pool-manager/dexs](./src/v4-style-pools/mappings/pool-manager/dexs), following the pattern of the other ones
 
-3. Create a new function in [v4-position-manager-address.ts](./src/v4-pools/common/v4-position-manager-address.ts) to return the address of the position manager for this new DEX.
+3. Create a new function in [v4-position-manager-address.ts](./src/v4-style-pools/common/v4-position-manager-address.ts) to return the address of the position manager for this new DEX.
 
-4. Create a new function in [v4-state-view-address.ts](./src/v4-pools/common/v4-state-view-address.ts) to return the address of the V4 State view for this new DEX, if applicable for this new DEX.
+4. Create a new function in [v4-state-view-address.ts](./src/v4-style-pools/common/v4-state-view-address.ts) to return the address of the V4 State view for this new DEX, if applicable for this new DEX.
 
 5. Add the permit2 address for the new DEX in [permit2-address.ts](./src/common/permit2-address.ts)
 

@@ -2,10 +2,10 @@ import assert from "assert";
 import { IndexerNetwork } from "../../../src/common/enums/indexer-network";
 import { SupportedProtocol } from "../../../src/common/enums/supported-protocol";
 import { Permit2Address } from "../../../src/common/permit2-address";
-import { V2PositionManagerAddress } from "../../../src/v2-pools/common/v2-position-manager-address";
-import { V3PositionManagerAddress } from "../../../src/v3-pools/common/v3-position-manager-address";
-import { V4PositionManagerAddress } from "../../../src/v4-pools/common/v4-position-manager-address";
-import { V4StateViewAddress } from "../../../src/v4-pools/common/v4-state-view-address";
+import { V2PositionManagerAddress } from "../../../src/v2-style-pools/common/v2-position-manager-address";
+import { V3PositionManagerAddress } from "../../../src/v3-style-pools/common/v3-position-manager-address";
+import { V4PositionManagerAddress } from "../../../src/v4-style-pools/common/v4-position-manager-address";
+import { V4StateViewAddress } from "../../../src/v4-style-pools/common/v4-state-view-address";
 
 describe("SupportedProtocol enum values", () => {
   it("should return the correct protocol id for uniswap v2", () => {
