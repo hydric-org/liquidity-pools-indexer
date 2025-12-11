@@ -1,5 +1,5 @@
 {
-  "name": "envio-indexer",
+  "name": "pools-indexer",
   "scripts": {
     "clean": "tsc --clean",
     "build": "tsc --build",
