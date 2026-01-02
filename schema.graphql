@@ -3,51 +3,44 @@ enum PoolType {
   V3
   V4
   ALGEBRA
+  SLIPSTREAM
 }
 
-type DeFiPoolData {
-  id: ID!
-  poolsCount: Int!
-  startedAtTimestamp: BigInt! @config(precision: 12)
+enum HistoricalDataInterval {
+  HOURLY
+  DAILY
 }
 
-type DeFiPoolDailyData {
-  id: ID!
-  liquidityVolumeUSD: BigDecimal!
-  liquidityNetInflowUSD: BigDecimal!
-  liquidityInflowUSD: BigDecimal!
-  liquidityOutflowUSD: BigDecimal!
-  dayStartTimestamp: BigInt! @index @config(precision: 12)
-}
-
-type DeFiPoolHourlyData {
-  id: ID!
-  liquidityVolumeUSD: BigDecimal!
-  liquidityNetInflowUSD: BigDecimal!
-  liquidityInflowUSD: BigDecimal!
-  liquidityOutflowUSD: BigDecimal!
-  hourStartTimestamp: BigInt! @index @config(precision: 12)
+enum StatsTimeframe {
+  DAY
+  WEEK
+  MONTH
+  QUARTER
 }
 
 type Token {
   id: ID!
   tokenAddress: String! @index
   usdPrice: BigDecimal!
-  mostLiquidPool: Pool!
   decimals: Int!
   totalValuePooledUsd: BigDecimal! @index
-  #  @config(precision: 20, scale: 6)
-  totalTokenPooledAmount: BigDecimal!
-  swapVolumeUSD: BigDecimal! @index
+  tokenTotalValuePooled: BigDecimal!
+  swapVolumeUsd: BigDecimal! @index
   tokenSwapVolume: BigDecimal!
-  liquidityVolumeUSD: BigDecimal! @index
+  liquidityVolumeUsd: BigDecimal! @index
   tokenLiquidityVolume: BigDecimal!
+  tokenFees: BigDecimal!
+  feesUsd: BigDecimal!
   symbol: String!
   name: String!
   chainId: Int! @index
+  poolsCount: Int!
+  swapsCount: Int!
+  swapsInCount: Int!
+  swapsOutCount: Int!
 }
 
-type Pool @index(fields: ["token0", "token1", "totalValueLockedUSD"]) {
+type Pool @index(fields: ["token0", "token1", "totalValueLockedUsd"]) {
   id: ID!
   token0: Token! @index
   token1: Token! @index
@@ -55,51 +48,68 @@ type Pool @index(fields: ["token0", "token1", "totalValueLockedUSD"]) {
   currentFeeTier: Int!
   initialFeeTier: Int!
   positionManager: Bytes!
-  totalValueLockedUSD: BigDecimal! @index
-  # @config(precision: 19, scale: 6)
-  totalValueLockedToken0: BigDecimal!
-  totalValueLockedToken1: BigDecimal!
-  swapVolumeUSD: BigDecimal!
-  swapVolumeToken0: BigDecimal!
-  swapVolumeToken1: BigDecimal!
-  liquidityVolumeUSD: BigDecimal!
-  liquidityVolumeToken0: BigDecimal!
-  liquidityVolumeToken1: BigDecimal!
-  createdAtTimestamp: BigInt! @index @config(precision: 12)
-  hourlyData: [PoolHourlyData!]! @derivedFrom(field: "pool")
-  dailyData: [PoolDailyData!]! @derivedFrom(field: "pool")
   protocol: Protocol! @index
   poolType: PoolType! @index
   v4PoolData: V4PoolData
   v3PoolData: V3PoolData
   algebraPoolData: AlgebraPoolData
+  slipstreamPoolData: SlipstreamPoolData
   chainId: Int! @index
   isDynamicFee: Boolean!
-  totalAccumulatedYield: BigDecimal! @config(precision: 18, scale: 6)
-  totalAccumulatedYield24hAgo: BigDecimal! @config(precision: 18, scale: 6)
-  totalAccumulatedYield7dAgo: BigDecimal! @config(precision: 18, scale: 6)
-  totalAccumulatedYield30dAgo: BigDecimal! @config(precision: 18, scale: 6)
-  totalAccumulatedYield90dAgo: BigDecimal! @config(precision: 18, scale: 6)
-  accumulatedYield24h: BigDecimal! @config(precision: 18, scale: 6)
-  accumulatedYield7d: BigDecimal! @config(precision: 18, scale: 6)
-  accumulatedYield30d: BigDecimal! @config(precision: 18, scale: 6)
-  accumulatedYield90d: BigDecimal! @config(precision: 18, scale: 6)
-  yearlyYield90d: BigDecimal! @config(precision: 18, scale: 6)
-  yearlyYield30d: BigDecimal! @config(precision: 18, scale: 6)
-  yearlyYield7d: BigDecimal! @config(precision: 18, scale: 6)
-  yearlyYield24h: BigDecimal! @config(precision: 18, scale: 6)
-  lastAdjustTimestamp24h: BigInt @config(precision: 12)
-  lastAdjustTimestamp7d: BigInt @config(precision: 12)
-  lastAdjustTimestamp30d: BigInt @config(precision: 12)
-  lastAdjustTimestamp90d: BigInt @config(precision: 12)
-  dataPointTimestamp24hAgo: BigInt! @index @config(precision: 12)
-  dataPointTimestamp7dAgo: BigInt! @index @config(precision: 12)
-  dataPointTimestamp30dAgo: BigInt! @index @config(precision: 12)
-  dataPointTimestamp90dAgo: BigInt! @index @config(precision: 12)
+  createdAtTimestamp: BigInt! @index @config(precision: 12)
+  historicalData: [PoolHistoricalData!]! @derivedFrom(field: "pool")
+  #  @config(precision: 8, scale: 6)
+  totalValueLockedUsd: BigDecimal! @index
+  totalValueLockedToken0: BigDecimal!
+  totalValueLockedToken1: BigDecimal!
+  totalValueLockedToken0Usd: BigDecimal!
+  totalValueLockedToken1Usd: BigDecimal!
+  accumulatedYield: BigDecimal! @config(precision: 18, scale: 6)
+  feesUsd: BigDecimal!
+  feesToken0: BigDecimal!
+  feesToken1: BigDecimal!
+  swapVolumeUsd: BigDecimal!
+  swapVolumeToken0: BigDecimal!
+  swapVolumeToken1: BigDecimal!
+  swapVolumeToken0Usd: BigDecimal!
+  swapVolumeToken1Usd: BigDecimal!
+  liquidityVolumeUsd: BigDecimal!
+  liquidityVolumeToken0: BigDecimal!
+  liquidityVolumeToken1: BigDecimal!
+  liquidityVolumeToken0Usd: BigDecimal!
+  liquidityVolumeToken1Usd: BigDecimal!
+  liquidityNetInflowUsd: BigDecimal!
+  totalStats24h: PoolTimeframedStats!
+  totalStats7d: PoolTimeframedStats!
+  totalStats30d: PoolTimeframedStats!
+  totalStats90d: PoolTimeframedStats!
+  swapsCount: Int!
+  tokens0PerToken1: BigDecimal!
+  tokens1PerToken0: BigDecimal!
 }
 
 type V3PoolData {
   id: ID!
+  tick: BigInt! @config(precision: 7)
+  sqrtPriceX96: BigInt!
+  tickSpacing: Int!
+}
+
+type SlipstreamPoolData {
+  id: ID!
+  tick: BigInt! @config(precision: 7)
+  sqrtPriceX96: BigInt!
+  tickSpacing: Int!
+  lastFeeAdjustmentTimestamp: BigInt! @config(precision: 12)
+}
+
+type AlgebraPoolData {
+  id: ID!
+  deployer: String!
+  communityFee: Int!
+  plugin: String!
+  pluginConfig: Int!
+  version: String!
   tick: BigInt! @config(precision: 7)
   sqrtPriceX96: BigInt!
   tickSpacing: Int!
@@ -116,94 +126,57 @@ type V4PoolData {
   stateView: Bytes
 }
 
-type AlgebraPoolData {
+type PoolTimeframedStats {
   id: ID!
-  deployer: String!
-  communityFee: Int!
-  plugin: String!
-  pluginConfig: Int!
-  version: String!
-  tick: BigInt! @config(precision: 7)
-  sqrtPriceX96: BigInt!
-  tickSpacing: Int!
+  pool: Pool! @index
+  timeframe: StatsTimeframe!
+  dataPointTimestamp: BigInt! @index @config(precision: 12)
+  lastRefreshTimestamp: BigInt! @config(precision: 12)
+  liquidityNetInflowUsd: BigDecimal!
+  swapVolumeUsd: BigDecimal!
+  feesUsd: BigDecimal!
+  yearlyYield: BigDecimal! @config(precision: 18, scale: 6)
+  accumulatedYield: BigDecimal! @config(precision: 18, scale: 6)
 }
 
-type PoolHourlyData @index(fields: ["hourStartTimestamp", "totalValueLockedUSD"]) {
+type PoolHistoricalData {
   id: ID!
   pool: Pool!
-  totalAccumulatedYield: BigDecimal!
-  # @config(precision: 18, scale: 6)
-  yearlyYield: BigDecimal!
-  # @config(precision: 15, scale: 6)
-  feesUSD: BigDecimal! @index
-  # @config(precision: 17, scale: 6)
-  feesToken0: BigDecimal!
-  feesToken1: BigDecimal!
-  hourStartTimestamp: BigInt! @index
-  # @config(precision: 12)
-  totalValueLockedUSD: BigDecimal! @index
-  #  @config(precision: 19, scale: 6)
-  totalValueLockedToken0: BigDecimal!
-  totalValueLockedToken1: BigDecimal!
-  swapVolumeToken0: BigDecimal!
-  swapVolumeToken1: BigDecimal!
-  swapVolumeUSD: BigDecimal!
-  # @config(precision: 20, scale: 6)
-  liquidityVolumeUSD: BigDecimal!
-  # @config(precision: 19, scale: 6)
-  liquidityVolumeToken0: BigDecimal!
-  liquidityVolumeToken1: BigDecimal!
-  liquidityNetInflowUSD: BigDecimal!
-  # @config(precision: 19, scale: 6)
-  liquidityNetInflowToken0: BigDecimal!
-  liquidityNetInflowToken1: BigDecimal!
-  liquidityInflowUSD: BigDecimal!
-  # @config(precision: 19, scale: 6)
-  liquidityInflowToken0: BigDecimal!
-  liquidityInflowToken1: BigDecimal!
-  liquidityOutflowUSD: BigDecimal!
-  #  @config(precision: 19, scale: 6)
-  liquidityOutflowToken0: BigDecimal!
-  liquidityOutflowToken1: BigDecimal!
-}
-
-type PoolDailyData @index(fields: ["dayStartTimestamp", "totalValueLockedUSD"]) {
-  id: ID!
-  pool: Pool!
-  totalAccumulatedYield: BigDecimal!
-  # @config(precision: 18, scale: 6)
-  yearlyYield: BigDecimal!
-  #  @config(precision: 15, scale: 6)
-  feesUSD: BigDecimal! @index
-  #  @config(precision: 18, scale: 6)
-  feesToken0: BigDecimal!
-  feesToken1: BigDecimal!
-  dayStartTimestamp: BigInt! @index
-  #  @config(precision: 12)
-  totalValueLockedUSD: BigDecimal! @index
-  # @config(precision: 19, scale: 6)
-  totalValueLockedToken0: BigDecimal!
-  totalValueLockedToken1: BigDecimal!
-  swapVolumeToken0: BigDecimal!
-  swapVolumeToken1: BigDecimal!
-  swapVolumeUSD: BigDecimal!
-  #  @config(precision: 20, scale: 6)
-  liquidityVolumeUSD: BigDecimal!
-  #  @config(precision: 19, scale: 6)
-  liquidityVolumeToken0: BigDecimal!
-  liquidityVolumeToken1: BigDecimal!
-  liquidityNetInflowUSD: BigDecimal!
-  #  @config(precision: 18, scale: 6)
-  liquidityNetInflowToken0: BigDecimal!
-  liquidityNetInflowToken1: BigDecimal!
-  liquidityInflowUSD: BigDecimal!
-  #  @config(precision: 19, scale: 6)
-  liquidityInflowToken0: BigDecimal!
-  liquidityInflowToken1: BigDecimal!
-  liquidityOutflowUSD: BigDecimal!
-  #  @config(precision: 19, scale: 6)
-  liquidityOutflowToken0: BigDecimal!
-  liquidityOutflowToken1: BigDecimal!
+  interval: HistoricalDataInterval!
+  timestampAtStart: BigInt! @index @config(precision: 12)
+  timestampAtEnd: BigInt! @config(precision: 12)
+  accumulatedYieldAtStart: BigDecimal! @config(precision: 18, scale: 6)
+  accumulatedYieldAtEnd: BigDecimal! @config(precision: 18, scale: 6)
+  feesUsdAtStart: BigDecimal!
+  feesUsdAtEnd: BigDecimal!
+  swapVolumeUsdAtStart: BigDecimal!
+  swapVolumeUsdAtEnd: BigDecimal!
+  liquidityNetInflowUsdAtStart: BigDecimal!
+  liquidityNetInflowUsdAtEnd: BigDecimal!
+  totalValueLockedUsdAtStart: BigDecimal!
+  totalValueLockedUsdAtEnd: BigDecimal!
+  totalValueLockedToken0AtStart: BigDecimal!
+  totalValueLockedToken0AtEnd: BigDecimal!
+  totalValueLockedToken1AtStart: BigDecimal!
+  totalValueLockedToken1AtEnd: BigDecimal!
+  intervalSwapVolumeToken0: BigDecimal!
+  intervalSwapVolumeToken1: BigDecimal!
+  intervalSwapVolumeUsd: BigDecimal!
+  intervalLiquidityVolumeUsd: BigDecimal!
+  intervalLiquidityVolumeToken0: BigDecimal!
+  intervalLiquidityVolumeToken1: BigDecimal!
+  intervalLiquidityNetInflowUsd: BigDecimal!
+  intervalLiquidityNetInflowToken0: BigDecimal!
+  intervalLiquidityNetInflowToken1: BigDecimal!
+  intervalLiquidityInflowUsd: BigDecimal!
+  intervalLiquidityInflowToken0: BigDecimal!
+  intervalLiquidityInflowToken1: BigDecimal!
+  intervalLiquidityOutflowUsd: BigDecimal!
+  intervalLiquidityOutflowToken0: BigDecimal!
+  intervalLiquidityOutflowToken1: BigDecimal!
+  intervalFeesUsd: BigDecimal!
+  intervalFeesToken0: BigDecimal!
+  intervalFeesToken1: BigDecimal!
 }
 
 type Protocol {

@@ -1,0 +1,38 @@
+import { ONE_DAY_IN_SECONDS, ONE_HOUR_IN_SECONDS } from "../constants";
+import { IndexerNetwork } from "../network/indexer-network";
+
+export const EntityId = {
+  fromAddress(network: IndexerNetwork, address: string): string {
+    return `${network}-${address}`.toLowerCase();
+  },
+
+  buildHourlyDataId(secondsTimestamp: bigint, network: IndexerNetwork, address: string): string {
+    const hourtimestampAtStart = secondsTimestamp - (secondsTimestamp % BigInt(ONE_HOUR_IN_SECONDS));
+    const hourId = hourtimestampAtStart / BigInt(ONE_HOUR_IN_SECONDS);
+
+    return EntityId.fromAddress(network, `${address}:hour:${hourId}`);
+  },
+
+  buildDailyDataId(secondsTimestamp: bigint, network: IndexerNetwork, address: string): string {
+    const daytimestampAtStart = secondsTimestamp - (secondsTimestamp % BigInt(ONE_DAY_IN_SECONDS));
+    const dayId = daytimestampAtStart / BigInt(ONE_DAY_IN_SECONDS);
+
+    return EntityId.fromAddress(network, `${address}:day:${dayId}`);
+  },
+
+  build24hStatsId(network: IndexerNetwork, address: string): string {
+    return EntityId.fromAddress(network, `${address}:24hStats`);
+  },
+
+  build7dStatsId(network: IndexerNetwork, address: string): string {
+    return EntityId.fromAddress(network, `${address}:7dStats`);
+  },
+
+  build30dStatsId(network: IndexerNetwork, address: string): string {
+    return EntityId.fromAddress(network, `${address}:30dStats`);
+  },
+
+  build90dStatsId(network: IndexerNetwork, address: string): string {
+    return EntityId.fromAddress(network, `${address}:90dStats`);
+  },
+};

@@ -1,1 +1,0 @@
-export const V4_DYNAMIC_FEE_FLAG = 0x800000;
