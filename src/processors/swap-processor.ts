@@ -1,13 +1,13 @@
-import {
+import type {
   PoolHistoricalData as PoolHistoricalDataEntity,
   PoolTimeframedStats as PoolTimeframedStatsEntity,
   Token as TokenEntity,
 } from "generated";
-import { HandlerContext } from "generated/src/Types";
+import type { HandlerContext } from "generated/src/Types";
 import { STATS_TIMEFRAME_IN_DAYS } from "../core/constants";
 import { EntityId } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
-import { PoolPrices } from "../core/types";
+import type { PoolPrices } from "../core/types";
 import {
   calculateNewLockedAmounts,
   calculateSwapFees,

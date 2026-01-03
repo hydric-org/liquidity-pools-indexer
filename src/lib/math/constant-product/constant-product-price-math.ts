@@ -1,6 +1,6 @@
-import { BigDecimal } from "generated";
+import type { BigDecimal } from "generated";
 import { ONE_BIG_DECIMAL } from "../../../core/constants";
-import { PoolPrices } from "../../../core/types";
+import type { PoolPrices } from "../../../core/types";
 import { SafeMath } from "../safe-math";
 
 export const ConstantProductPriceMath = {

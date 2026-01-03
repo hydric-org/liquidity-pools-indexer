@@ -1,4 +1,4 @@
-import { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
+import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
 import { HUNDRED_BIG_DECIMAL, MILLION_BIG_INT, ZERO_BIG_DECIMAL } from "../../core/constants";
 import { IndexerNetwork } from "../../core/network";
 import { PriceConverter } from "../pricing/price-converter";

@@ -1,5 +1,9 @@
-import { Pool as PoolEntity, Token as TokenEntity, V3PoolData as V3PoolDataEntity } from "generated";
-import { HandlerContext } from "generated/src/Types";
+import type {
+  HandlerContext,
+  Pool as PoolEntity,
+  Token as TokenEntity,
+  V3PoolData as V3PoolDataEntity,
+} from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedSqrtPriceMath } from "../../lib/math/concentrated-liquidity/concentrated-sqrt-price-math";

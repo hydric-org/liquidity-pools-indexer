@@ -1,4 +1,4 @@
-import { handlerContext } from "generated";
+import type { handlerContext } from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedLiquidityMath } from "../../lib/math";

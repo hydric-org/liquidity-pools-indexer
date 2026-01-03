@@ -1,4 +1,4 @@
-import { handlerContext, SlipstreamPoolData } from "generated";
+import type { handlerContext, SlipstreamPoolData } from "generated";
 import { EntityId } from "../../core/entity";
 import { SupportedProtocol } from "../../core/protocol";
 import { ConcentratedSqrtPriceMath } from "../../lib/math";

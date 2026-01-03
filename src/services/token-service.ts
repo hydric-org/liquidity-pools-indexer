@@ -1,5 +1,5 @@
 import { IndexerNetwork } from "../core/network";
-import { TokenMetadata } from "../core/types";
+import type { TokenMetadata } from "../core/types";
 import { ERC20_METADATA_ABI } from "../lib/abis/erc20-metadata-abi";
 import { String } from "../lib/string-utils";
 import { BlockchainService } from "./blockchain-service";
@@ -38,9 +38,9 @@ export const TokenService = {
       const symbolResult = results[tokenOffset + 1];
       const decimalsResult = results[tokenOffset + 2];
 
-      const name = nameResult.status === "success" ? (nameResult.result as string) : "";
-      const symbol = symbolResult.status === "success" ? (symbolResult.result as string) : "";
-      let decimals = decimalsResult.status === "success" ? (decimalsResult.result as number) : 18;
+      const name = nameResult?.status === "success" ? (nameResult.result as string) : "";
+      const symbol = symbolResult?.status === "success" ? (symbolResult.result as string) : "";
+      let decimals = decimalsResult?.status === "success" ? (decimalsResult.result as number) : 18;
 
       if (decimals > 255) decimals = 18;
 

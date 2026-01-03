@@ -1,10 +1,14 @@
 {
   "name": "pools-indexer",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "clean": "tsc --clean",
     "build": "tsc --build",
     "watch": "tsc --watch",
-    "mocha": "ts-mocha './test/**/*.test.ts' --recursive --exit --timeout 50000",
+    "mocha": "tsc --noEmit && NODE_OPTIONS='--no-warnings --import tsx' mocha --exit test/**/*.ts --recursive --exit --timeout 50000",
     "codegen": "envio codegen",
     "dev": "envio dev",
     "start": "envio start",
@@ -20,17 +24,14 @@
     "mocha": "10.2.0",
     "nyc": "^17.1.0",
     "sinon": "^21.0.0",
-    "ts-mocha": "^10.0.0",
-    "typescript": "5.2.2"
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
   },
   "dependencies": {
-    "envio": "2.32.3",
+    "envio": "3.0.0-alpha.4",
     "viem": "^2.43.4"
   },
   "optionalDependencies": {
     "generated": "./generated"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }

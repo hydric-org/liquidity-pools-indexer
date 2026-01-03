@@ -1,5 +1,5 @@
-import { PoolHistoricalData as PoolHistoricalDataEntity, Token as TokenEntity } from "generated";
-import { HandlerContext } from "generated/src/Types";
+import type { PoolHistoricalData as PoolHistoricalDataEntity, Token as TokenEntity } from "generated";
+import type { HandlerContext } from "generated/src/Types";
 import { EntityId } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
 import { calculateNewLockedAmounts } from "../lib/math";

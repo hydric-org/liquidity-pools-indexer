@@ -1,4 +1,4 @@
-import {
+import type {
   AlgebraPoolData as AlgebraPoolDataEntity,
   handlerContext,
   Pool as PoolEntity,

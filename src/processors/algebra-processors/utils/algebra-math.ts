@@ -1,4 +1,4 @@
-import { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
+import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
 import { ZERO_BIG_DECIMAL } from "../../../core/constants";
 import { calculateRawSwapFeeFromTokenAmount } from "../../../lib/math";
 import { TokenDecimalMath } from "../../../lib/math/token/token-decimal-math";

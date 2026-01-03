@@ -1,4 +1,4 @@
-import { BigDecimal } from "generated";
+import type { BigDecimal } from "generated";
 import { ZERO_BIG_DECIMAL } from "../../core/constants";
 
 export const SafeMath = {

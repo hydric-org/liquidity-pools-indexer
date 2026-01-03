@@ -1,4 +1,4 @@
-import { HandlerContext } from "generated/src/Types";
+import type { HandlerContext } from "generated";
 import { IndexerNetwork } from "../../core/network";
 import { processLiquidityChange } from "../liquidity-change-processor";
 

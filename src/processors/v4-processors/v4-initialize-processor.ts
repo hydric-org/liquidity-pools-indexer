@@ -1,4 +1,4 @@
-import { handlerContext } from "generated";
+import type { handlerContext } from "generated";
 import { EntityId } from "../../core/entity";
 import { SupportedProtocol } from "../../core/protocol";
 import { ConcentratedSqrtPriceMath } from "../../lib/math";

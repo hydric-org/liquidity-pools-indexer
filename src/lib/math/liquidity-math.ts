@@ -1,4 +1,4 @@
-import { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
+import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
 import { ZERO_BIG_DECIMAL } from "../../core/constants";
 import { PriceConverter } from "../pricing/price-converter";
 import { isPercentageDifferenceWithinThreshold } from "./percentage-math";

@@ -1,4 +1,4 @@
-import {
+import type {
   handlerContext,
   PoolHistoricalData as PoolHistoricalDataEntity,
   PoolTimeframedStats as PoolTimeframedStatsEntity,

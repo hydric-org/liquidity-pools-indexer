@@ -1,4 +1,4 @@
-import { BigDecimal, Token as TokenEntity } from "generated";
+import { BigDecimal, type Token as TokenEntity } from "generated";
 
 const POWERS_OF_10_BIG_DECIMAL = new Map<number, BigDecimal>();
 const POWERS_OF_10_BIG_INT = new Map<number, bigint>();

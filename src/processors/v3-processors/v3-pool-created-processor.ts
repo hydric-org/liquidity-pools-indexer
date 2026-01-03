@@ -1,4 +1,4 @@
-import { handlerContext } from "generated";
+import type { handlerContext } from "generated";
 import { ZERO_BIG_INT } from "../../core/constants";
 import { EntityId } from "../../core/entity";
 import { SupportedProtocol } from "../../core/protocol";

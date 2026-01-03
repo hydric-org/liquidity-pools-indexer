@@ -1,5 +1,4 @@
-import { Pool as PoolEntity, SlipstreamPoolData, Token as TokenEntity } from "generated";
-import { HandlerContext } from "generated/src/Types";
+import type { HandlerContext, Pool as PoolEntity, SlipstreamPoolData, Token as TokenEntity } from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedSqrtPriceMath } from "../../lib/math/concentrated-liquidity/concentrated-sqrt-price-math";

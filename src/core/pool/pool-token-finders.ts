@@ -1,4 +1,4 @@
-import { Token as TokenEntity } from "generated";
+import type { Token as TokenEntity } from "generated";
 import { String } from "../../lib/string-utils";
 import { ZERO_ADDRESS } from "../constants";
 import { IndexerNetwork } from "../network";

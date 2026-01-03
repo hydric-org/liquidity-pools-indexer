@@ -1,4 +1,4 @@
-import { BigDecimal } from "generated";
+import type { BigDecimal } from "generated";
 
 export type PoolPrices = {
   readonly tokens0PerToken1: BigDecimal;

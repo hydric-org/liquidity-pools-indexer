@@ -1,4 +1,4 @@
-import { HandlerContext } from "generated/src/Types";
+import type { HandlerContext } from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ALGEBRA_POOL_DYNAMIC_FEE_FLAG } from "./utils/constants";

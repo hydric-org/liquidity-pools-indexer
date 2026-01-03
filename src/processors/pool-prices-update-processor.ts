@@ -1,8 +1,8 @@
-import { Token as TokenEntity } from "generated";
-import { HandlerContext } from "generated/src/Types";
+import type { Token as TokenEntity } from "generated";
+import type { HandlerContext } from "generated/src/Types";
 import { EntityId } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
-import { PoolPrices } from "../core/types";
+import type { PoolPrices } from "../core/types";
 import { PriceDiscover } from "../lib/pricing/token-pricing";
 
 export async function processPoolPricesUpdate(params: {

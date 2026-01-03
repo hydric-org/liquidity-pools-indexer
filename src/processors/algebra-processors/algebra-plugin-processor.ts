@@ -1,4 +1,4 @@
-import { HandlerContext } from "generated/src/Types";
+import type { HandlerContext } from "generated";
 import { AlgebraVersion } from "../../core/algebra/algebra-version";
 import { ZERO_ADDRESS } from "../../core/constants";
 import { EntityId } from "../../core/entity";

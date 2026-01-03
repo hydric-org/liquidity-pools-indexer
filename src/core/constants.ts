@@ -1,5 +1,5 @@
 import { BigDecimal } from "generated";
-import { StatsTimeframe_t } from "generated/src/db/Enums.gen";
+import type { StatsTimeframe_t } from "generated/src/db/Enums.gen";
 
 export const ZERO_BIG_DECIMAL = BigDecimal(0);
 

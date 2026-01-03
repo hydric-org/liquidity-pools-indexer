@@ -1,11 +1,11 @@
-import {
+import type {
   Pool as PoolEntity,
   PoolHistoricalData as PoolHistoricalDataEntity,
   PoolTimeframedStats as PoolTimeframedStatsEntity,
   Token as TokenEntity,
 } from "generated";
-import { HistoricalDataInterval_t } from "generated/src/db/Enums.gen";
-import { HandlerContext } from "generated/src/Types";
+import type { HistoricalDataInterval_t } from "generated/src/db/Enums.gen";
+import type { HandlerContext } from "generated/src/Types";
 import { ZERO_ADDRESS } from "../core/constants";
 import { getMultiTokenMetadataEffect } from "../core/effects/token-metadata-effect";
 import { EntityId, InitialPoolHistoricalDataEntity } from "../core/entity";
@@ -66,13 +66,13 @@ async function getOrCreatePoolTokenEntities(params: {
 
   metadatas.forEach((metadata, index) => {
     entitiesMap.set(
-      missingAddresses[index],
+      missingAddresses[index]!,
       new InitialTokenEntity({
         decimals: metadata.decimals,
         name: metadata.name,
         network: params.network,
         symbol: metadata.symbol,
-        tokenAddress: missingAddresses[index],
+        tokenAddress: missingAddresses[index]!,
       })
     );
   });

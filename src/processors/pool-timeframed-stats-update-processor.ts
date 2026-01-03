@@ -1,5 +1,5 @@
-import { Pool as PoolEntity, PoolTimeframedStats } from "generated";
-import { HandlerContext } from "generated/src/Types";
+import type { Pool as PoolEntity, PoolTimeframedStats } from "generated";
+import type { HandlerContext } from "generated/src/Types";
 import { STATS_TIMEFRAME_IN_DAYS, STATS_TIMEFRAME_IN_HOURS } from "../core/constants";
 import { InitialPoolTimeframedStatsEntity } from "../core/entity";
 import { YieldMath } from "../lib/math";

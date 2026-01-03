@@ -1,4 +1,4 @@
-import { ProtocolMetadata } from "../types/protocol-types";
+import type { ProtocolMetadata } from "../types";
 
 export enum SupportedProtocol {
   UNISWAP_V2 = "uniswap-v2",

@@ -1,5 +1,5 @@
-import { BigDecimal, Pool as PoolEntity, PoolHistoricalData as PoolHistoricalDataEntity } from "generated";
-import { HistoricalDataInterval_t } from "generated/src/db/Enums.gen";
+import type { BigDecimal, Pool as PoolEntity, PoolHistoricalData as PoolHistoricalDataEntity } from "generated";
+import type { HistoricalDataInterval_t } from "generated/src/db/Enums.gen";
 import { ZERO_BIG_DECIMAL } from "../constants";
 import { EntityId } from "./entity-id";
 
@@ -28,27 +28,54 @@ export class InitialPoolHistoricalDataEntity implements PoolHistoricalDataEntity
         );
         break;
     }
+
+    this.pool_id = params.poolEntity.id;
+    this.interval = params.interval;
+    this.timestampAtStart = params.eventTimestamp;
+    this.timestampAtEnd = params.eventTimestamp;
+
+    this.accumulatedYieldAtStart = params.poolEntity.accumulatedYield;
+    this.accumulatedYieldAtEnd = params.poolEntity.accumulatedYield;
+
+    this.feesUsdAtStart = params.poolEntity.feesUsd;
+    this.feesUsdAtEnd = params.poolEntity.feesUsd;
+
+    this.liquidityNetInflowUsdAtStart = params.poolEntity.liquidityNetInflowUsd;
+    this.liquidityNetInflowUsdAtEnd = params.poolEntity.liquidityNetInflowUsd;
+
+    this.swapVolumeUsdAtStart = params.poolEntity.swapVolumeUsd;
+    this.swapVolumeUsdAtEnd = params.poolEntity.swapVolumeUsd;
+
+    this.totalValueLockedToken0AtStart = params.poolEntity.totalValueLockedToken0;
+    this.totalValueLockedToken0AtEnd = params.poolEntity.totalValueLockedToken0;
+
+    this.totalValueLockedToken1AtStart = params.poolEntity.totalValueLockedToken1;
+    this.totalValueLockedToken1AtEnd = params.poolEntity.totalValueLockedToken1;
+
+    this.totalValueLockedUsdAtStart = params.poolEntity.totalValueLockedUsd;
+    this.totalValueLockedUsdAtEnd = params.poolEntity.totalValueLockedUsd;
   }
 
   readonly id: string;
-  readonly pool_id: string = this.params.poolEntity.id;
-  readonly timestampAtStart: bigint = this.params.eventTimestamp;
-  readonly timestampAtEnd: bigint = this.params.eventTimestamp;
-  readonly accumulatedYieldAtStart: BigDecimal = this.params.poolEntity.accumulatedYield;
-  readonly accumulatedYieldAtEnd: BigDecimal = this.params.poolEntity.accumulatedYield;
-  readonly feesUsdAtStart: BigDecimal = this.params.poolEntity.feesUsd;
-  readonly feesUsdAtEnd: BigDecimal = this.params.poolEntity.feesUsd;
-  readonly liquidityNetInflowUsdAtStart: BigDecimal = this.params.poolEntity.liquidityNetInflowUsd;
-  readonly liquidityNetInflowUsdAtEnd: BigDecimal = this.params.poolEntity.liquidityNetInflowUsd;
-  readonly swapVolumeUsdAtStart: BigDecimal = this.params.poolEntity.swapVolumeUsd;
-  readonly swapVolumeUsdAtEnd: BigDecimal = this.params.poolEntity.swapVolumeUsd;
-  readonly totalValueLockedToken0AtStart: BigDecimal = this.params.poolEntity.totalValueLockedToken0;
-  readonly totalValueLockedToken0AtEnd: BigDecimal = this.params.poolEntity.totalValueLockedToken0;
-  readonly totalValueLockedToken1AtStart: BigDecimal = this.params.poolEntity.totalValueLockedToken1;
-  readonly totalValueLockedToken1AtEnd: BigDecimal = this.params.poolEntity.totalValueLockedToken1;
-  readonly totalValueLockedUsdAtStart: BigDecimal = this.params.poolEntity.totalValueLockedUsd;
-  readonly totalValueLockedUsdAtEnd: BigDecimal = this.params.poolEntity.totalValueLockedUsd;
-  readonly interval: HistoricalDataInterval_t = this.params.interval;
+  readonly pool_id: string;
+  readonly interval: HistoricalDataInterval_t;
+  readonly timestampAtStart: bigint;
+  readonly timestampAtEnd: bigint;
+  readonly accumulatedYieldAtStart: BigDecimal;
+  readonly accumulatedYieldAtEnd: BigDecimal;
+  readonly feesUsdAtStart: BigDecimal;
+  readonly feesUsdAtEnd: BigDecimal;
+  readonly liquidityNetInflowUsdAtStart: BigDecimal;
+  readonly liquidityNetInflowUsdAtEnd: BigDecimal;
+  readonly swapVolumeUsdAtStart: BigDecimal;
+  readonly swapVolumeUsdAtEnd: BigDecimal;
+  readonly totalValueLockedToken0AtStart: BigDecimal;
+  readonly totalValueLockedToken0AtEnd: BigDecimal;
+  readonly totalValueLockedToken1AtStart: BigDecimal;
+  readonly totalValueLockedToken1AtEnd: BigDecimal;
+  readonly totalValueLockedUsdAtStart: BigDecimal;
+  readonly totalValueLockedUsdAtEnd: BigDecimal;
+
   readonly intervalFeesToken0: BigDecimal = ZERO_BIG_DECIMAL;
   readonly intervalFeesToken1: BigDecimal = ZERO_BIG_DECIMAL;
   readonly intervalFeesUsd: BigDecimal = ZERO_BIG_DECIMAL;

@@ -1,4 +1,4 @@
-import { handlerContext, Token as TokenEntity } from "generated";
+import type { handlerContext, Token as TokenEntity } from "generated";
 
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";

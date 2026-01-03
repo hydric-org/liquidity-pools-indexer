@@ -1,4 +1,4 @@
-import { createPublicClient, fallback, http, PublicClient } from "viem";
+import { createPublicClient, fallback, http, type PublicClient } from "viem";
 import { IndexerNetwork } from "../core/network";
 
 const clients: Partial<Record<IndexerNetwork, PublicClient>> = {};

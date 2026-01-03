@@ -1,4 +1,4 @@
-import { BigDecimal, Pool, Token as TokenEntity } from "generated";
+import type { BigDecimal, Pool, Token as TokenEntity } from "generated";
 import { OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD, ZERO_BIG_DECIMAL } from "../../core/constants";
 import { IndexerNetwork } from "../../core/network";
 import {
@@ -10,7 +10,7 @@ import {
   isVariableWithStablePool,
   isWrappedNativePool,
 } from "../../core/pool";
-import { PoolPrices } from "../../core/types";
+import type { PoolPrices } from "../../core/types";
 import { isPercentageDifferenceWithinThreshold } from "../math/percentage-math";
 import { calculateSwapTokenPrices } from "../math/swap-math";
 import { TokenDecimalMath } from "../math/token/token-decimal-math";

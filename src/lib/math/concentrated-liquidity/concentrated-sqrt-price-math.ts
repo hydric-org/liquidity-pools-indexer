@@ -1,6 +1,6 @@
-import { BigDecimal, Token as TokenEntity } from "generated";
+import { BigDecimal, type Token as TokenEntity } from "generated";
 import { ONE_BIG_DECIMAL, ONE_BIG_INT, Q96 } from "../../../core/constants";
-import { PoolPrices } from "../../../core/types";
+import type { PoolPrices } from "../../../core/types";
 import { mulDivRoundingUp } from "../math-extended";
 import { TokenDecimalMath } from "../token/token-decimal-math";
 

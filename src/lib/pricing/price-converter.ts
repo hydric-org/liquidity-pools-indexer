@@ -1,4 +1,4 @@
-import { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
+import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
 import { isPercentageDifferenceWithinThreshold } from "../math/percentage-math";
 
 export const PriceConverter = {

@@ -1,4 +1,4 @@
-import { TokenMetadata } from "../types";
+import type { TokenMetadata } from "../types";
 import { NetworkToken } from "./network-token";
 
 export enum IndexerNetwork {

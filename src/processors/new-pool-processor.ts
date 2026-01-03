@@ -1,6 +1,6 @@
-import { Pool as PoolEntity, Token as TokenEntity } from "generated";
-import { PoolType_t } from "generated/src/db/Enums.gen";
-import { HandlerContext } from "generated/src/Types";
+import type { Pool as PoolEntity, Token as TokenEntity } from "generated";
+import type { PoolType_t } from "generated/src/db/Enums.gen";
+import type { HandlerContext } from "generated/src/Types";
 import { POSITION_MANAGER_ADDRESS } from "../core/address/position-manager-address";
 import { EntityId, InitialPoolEntity, InitialPoolTimeframedStatsEntity } from "../core/entity";
 import { IndexerNetwork } from "../core/network";

@@ -1,4 +1,4 @@
-import { BigDecimal, Pool as PoolEntity } from "generated";
+import type { BigDecimal, Pool as PoolEntity } from "generated";
 import { daysBetweenSecondsTimestamps } from "../timestamp";
 
 export const YieldMath = {
