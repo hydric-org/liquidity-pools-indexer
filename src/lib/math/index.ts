@@ -1,5 +1,5 @@
 export * from "../pricing/price-converter";
-export * from "../pricing/token-pricing";
+export * from "../pricing/price-discover";
 export * from "./concentrated-liquidity/concentrated-liquidity-math";
 export * from "./concentrated-liquidity/concentrated-sqrt-price-math";
 export * from "./concentrated-liquidity/concentrated-tick-math";

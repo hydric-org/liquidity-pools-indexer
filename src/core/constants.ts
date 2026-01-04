@@ -27,6 +27,8 @@ export const ONE_DAY_IN_HOURS = 24;
 
 export const OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD = 10;
 
+export const MAX_TVL_IMBALANCE_PERCENTAGE = 100_000; // 100k%
+
 export const STATS_TIMEFRAME_IN_DAYS: Record<StatsTimeframe_t, number> = {
   DAY: 1,
   WEEK: 7,

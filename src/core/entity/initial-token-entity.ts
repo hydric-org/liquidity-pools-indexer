@@ -29,6 +29,7 @@ export class InitialTokenEntity implements TokenEntity {
   readonly symbol: string;
   readonly tokenAddress: string;
 
+  readonly trackedUsdPrice: BigDecimal = ZERO_BIG_DECIMAL;
   readonly trackedTotalValuePooledUsd: BigDecimal = ZERO_BIG_DECIMAL;
   readonly trackedSwapVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;
   readonly trackedLiquidityVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;

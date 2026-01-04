@@ -1,5 +1,5 @@
 import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
-import { ZERO_BIG_DECIMAL } from "../../core/constants";
+import { MAX_TVL_IMBALANCE_PERCENTAGE, ZERO_BIG_DECIMAL } from "../../core/constants";
 import { PriceConverter } from "../pricing/price-converter";
 import { isPercentageDifferenceWithinThreshold } from "./percentage-math";
 import { TokenDecimalMath } from "./token/token-decimal-math";
@@ -173,7 +173,7 @@ export function calculateNewLockedAmounts(params: {
   const isNewTrackedTvlUsdBalanced = isPercentageDifferenceWithinThreshold(
     updatedTrackedPoolTotalValueLockedToken0USD,
     updatedTrackedPoolTotalValueLockedToken1USD,
-    100_000
+    MAX_TVL_IMBALANCE_PERCENTAGE
   );
 
   return {

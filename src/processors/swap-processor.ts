@@ -16,7 +16,7 @@ import {
   YieldMath,
 } from "../lib/math";
 import { TokenDecimalMath } from "../lib/math/token/token-decimal-math";
-import { PriceDiscover } from "../lib/pricing/token-pricing";
+import { PriceDiscover } from "../lib/pricing/price-discover";
 import { DatabaseService } from "../services/database-service";
 import { processPoolTimeframedStatsUpdate } from "./pool-timeframed-stats-update-processor";
 
@@ -48,15 +48,16 @@ export async function processSwap(params: {
     }),
   ]);
 
-  const { token0MarketUsdPrice, token1MarketUsdPrice } = PriceDiscover.discoverTokenUsdMarketPrices({
-    network: params.network,
-    poolToken0Entity: token0Entity,
-    poolToken1Entity: token1Entity,
-    newPoolPrices: params.newPoolPrices,
-    rawSwapAmount0: params.amount0,
-    rawSwapAmount1: params.amount1,
-    pool: poolEntity,
-  });
+  const { token0MarketUsdPrice, token1MarketUsdPrice, trackedToken0MarketUsdPrice, trackedToken1MarketUsdPrice } =
+    PriceDiscover.discoverTokenUsdMarketPrices({
+      network: params.network,
+      poolToken0Entity: token0Entity,
+      poolToken1Entity: token1Entity,
+      newPoolPrices: params.newPoolPrices,
+      rawSwapAmount0: params.amount0,
+      rawSwapAmount1: params.amount1,
+      pool: poolEntity,
+    });
 
   poolEntity = {
     ...poolEntity,
@@ -67,6 +68,7 @@ export async function processSwap(params: {
   token0Entity = {
     ...token0Entity,
     usdPrice: token0MarketUsdPrice,
+    trackedUsdPrice: trackedToken0MarketUsdPrice,
     swapsInCount: params.amount0 > 0 ? token0Entity.swapsInCount + 1 : token0Entity.swapsInCount,
     swapsOutCount: params.amount0 < 0 ? token0Entity.swapsOutCount + 1 : token0Entity.swapsOutCount,
     swapsCount: token0Entity.swapsCount + 1,
@@ -75,6 +77,7 @@ export async function processSwap(params: {
   token1Entity = {
     ...token1Entity,
     usdPrice: token1MarketUsdPrice,
+    trackedUsdPrice: trackedToken1MarketUsdPrice,
     swapsInCount: params.amount1 > 0 ? token1Entity.swapsInCount + 1 : token1Entity.swapsInCount,
     swapsOutCount: params.amount1 < 0 ? token1Entity.swapsOutCount + 1 : token1Entity.swapsOutCount,
     swapsCount: token1Entity.swapsCount + 1,

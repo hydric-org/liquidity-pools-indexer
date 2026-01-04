@@ -1,5 +1,9 @@
-import type { BigDecimal, Pool, Token as TokenEntity } from "generated";
-import { OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD, ZERO_BIG_DECIMAL } from "../../core/constants";
+import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
+import {
+  MAX_TVL_IMBALANCE_PERCENTAGE,
+  OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD,
+  ZERO_BIG_DECIMAL,
+} from "../../core/constants";
 import { IndexerNetwork } from "../../core/network";
 import {
   findNativeToken,
@@ -27,10 +31,12 @@ export function discoverTokenUsdMarketPrices(params: {
   rawSwapAmount0: bigint;
   rawSwapAmount1: bigint;
   network: IndexerNetwork;
-  pool: Pool;
+  pool: PoolEntity;
 }): {
   token0MarketUsdPrice: BigDecimal;
   token1MarketUsdPrice: BigDecimal;
+  trackedToken0MarketUsdPrice: BigDecimal;
+  trackedToken1MarketUsdPrice: BigDecimal;
 } {
   const formattedAmount0 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount0, params.poolToken0Entity);
   const formattedAmount1 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount1, params.poolToken1Entity);
@@ -68,13 +74,28 @@ export function discoverTokenUsdMarketPrices(params: {
     OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD
   );
 
+  const token0MarketUsdPrice = isMarketPayingNew0Price
+    ? suggestedToken0Price.decimalPlaces(params.poolToken0Entity.decimals)
+    : currentPrice0;
+
+  const token1MarketUsdPrice = isMarketPayingNew1Price
+    ? suggestedToken1Price.decimalPlaces(params.poolToken1Entity.decimals)
+    : currentPrice1;
+
+  const trackedPrices = _resolveTrackedPricesForNewPrices({
+    pool: params.pool,
+    suggestedPrice0: token0MarketUsdPrice,
+    suggestedPrice1: token1MarketUsdPrice,
+    token0: params.poolToken0Entity,
+    token1: params.poolToken1Entity,
+    poolPrices: params.newPoolPrices,
+  });
+
   return {
-    token0MarketUsdPrice: isMarketPayingNew0Price
-      ? suggestedToken0Price.decimalPlaces(params.poolToken0Entity.decimals)
-      : currentPrice0,
-    token1MarketUsdPrice: isMarketPayingNew1Price
-      ? suggestedToken1Price.decimalPlaces(params.poolToken1Entity.decimals)
-      : currentPrice1,
+    token0MarketUsdPrice,
+    token1MarketUsdPrice,
+    trackedToken0MarketUsdPrice: trackedPrices.trackedToken0Price,
+    trackedToken1MarketUsdPrice: trackedPrices.trackedToken1Price,
   };
 }
 
@@ -146,4 +167,41 @@ export function discoverUsdPricesFromPoolPrices(params: {
   }
 
   return [p0, p1];
+}
+
+function _resolveTrackedPricesForNewPrices(params: {
+  pool: PoolEntity;
+  token0: TokenEntity;
+  token1: TokenEntity;
+  suggestedPrice0: BigDecimal;
+  suggestedPrice1: BigDecimal;
+  poolPrices: PoolPrices;
+}): {
+  trackedToken0Price: BigDecimal;
+  trackedToken1Price: BigDecimal;
+} {
+  if (params.pool.swapsCount == 0 || params.token0.swapsCount == 0 || params.token1.swapsCount == 0) {
+    return {
+      trackedToken0Price: params.token0.trackedUsdPrice,
+      trackedToken1Price: params.token1.trackedUsdPrice,
+    };
+  }
+
+  const isPoolWithNewTrackedPricesBalanced = isPercentageDifferenceWithinThreshold(
+    params.pool.totalValueLockedToken0.times(params.suggestedPrice0),
+    params.pool.totalValueLockedToken1.times(params.suggestedPrice1),
+    MAX_TVL_IMBALANCE_PERCENTAGE
+  );
+
+  if (!isPoolWithNewTrackedPricesBalanced) {
+    return {
+      trackedToken0Price: params.token0.trackedUsdPrice,
+      trackedToken1Price: params.token1.trackedUsdPrice,
+    };
+  }
+
+  return {
+    trackedToken0Price: params.suggestedPrice0,
+    trackedToken1Price: params.suggestedPrice1,
+  };
 }

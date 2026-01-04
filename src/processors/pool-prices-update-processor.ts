@@ -3,7 +3,7 @@ import type { HandlerContext } from "generated/src/Types";
 import { EntityId } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
 import type { PoolPrices } from "../core/types";
-import { PriceDiscover } from "../lib/pricing/token-pricing";
+import { PriceDiscover } from "../lib/pricing/price-discover";
 
 export async function processPoolPricesUpdate(params: {
   context: HandlerContext;

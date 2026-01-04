@@ -14,7 +14,7 @@ function _convertTokenAmountToTrackedUsd(params: {
 }): BigDecimal {
   if (params.token.swapsCount == 0 || params.comparisonToken.swapsCount == 0) return params.fallbackUsdValue;
 
-  const amountInUSD = params.amount.times(params.token.usdPrice);
+  const amountInUsd = params.amount.times(params.token.trackedUsdPrice);
 
   const conversionRate =
     params.poolEntity.token0_id === params.token.id
@@ -22,13 +22,13 @@ function _convertTokenAmountToTrackedUsd(params: {
       : params.poolEntity.tokens0PerToken1;
 
   const amountInComparisonToken = params.amount.times(conversionRate);
-  const amountInComparisonTokenUSD = amountInComparisonToken.times(params.comparisonToken.usdPrice);
+  const amountInComparisonTokenUSD = amountInComparisonToken.times(params.comparisonToken.trackedUsdPrice);
 
   const isUSDAmountMatchingComparison = isPercentageDifferenceWithinThreshold(
-    amountInUSD,
+    amountInUsd,
     amountInComparisonTokenUSD,
-    10
+    5
   );
 
-  return isUSDAmountMatchingComparison ? amountInUSD : params.fallbackUsdValue;
+  return isUSDAmountMatchingComparison ? amountInUsd : params.fallbackUsdValue;
 }
