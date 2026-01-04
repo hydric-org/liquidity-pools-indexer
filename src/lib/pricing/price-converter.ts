@@ -2,17 +2,17 @@ import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "gener
 import { isPercentageDifferenceWithinThreshold } from "../math/percentage-math";
 
 export const PriceConverter = {
-  safeConvertTokenAmountToUSD: _safeConvertTokenAmountToUSD,
+  convertTokenAmountToTrackedUsd: _convertTokenAmountToTrackedUsd,
 };
 
-function _safeConvertTokenAmountToUSD(params: {
+function _convertTokenAmountToTrackedUsd(params: {
   amount: BigDecimal;
   token: TokenEntity;
-  comparisionToken: TokenEntity;
+  comparisonToken: TokenEntity;
   poolEntity: PoolEntity;
   fallbackUsdValue: BigDecimal;
 }): BigDecimal {
-  if (params.token.swapsCount == 0 || params.comparisionToken.swapsCount == 0) return params.fallbackUsdValue;
+  if (params.token.swapsCount == 0 || params.comparisonToken.swapsCount == 0) return params.fallbackUsdValue;
 
   const amountInUSD = params.amount.times(params.token.usdPrice);
 
@@ -21,14 +21,14 @@ function _safeConvertTokenAmountToUSD(params: {
       ? params.poolEntity.tokens1PerToken0
       : params.poolEntity.tokens0PerToken1;
 
-  const amountInComparisionToken = params.amount.times(conversionRate);
-  const amountInComparisionTokenUSD = amountInComparisionToken.times(params.comparisionToken.usdPrice);
+  const amountInComparisonToken = params.amount.times(conversionRate);
+  const amountInComparisonTokenUSD = amountInComparisonToken.times(params.comparisonToken.usdPrice);
 
-  const isUSDAmountMatchinComparision = isPercentageDifferenceWithinThreshold(
+  const isUSDAmountMatchingComparison = isPercentageDifferenceWithinThreshold(
     amountInUSD,
-    amountInComparisionTokenUSD,
+    amountInComparisonTokenUSD,
     10
   );
 
-  return isUSDAmountMatchinComparision ? amountInUSD : params.fallbackUsdValue;
+  return isUSDAmountMatchingComparison ? amountInUSD : params.fallbackUsdValue;
 }

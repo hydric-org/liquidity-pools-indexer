@@ -54,6 +54,24 @@ export class InitialPoolHistoricalDataEntity implements PoolHistoricalDataEntity
 
     this.totalValueLockedUsdAtStart = params.poolEntity.totalValueLockedUsd;
     this.totalValueLockedUsdAtEnd = params.poolEntity.totalValueLockedUsd;
+
+    this.trackedFeesUsdAtStart = params.poolEntity.trackedFeesUsd;
+    this.trackedFeesUsdAtEnd = params.poolEntity.trackedFeesUsd;
+
+    this.trackedSwapVolumeUsdAtStart = params.poolEntity.trackedSwapVolumeUsd;
+    this.trackedSwapVolumeUsdAtEnd = params.poolEntity.trackedSwapVolumeUsd;
+
+    this.trackedLiquidityNetInflowUsdAtStart = params.poolEntity.trackedLiquidityNetInflowUsd;
+    this.trackedLiquidityNetInflowUsdAtEnd = params.poolEntity.trackedLiquidityNetInflowUsd;
+
+    this.trackedTotalValueLockedUsdAtStart = params.poolEntity.trackedTotalValueLockedUsd;
+    this.trackedTotalValueLockedUsdAtEnd = params.poolEntity.trackedTotalValueLockedUsd;
+
+    this.liquidityVolumeUsdAtStart = params.poolEntity.liquidityVolumeUsd;
+    this.liquidityVolumeUsdAtEnd = params.poolEntity.liquidityVolumeUsd;
+
+    this.trackedLiquidityVolumeUsdAtStart = params.poolEntity.trackedLiquidityVolumeUsd;
+    this.trackedLiquidityVolumeUsdAtEnd = params.poolEntity.trackedLiquidityVolumeUsd;
   }
 
   readonly id: string;
@@ -75,6 +93,19 @@ export class InitialPoolHistoricalDataEntity implements PoolHistoricalDataEntity
   readonly totalValueLockedToken1AtEnd: BigDecimal;
   readonly totalValueLockedUsdAtStart: BigDecimal;
   readonly totalValueLockedUsdAtEnd: BigDecimal;
+
+  readonly trackedFeesUsdAtStart: BigDecimal;
+  readonly trackedFeesUsdAtEnd: BigDecimal;
+  readonly trackedSwapVolumeUsdAtStart: BigDecimal;
+  readonly trackedSwapVolumeUsdAtEnd: BigDecimal;
+  readonly trackedLiquidityNetInflowUsdAtStart: BigDecimal;
+  readonly trackedLiquidityNetInflowUsdAtEnd: BigDecimal;
+  readonly trackedTotalValueLockedUsdAtStart: BigDecimal;
+  readonly trackedTotalValueLockedUsdAtEnd: BigDecimal;
+  readonly liquidityVolumeUsdAtStart: BigDecimal;
+  readonly liquidityVolumeUsdAtEnd: BigDecimal;
+  readonly trackedLiquidityVolumeUsdAtStart: BigDecimal;
+  readonly trackedLiquidityVolumeUsdAtEnd: BigDecimal;
 
   readonly intervalFeesToken0: BigDecimal = ZERO_BIG_DECIMAL;
   readonly intervalFeesToken1: BigDecimal = ZERO_BIG_DECIMAL;

@@ -40,27 +40,35 @@ export async function processLiquidityMetrics(params: {
   const amount0Formatted = TokenDecimalMath.rawToDecimal(params.amount0AddedOrRemoved, token0Entity);
   const amount1Formatted = TokenDecimalMath.rawToDecimal(params.amount1AddedOrRemoved, token1Entity);
 
-  const amount0Usd = PriceConverter.safeConvertTokenAmountToUSD({
+  const amount0Usd = amount0Formatted.times(token0Entity.usdPrice);
+  const trackedAmount0Usd = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: amount0Formatted,
     token: token0Entity,
     poolEntity: poolEntity,
-    comparisionToken: token1Entity,
+    comparisonToken: token1Entity,
     fallbackUsdValue: ZERO_BIG_DECIMAL,
   });
 
-  const amount1Usd = PriceConverter.safeConvertTokenAmountToUSD({
+  const amount1Usd = amount1Formatted.times(token1Entity.usdPrice);
+  const trackedAmount1Usd = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: amount1Formatted,
     token: token1Entity,
     poolEntity: poolEntity,
-    comparisionToken: token0Entity,
+    comparisonToken: token0Entity,
     fallbackUsdValue: ZERO_BIG_DECIMAL,
   });
 
   const token0VolumeUsd = amount0Usd.abs();
+  const trackedToken0VolumeUsd = trackedAmount0Usd.abs();
+
   const token1VolumeUsd = amount1Usd.abs();
+  const trackedToken1VolumeUsd = trackedAmount1Usd.abs();
 
   const operationVolumeUsd = token0VolumeUsd.plus(token1VolumeUsd);
+  const trackedOperationVolumeUsd = trackedToken0VolumeUsd.plus(trackedToken1VolumeUsd);
+
   const operationNetChangeUsd = amount0Usd.plus(amount1Usd);
+  const trackedOperationNetChangeUsd = trackedAmount0Usd.plus(trackedAmount1Usd);
 
   const liquidityFlow = calculateLiquidityFlow({
     amount0AddedOrRemoved: params.amount0AddedOrRemoved,
@@ -74,28 +82,43 @@ export async function processLiquidityMetrics(params: {
     ...poolEntity,
     liquidityVolumeToken0: poolEntity.liquidityVolumeToken0.plus(amount0Formatted.abs()),
     liquidityVolumeToken0Usd: poolEntity.liquidityVolumeToken0Usd.plus(token0VolumeUsd),
+    trackedLiquidityVolumeToken0Usd: poolEntity.trackedLiquidityVolumeToken0Usd.plus(trackedToken0VolumeUsd),
+
     liquidityVolumeToken1: poolEntity.liquidityVolumeToken1.plus(amount1Formatted.abs()),
     liquidityVolumeToken1Usd: poolEntity.liquidityVolumeToken1Usd.plus(token1VolumeUsd),
+    trackedLiquidityVolumeToken1Usd: poolEntity.trackedLiquidityVolumeToken1Usd.plus(trackedToken1VolumeUsd),
+
     liquidityVolumeUsd: poolEntity.liquidityVolumeUsd.plus(operationVolumeUsd),
+    trackedLiquidityVolumeUsd: poolEntity.trackedLiquidityVolumeUsd.plus(trackedOperationVolumeUsd),
+
     liquidityNetInflowUsd: poolEntity.liquidityNetInflowUsd.plus(operationNetChangeUsd),
+    trackedLiquidityNetInflowUsd: poolEntity.trackedLiquidityNetInflowUsd.plus(trackedOperationNetChangeUsd),
   };
 
   token0Entity = {
     ...token0Entity,
     tokenLiquidityVolume: token0Entity.tokenLiquidityVolume.plus(amount0Formatted.abs()),
     liquidityVolumeUsd: token0Entity.liquidityVolumeUsd.plus(token0VolumeUsd),
+    trackedLiquidityVolumeUsd: token0Entity.trackedLiquidityVolumeUsd.plus(trackedToken0VolumeUsd),
   };
 
   token1Entity = {
     ...token1Entity,
     tokenLiquidityVolume: token1Entity.tokenLiquidityVolume.plus(amount1Formatted.abs()),
     liquidityVolumeUsd: token1Entity.liquidityVolumeUsd.plus(token1VolumeUsd),
+    trackedLiquidityVolumeUsd: token1Entity.trackedLiquidityVolumeUsd.plus(trackedToken1VolumeUsd),
   };
 
   poolHistoricalDataEntities = poolHistoricalDataEntities.map((historicalDataEntity) => ({
     ...historicalDataEntity,
     timestampAtEnd: params.eventTimestamp,
+
     liquidityNetInflowUsdAtEnd: poolEntity.liquidityNetInflowUsd,
+    trackedLiquidityNetInflowUsdAtEnd: poolEntity.trackedLiquidityNetInflowUsd,
+
+    liquidityVolumeUsdAtEnd: poolEntity.liquidityVolumeUsd,
+    trackedLiquidityVolumeUsdAtEnd: poolEntity.trackedLiquidityVolumeUsd,
+
     intervalLiquidityVolumeToken0: historicalDataEntity.intervalLiquidityVolumeToken0.plus(amount0Formatted),
     intervalLiquidityVolumeToken1: historicalDataEntity.intervalLiquidityVolumeToken1.plus(amount1Formatted),
     intervalLiquidityVolumeUsd: historicalDataEntity.intervalLiquidityVolumeUsd.plus(operationVolumeUsd),
@@ -121,7 +144,12 @@ export async function processLiquidityMetrics(params: {
 
   statsEntities = statsEntities.map((statEntity) => ({
     ...statEntity,
+
+    liquidityVolumeUsd: statEntity.liquidityVolumeUsd.plus(operationVolumeUsd),
+    trackedLiquidityVolumeUsd: statEntity.trackedLiquidityVolumeUsd.plus(trackedOperationVolumeUsd),
+
     liquidityNetInflowUsd: statEntity.liquidityNetInflowUsd.plus(operationNetChangeUsd),
+    trackedLiquidityNetInflowUsd: statEntity.trackedLiquidityNetInflowUsd.plus(trackedOperationNetChangeUsd),
   }));
 
   params.context.Pool.set(poolEntity);

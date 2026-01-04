@@ -66,6 +66,17 @@ export class InitialPoolEntity implements PoolEntity {
   readonly slipstreamPoolData_id: string;
   readonly algebraPoolData_id: string;
 
+  readonly trackedTotalValueLockedUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedTotalValueLockedToken0Usd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedTotalValueLockedToken1Usd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedFeesUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedSwapVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedSwapVolumeToken0Usd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedSwapVolumeToken1Usd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedLiquidityVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedLiquidityVolumeToken0Usd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedLiquidityVolumeToken1Usd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedLiquidityNetInflowUsd: BigDecimal = ZERO_BIG_DECIMAL;
   readonly tokens0PerToken1: BigDecimal = ZERO_BIG_DECIMAL;
   readonly tokens1PerToken0: BigDecimal = ZERO_BIG_DECIMAL;
   readonly swapsCount: number = 0;

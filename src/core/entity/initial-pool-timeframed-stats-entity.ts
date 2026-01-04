@@ -22,4 +22,9 @@ export class InitialPoolTimeframedStatsEntity implements PoolTimeframedStatsEnti
   readonly liquidityNetInflowUsd: BigDecimal = ZERO_BIG_DECIMAL;
   readonly swapVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;
   readonly yearlyYield: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedLiquidityNetInflowUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedSwapVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly liquidityVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedLiquidityVolumeUsd: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedFeesUsd: BigDecimal = ZERO_BIG_DECIMAL;
 }

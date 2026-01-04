@@ -23,14 +23,18 @@ type Token {
   tokenAddress: String! @index
   usdPrice: BigDecimal!
   decimals: Int!
-  totalValuePooledUsd: BigDecimal! @index
+  totalValuePooledUsd: BigDecimal!
+  trackedTotalValuePooledUsd: BigDecimal!
   tokenTotalValuePooled: BigDecimal!
-  swapVolumeUsd: BigDecimal! @index
+  swapVolumeUsd: BigDecimal!
+  trackedSwapVolumeUsd: BigDecimal!
   tokenSwapVolume: BigDecimal!
-  liquidityVolumeUsd: BigDecimal! @index
+  liquidityVolumeUsd: BigDecimal!
+  trackedLiquidityVolumeUsd: BigDecimal!
   tokenLiquidityVolume: BigDecimal!
   tokenFees: BigDecimal!
   feesUsd: BigDecimal!
+  trackedFeesUsd: BigDecimal!
   symbol: String!
   name: String!
   chainId: Int! @index
@@ -42,48 +46,72 @@ type Token {
 
 type Pool @index(fields: ["token0", "token1", "totalValueLockedUsd"]) {
   id: ID!
+  poolAddress: String! @index
+
   token0: Token! @index
   token1: Token! @index
-  poolAddress: String! @index
+
   currentFeeTier: Int!
   initialFeeTier: Int!
+
   positionManager: Bytes!
   protocol: Protocol! @index
   poolType: PoolType! @index
+
   v4PoolData: V4PoolData
   v3PoolData: V3PoolData
   algebraPoolData: AlgebraPoolData
   slipstreamPoolData: SlipstreamPoolData
+
   chainId: Int! @index
   isDynamicFee: Boolean!
-  createdAtTimestamp: BigInt! @index @config(precision: 12)
+  createdAtTimestamp: BigInt! @config(precision: 12)
   historicalData: [PoolHistoricalData!]! @derivedFrom(field: "pool")
-  #  @config(precision: 8, scale: 6)
-  totalValueLockedUsd: BigDecimal! @index
+
+  totalValueLockedUsd: BigDecimal!
   totalValueLockedToken0: BigDecimal!
   totalValueLockedToken1: BigDecimal!
   totalValueLockedToken0Usd: BigDecimal!
   totalValueLockedToken1Usd: BigDecimal!
+  trackedTotalValueLockedUsd: BigDecimal! @index
+  trackedTotalValueLockedToken0Usd: BigDecimal!
+  trackedTotalValueLockedToken1Usd: BigDecimal!
+
   accumulatedYield: BigDecimal! @config(precision: 18, scale: 6)
+
   feesUsd: BigDecimal!
   feesToken0: BigDecimal!
   feesToken1: BigDecimal!
+  trackedFeesUsd: BigDecimal!
+
   swapVolumeUsd: BigDecimal!
   swapVolumeToken0: BigDecimal!
   swapVolumeToken1: BigDecimal!
   swapVolumeToken0Usd: BigDecimal!
   swapVolumeToken1Usd: BigDecimal!
+  trackedSwapVolumeUsd: BigDecimal!
+  trackedSwapVolumeToken0Usd: BigDecimal!
+  trackedSwapVolumeToken1Usd: BigDecimal!
+
   liquidityVolumeUsd: BigDecimal!
   liquidityVolumeToken0: BigDecimal!
   liquidityVolumeToken1: BigDecimal!
   liquidityVolumeToken0Usd: BigDecimal!
   liquidityVolumeToken1Usd: BigDecimal!
+  trackedLiquidityVolumeUsd: BigDecimal!
+  trackedLiquidityVolumeToken0Usd: BigDecimal!
+  trackedLiquidityVolumeToken1Usd: BigDecimal!
+
   liquidityNetInflowUsd: BigDecimal!
+  trackedLiquidityNetInflowUsd: BigDecimal!
+
   totalStats24h: PoolTimeframedStats!
   totalStats7d: PoolTimeframedStats!
   totalStats30d: PoolTimeframedStats!
   totalStats90d: PoolTimeframedStats!
+
   swapsCount: Int!
+
   tokens0PerToken1: BigDecimal!
   tokens1PerToken0: BigDecimal!
 }
@@ -130,11 +158,22 @@ type PoolTimeframedStats {
   id: ID!
   pool: Pool! @index
   timeframe: StatsTimeframe!
+
   dataPointTimestamp: BigInt! @index @config(precision: 12)
   lastRefreshTimestamp: BigInt! @config(precision: 12)
+
   liquidityNetInflowUsd: BigDecimal!
+  trackedLiquidityNetInflowUsd: BigDecimal!
+
   swapVolumeUsd: BigDecimal!
+  trackedSwapVolumeUsd: BigDecimal!
+
+  liquidityVolumeUsd: BigDecimal!
+  trackedLiquidityVolumeUsd: BigDecimal!
+
   feesUsd: BigDecimal!
+  trackedFeesUsd: BigDecimal!
+
   yearlyYield: BigDecimal! @config(precision: 18, scale: 6)
   accumulatedYield: BigDecimal! @config(precision: 18, scale: 6)
 }
@@ -142,38 +181,66 @@ type PoolTimeframedStats {
 type PoolHistoricalData {
   id: ID!
   pool: Pool!
+
   interval: HistoricalDataInterval!
+
   timestampAtStart: BigInt! @index @config(precision: 12)
   timestampAtEnd: BigInt! @config(precision: 12)
+
   accumulatedYieldAtStart: BigDecimal! @config(precision: 18, scale: 6)
   accumulatedYieldAtEnd: BigDecimal! @config(precision: 18, scale: 6)
+
   feesUsdAtStart: BigDecimal!
   feesUsdAtEnd: BigDecimal!
+  trackedFeesUsdAtStart: BigDecimal!
+  trackedFeesUsdAtEnd: BigDecimal!
+
   swapVolumeUsdAtStart: BigDecimal!
   swapVolumeUsdAtEnd: BigDecimal!
+  trackedSwapVolumeUsdAtStart: BigDecimal!
+  trackedSwapVolumeUsdAtEnd: BigDecimal!
+
   liquidityNetInflowUsdAtStart: BigDecimal!
   liquidityNetInflowUsdAtEnd: BigDecimal!
+  trackedLiquidityNetInflowUsdAtStart: BigDecimal!
+  trackedLiquidityNetInflowUsdAtEnd: BigDecimal!
+
   totalValueLockedUsdAtStart: BigDecimal!
   totalValueLockedUsdAtEnd: BigDecimal!
+  trackedTotalValueLockedUsdAtStart: BigDecimal!
+  trackedTotalValueLockedUsdAtEnd: BigDecimal!
+
   totalValueLockedToken0AtStart: BigDecimal!
   totalValueLockedToken0AtEnd: BigDecimal!
+
   totalValueLockedToken1AtStart: BigDecimal!
   totalValueLockedToken1AtEnd: BigDecimal!
+
+  liquidityVolumeUsdAtStart: BigDecimal!
+  liquidityVolumeUsdAtEnd: BigDecimal!
+  trackedLiquidityVolumeUsdAtStart: BigDecimal!
+  trackedLiquidityVolumeUsdAtEnd: BigDecimal!
+
   intervalSwapVolumeToken0: BigDecimal!
   intervalSwapVolumeToken1: BigDecimal!
   intervalSwapVolumeUsd: BigDecimal!
+
   intervalLiquidityVolumeUsd: BigDecimal!
   intervalLiquidityVolumeToken0: BigDecimal!
   intervalLiquidityVolumeToken1: BigDecimal!
+
   intervalLiquidityNetInflowUsd: BigDecimal!
   intervalLiquidityNetInflowToken0: BigDecimal!
   intervalLiquidityNetInflowToken1: BigDecimal!
+
   intervalLiquidityInflowUsd: BigDecimal!
   intervalLiquidityInflowToken0: BigDecimal!
   intervalLiquidityInflowToken1: BigDecimal!
+
   intervalLiquidityOutflowUsd: BigDecimal!
   intervalLiquidityOutflowToken0: BigDecimal!
   intervalLiquidityOutflowToken1: BigDecimal!
+
   intervalFeesUsd: BigDecimal!
   intervalFeesToken0: BigDecimal!
   intervalFeesToken1: BigDecimal!

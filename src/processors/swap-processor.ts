@@ -115,57 +115,92 @@ export async function processSwap(params: {
 
   poolEntity = {
     ...poolEntity,
+
+    swapVolumeUsd: poolEntity.swapVolumeUsd.plus(swapVolume.volumeUSD),
+    trackedSwapVolumeUsd: poolEntity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeUSD),
+
     swapVolumeToken0: poolEntity.swapVolumeToken0.plus(swapVolume.volumeToken0),
     swapVolumeToken0Usd: poolEntity.swapVolumeToken0Usd.plus(swapVolume.volumeToken0USD),
+    trackedSwapVolumeToken0Usd: poolEntity.trackedSwapVolumeToken0Usd.plus(swapVolume.trackedVolumeToken0USD),
+
     swapVolumeToken1: poolEntity.swapVolumeToken1.plus(swapVolume.volumeToken1),
     swapVolumeToken1Usd: poolEntity.swapVolumeToken1Usd.plus(swapVolume.volumeToken1USD),
-    swapVolumeUsd: poolEntity.swapVolumeUsd.plus(swapVolume.volumeUSD),
+    trackedSwapVolumeToken1Usd: poolEntity.trackedSwapVolumeToken1Usd.plus(swapVolume.trackedVolumeToken1USD),
+
+    feesUsd: poolEntity.feesUsd.plus(swapFees.feesUSD),
+    trackedFeesUsd: poolEntity.trackedFeesUsd.plus(swapFees.trackedFeesUSD),
+
     feesToken0: poolEntity.feesToken0.plus(swapFees.feesToken0),
     feesToken1: poolEntity.feesToken1.plus(swapFees.feesToken1),
-    feesUsd: poolEntity.feesUsd.plus(swapFees.feesUSD),
-    totalValueLockedToken0: newLockedAmounts.newPoolTotalValueLockedToken0,
-    totalValueLockedToken1: newLockedAmounts.newPoolTotalValueLockedToken1,
-    totalValueLockedToken0Usd: newLockedAmounts.newPoolTotalValueLockedToken0USD,
-    totalValueLockedToken1Usd: newLockedAmounts.newPoolTotalValueLockedToken1USD,
+
     totalValueLockedUsd: newLockedAmounts.newPoolTotalValueLockedUSD,
+    trackedTotalValueLockedUsd: newLockedAmounts.newTrackedPoolTotalValueLockedUSD,
+
+    totalValueLockedToken0: newLockedAmounts.newPoolTotalValueLockedToken0,
+    totalValueLockedToken0Usd: newLockedAmounts.newPoolTotalValueLockedToken0USD,
+    trackedTotalValueLockedToken0Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
+
+    totalValueLockedToken1: newLockedAmounts.newPoolTotalValueLockedToken1,
+    totalValueLockedToken1Usd: newLockedAmounts.newPoolTotalValueLockedToken1USD,
+    trackedTotalValueLockedToken1Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
+
     accumulatedYield: poolEntity.accumulatedYield.plus(swapYield),
     swapsCount: poolEntity.swapsCount + 1,
   };
 
   token0Entity = {
     ...token0Entity,
-    swapVolumeUsd: token0Entity.swapVolumeUsd.plus(swapVolume.volumeToken0USD),
     tokenSwapVolume: token0Entity.tokenSwapVolume.plus(swapVolume.volumeToken0),
+    swapVolumeUsd: token0Entity.swapVolumeUsd.plus(swapVolume.volumeToken0USD),
+    trackedSwapVolumeUsd: token0Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken0USD),
+
     tokenTotalValuePooled: newLockedAmounts.newToken0TotalPooledAmount,
     totalValuePooledUsd: newLockedAmounts.newToken0TotalPooledAmountUSD,
+    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken0TotalPooledAmountUSD,
+
     tokenFees: token0Entity.tokenFees.plus(swapFees.feesToken0),
     feesUsd: token0Entity.feesUsd.plus(swapFees.feesToken0USD),
+    trackedFeesUsd: token0Entity.trackedFeesUsd.plus(swapFees.trackedFeesToken0USD),
   };
 
   token1Entity = {
     ...token1Entity,
     swapVolumeUsd: token1Entity.swapVolumeUsd.plus(swapVolume.volumeToken1USD),
+    trackedSwapVolumeUsd: token1Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken1USD),
     tokenSwapVolume: token1Entity.tokenSwapVolume.plus(swapVolume.volumeToken1),
+
     tokenTotalValuePooled: newLockedAmounts.newToken1TotalPooledAmount,
     totalValuePooledUsd: newLockedAmounts.newToken1TotalPooledAmountUSD,
+    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken1TotalPooledAmountUSD,
+
     tokenFees: token1Entity.tokenFees.plus(swapFees.feesToken1),
     feesUsd: token1Entity.feesUsd.plus(swapFees.feesToken1USD),
+    trackedFeesUsd: token1Entity.trackedFeesUsd.plus(swapFees.trackedFeesToken1USD),
   };
 
   poolHistoricalDataEntities = poolHistoricalDataEntities.map((historicalDataEntity) => ({
     ...historicalDataEntity,
     swapVolumeUsdAtEnd: poolEntity.swapVolumeUsd,
-    intervalSwapVolumeToken0: historicalDataEntity.intervalSwapVolumeToken0.plus(swapVolume.volumeToken0),
-    intervalSwapVolumeToken1: historicalDataEntity.intervalSwapVolumeToken1.plus(swapVolume.volumeToken1),
-    intervalSwapVolumeUsd: historicalDataEntity.intervalSwapVolumeUsd.plus(swapVolume.volumeUSD),
-    intervalFeesToken0: historicalDataEntity.intervalFeesToken0.plus(swapFees.feesToken0),
-    intervalFeesToken1: historicalDataEntity.intervalFeesToken1.plus(swapFees.feesToken1),
-    intervalFeesUsd: historicalDataEntity.intervalFeesUsd.plus(swapFees.feesUSD),
+    trackedSwapVolumeUsdAtEnd: poolEntity.trackedSwapVolumeUsd,
+
+    totalValueLockedUsdAtEnd: poolEntity.totalValueLockedUsd,
+    trackedTotalValueLockedUsdAtEnd: poolEntity.trackedTotalValueLockedUsd,
+
     totalValueLockedToken0AtEnd: poolEntity.totalValueLockedToken0,
     totalValueLockedToken1AtEnd: poolEntity.totalValueLockedToken1,
-    totalValueLockedUsdAtEnd: poolEntity.totalValueLockedUsd,
-    accumulatedYieldAtEnd: poolEntity.accumulatedYield,
+
     feesUsdAtEnd: poolEntity.feesUsd,
+    trackedFeesUsdAtEnd: poolEntity.trackedFeesUsd,
+
+    intervalSwapVolumeUsd: historicalDataEntity.intervalSwapVolumeUsd.plus(swapVolume.volumeUSD),
+    intervalSwapVolumeToken0: historicalDataEntity.intervalSwapVolumeToken0.plus(swapVolume.volumeToken0),
+    intervalSwapVolumeToken1: historicalDataEntity.intervalSwapVolumeToken1.plus(swapVolume.volumeToken1),
+
+    intervalFeesUsd: historicalDataEntity.intervalFeesUsd.plus(swapFees.feesUSD),
+    intervalFeesToken0: historicalDataEntity.intervalFeesToken0.plus(swapFees.feesToken0),
+    intervalFeesToken1: historicalDataEntity.intervalFeesToken1.plus(swapFees.feesToken1),
+
+    accumulatedYieldAtEnd: poolEntity.accumulatedYield,
     timestampAtEnd: params.eventTimestamp,
   }));
 
@@ -180,8 +215,12 @@ export async function processSwap(params: {
     return {
       ...statEntity,
       swapVolumeUsd: statEntity.swapVolumeUsd.plus(swapVolume.volumeUSD),
-      accumulatedYield: statEntity.accumulatedYield.plus(swapYield),
+      trackedSwapVolumeUsd: statEntity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeUSD),
+
       feesUsd: statEntity.feesUsd.plus(swapFees.feesUSD),
+      trackedFeesUsd: statEntity.trackedFeesUsd.plus(swapFees.trackedFeesUSD),
+
+      accumulatedYield: statEntity.accumulatedYield.plus(swapYield),
       yearlyYield: yearlyYield,
     };
   });

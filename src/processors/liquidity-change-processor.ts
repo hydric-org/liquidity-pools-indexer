@@ -41,28 +41,38 @@ export async function processLiquidityChange(params: {
     ...poolEntity,
     totalValueLockedToken0: newLockedAmounts.newPoolTotalValueLockedToken0,
     totalValueLockedToken0Usd: newLockedAmounts.newPoolTotalValueLockedToken0USD,
+    trackedTotalValueLockedToken0Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
+
     totalValueLockedToken1: newLockedAmounts.newPoolTotalValueLockedToken1,
     totalValueLockedToken1Usd: newLockedAmounts.newPoolTotalValueLockedToken1USD,
+    trackedTotalValueLockedToken1Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
+
     totalValueLockedUsd: newLockedAmounts.newPoolTotalValueLockedUSD,
+    trackedTotalValueLockedUsd: newLockedAmounts.newTrackedPoolTotalValueLockedUSD,
   };
 
   token0Entity = {
     ...token0Entity,
     tokenTotalValuePooled: newLockedAmounts.newToken0TotalPooledAmount,
     totalValuePooledUsd: newLockedAmounts.newToken0TotalPooledAmountUSD,
+    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken0TotalPooledAmountUSD,
   };
 
   token1Entity = {
     ...token1Entity,
     tokenTotalValuePooled: newLockedAmounts.newToken1TotalPooledAmount,
     totalValuePooledUsd: newLockedAmounts.newToken1TotalPooledAmountUSD,
+    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken1TotalPooledAmountUSD,
   };
 
   poolHistoricalDataEntities = poolHistoricalDataEntities.map((historicalDataEntity) => ({
     ...historicalDataEntity,
     totalValueLockedToken0AtEnd: poolEntity.totalValueLockedToken0,
     totalValueLockedToken1AtEnd: poolEntity.totalValueLockedToken1,
+
     totalValueLockedUsdAtEnd: poolEntity.totalValueLockedUsd,
+    trackedTotalValueLockedUsdAtEnd: poolEntity.trackedTotalValueLockedUsd,
+
     timestampAtEnd: params.eventTimestamp,
   }));
 

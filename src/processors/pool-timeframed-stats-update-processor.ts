@@ -53,12 +53,27 @@ export async function processPoolTimeframedStatsUpdate(params: {
 
         updatedStat = {
           ...stat,
-          accumulatedYield: accumulatedYield,
+
           dataPointTimestamp: dataAgo.timestampAtStart,
           lastRefreshTimestamp: params.eventTimestamp,
+
+          liquidityVolumeUsd: params.poolEntity.liquidityVolumeUsd.minus(dataAgo.liquidityVolumeUsdAtStart),
+          trackedLiquidityVolumeUsd: params.poolEntity.trackedLiquidityVolumeUsd.minus(
+            dataAgo.trackedLiquidityVolumeUsdAtStart
+          ),
+
           liquidityNetInflowUsd: params.poolEntity.liquidityNetInflowUsd.minus(dataAgo.liquidityNetInflowUsdAtStart),
+          trackedLiquidityNetInflowUsd: params.poolEntity.trackedLiquidityNetInflowUsd.minus(
+            dataAgo.trackedLiquidityNetInflowUsdAtStart
+          ),
+
           feesUsd: params.poolEntity.feesUsd.minus(dataAgo.feesUsdAtStart),
+          trackedFeesUsd: params.poolEntity.trackedFeesUsd.minus(dataAgo.trackedFeesUsdAtStart),
+
           swapVolumeUsd: params.poolEntity.swapVolumeUsd.minus(dataAgo.swapVolumeUsdAtStart),
+          trackedSwapVolumeUsd: params.poolEntity.trackedSwapVolumeUsd.minus(dataAgo.trackedSwapVolumeUsdAtStart),
+
+          accumulatedYield: accumulatedYield,
           yearlyYield: YieldMath.yearlyYieldFromAccumulated({
             accumulatedYield,
             daysAccumulated: STATS_TIMEFRAME_IN_DAYS[timeframe],

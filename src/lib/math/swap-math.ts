@@ -17,40 +17,50 @@ export function calculateSwapVolume(params: {
   readonly volumeUSD: BigDecimal;
   readonly volumeToken0USD: BigDecimal;
   readonly volumeToken1USD: BigDecimal;
+  readonly trackedVolumeUSD: BigDecimal;
+  readonly trackedVolumeToken0USD: BigDecimal;
+  readonly trackedVolumeToken1USD: BigDecimal;
 } {
   const isToken0Output = params.swapAmount0.lt(ZERO_BIG_DECIMAL);
 
   const inputAmount = isToken0Output ? params.swapAmount1 : params.swapAmount0;
   const inputToken = isToken0Output ? params.token1 : params.token0;
   const compareToken = isToken0Output ? params.token0 : params.token1;
-  const tvlCap = isToken0Output
-    ? params.poolEntity.totalValueLockedToken1Usd
-    : params.poolEntity.totalValueLockedToken0Usd;
+  const trackedTvlCap = isToken0Output
+    ? params.poolEntity.trackedTotalValueLockedToken1Usd
+    : params.poolEntity.trackedTotalValueLockedToken0Usd;
 
-  let volumeUsd = PriceConverter.safeConvertTokenAmountToUSD({
+  const volumeUSD = inputAmount.times(inputToken.usdPrice);
+  let trackedVolumeUSD = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: inputAmount,
     token: inputToken,
-    comparisionToken: compareToken,
+    comparisonToken: compareToken,
     fallbackUsdValue: ZERO_BIG_DECIMAL,
     poolEntity: params.poolEntity,
   });
 
-  if (volumeUsd.gt(tvlCap)) volumeUsd = ZERO_BIG_DECIMAL;
+  if (trackedVolumeUSD.gt(trackedTvlCap)) trackedVolumeUSD = ZERO_BIG_DECIMAL;
 
   if (isToken0Output) {
     return {
-      volumeUSD: volumeUsd,
-      volumeToken1USD: volumeUsd,
+      volumeUSD: volumeUSD,
+      volumeToken1USD: volumeUSD,
       volumeToken1: params.swapAmount1,
+      trackedVolumeUSD: trackedVolumeUSD,
+      trackedVolumeToken1USD: trackedVolumeUSD,
+      trackedVolumeToken0USD: ZERO_BIG_DECIMAL,
       volumeToken0: ZERO_BIG_DECIMAL,
       volumeToken0USD: ZERO_BIG_DECIMAL,
     };
   }
 
   return {
-    volumeUSD: volumeUsd,
-    volumeToken0USD: volumeUsd,
+    volumeUSD: volumeUSD,
+    volumeToken0USD: volumeUSD,
     volumeToken0: params.swapAmount0,
+    trackedVolumeUSD: trackedVolumeUSD,
+    trackedVolumeToken0USD: trackedVolumeUSD,
+    trackedVolumeToken1USD: ZERO_BIG_DECIMAL,
     volumeToken1: ZERO_BIG_DECIMAL,
     volumeToken1USD: ZERO_BIG_DECIMAL,
   };
@@ -69,6 +79,9 @@ export function calculateSwapFees(params: {
   readonly feesUSD: BigDecimal;
   readonly feesToken0USD: BigDecimal;
   readonly feesToken1USD: BigDecimal;
+  readonly trackedFeesUSD: BigDecimal;
+  readonly trackedFeesToken0USD: BigDecimal;
+  readonly trackedFeesToken1USD: BigDecimal;
 } {
   const isToken0Output = params.rawSwapAmount0 < 0n;
 
@@ -76,10 +89,11 @@ export function calculateSwapFees(params: {
     const rawFee = calculateRawSwapFeeFromTokenAmount(params.rawSwapAmount1, params.rawSwapFee);
     const tokenFees = TokenDecimalMath.rawToDecimal(rawFee, params.token1);
 
-    const tokenFeesUsd = PriceConverter.safeConvertTokenAmountToUSD({
+    const tokenFeesUsd = tokenFees.times(params.token1.usdPrice);
+    const trackedTokenFeesUsd = PriceConverter.convertTokenAmountToTrackedUsd({
       amount: tokenFees,
       token: params.token1,
-      comparisionToken: params.token0,
+      comparisonToken: params.token0,
       poolEntity: params.poolEntity,
       fallbackUsdValue: ZERO_BIG_DECIMAL,
     });
@@ -88,6 +102,9 @@ export function calculateSwapFees(params: {
       feesToken1: tokenFees,
       feesUSD: tokenFeesUsd,
       feesToken1USD: tokenFeesUsd,
+      trackedFeesUSD: trackedTokenFeesUsd,
+      trackedFeesToken1USD: trackedTokenFeesUsd,
+      trackedFeesToken0USD: ZERO_BIG_DECIMAL,
       feesToken0: ZERO_BIG_DECIMAL,
       feesToken0USD: ZERO_BIG_DECIMAL,
     };
@@ -96,10 +113,11 @@ export function calculateSwapFees(params: {
   const rawFee = calculateRawSwapFeeFromTokenAmount(params.rawSwapAmount0, params.rawSwapFee);
   const tokenFees = TokenDecimalMath.rawToDecimal(rawFee, params.token0);
 
-  const tokenFeesUsd = PriceConverter.safeConvertTokenAmountToUSD({
+  const tokenFeesUsd = tokenFees.times(params.token0.usdPrice);
+  const trackedTokenFeesUsd = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: tokenFees,
     token: params.token0,
-    comparisionToken: params.token1,
+    comparisonToken: params.token1,
     poolEntity: params.poolEntity,
     fallbackUsdValue: ZERO_BIG_DECIMAL,
   });
@@ -108,6 +126,9 @@ export function calculateSwapFees(params: {
     feesToken0: tokenFees,
     feesUSD: tokenFeesUsd,
     feesToken0USD: tokenFeesUsd,
+    trackedFeesUSD: trackedTokenFeesUsd,
+    trackedFeesToken0USD: trackedTokenFeesUsd,
+    trackedFeesToken1USD: ZERO_BIG_DECIMAL,
     feesToken1: ZERO_BIG_DECIMAL,
     feesToken1USD: ZERO_BIG_DECIMAL,
   };
