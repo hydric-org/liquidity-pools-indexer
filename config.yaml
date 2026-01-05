@@ -30,6 +30,12 @@ contracts:
     events:
       - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
 
+  - name: CapricornCLFactory
+    abi_file_path: ./abis/factories/UniswapV3Factory.json
+    handler: ./src/handlers/v3-handlers/factory/capricorn-cl-factory-handler.ts
+    events:
+      - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
+
   - name: HoneyPopV3Factory
     abi_file_path: ./abis/factories/UniswapV3Factory.json
     handler: ./src/handlers/v3-handlers/factory/honeypop-v3-factory-handler.ts
@@ -358,6 +364,8 @@ chains:
         address: 0x30Db57A29ACf3641dfc3885AF2e5f1F5A408D9CB
       - name: PinotFinanceV3Factory
         address: 0x7716F310d62Aee3d009fd94067c627fe7E2f2aA9
+      - name: CapricornCLFactory
+        address: 0x6B5F564339DbAD6b780249827f2198a841FEB7F3
       - name: UniswapV3Pool
       - name: PancakeSwapV3Pool
       - name: AlgebraPool_1_2_0

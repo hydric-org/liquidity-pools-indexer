@@ -89,4 +89,7 @@ export const POSITION_MANAGER_ADDRESS: Record<SupportedProtocol, Partial<Record<
   [SupportedProtocol.OKU_TRADE_V3]: {
     [IndexerNetwork.PLASMA]: "0x743E03cceB4af2efA3CC76838f6E8B50B63F184c",
   },
+  [SupportedProtocol.CAPRICORN_CL]: {
+    [IndexerNetwork.MONAD]: "0x4C02af995BB1f574c9bf31F43ddc112414aE0Ac7",
+  },
 };

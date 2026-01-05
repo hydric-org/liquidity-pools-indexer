@@ -24,6 +24,7 @@ export enum SupportedProtocol {
   RAMSES_V3 = "ramses-v3",
   OCTOSWAP_CL = "octoswap-cl",
   PINOT_FINANCE_V3 = "pinot-finance-v3",
+  CAPRICORN_CL = "capricorn-cl",
 }
 
 export namespace SupportedProtocol {
@@ -164,6 +165,11 @@ export namespace SupportedProtocol {
       name: "Pinot V3",
       url: "https://pinot.finance/",
       logoUrl: "https://assets.coingecko.com/markets/images/22166/large/Pinot_Twitter_Profile.png",
+    },
+    [SupportedProtocol.CAPRICORN_CL]: {
+      name: "Capricorn CL",
+      url: "https://www.capricorn.exchange/",
+      logoUrl: "https://icons.llamao.fi/icons/protocols/capricorn.jpg",
     },
   };
 }
