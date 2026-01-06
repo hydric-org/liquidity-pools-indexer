@@ -9,7 +9,7 @@ import { EntityId } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
 import type { PoolPrices } from "../core/types";
 import {
-  calculateNewLockedAmounts,
+  calculateNewLockedAmountsUSD,
   calculateSwapFees,
   calculateSwapVolume,
   calculateSwapYield,
@@ -48,6 +48,33 @@ export async function processSwap(params: {
     }),
   ]);
 
+  const amount0Formatted = TokenDecimalMath.rawToDecimal(params.amount0, token0Entity);
+  const amount1Formatted = TokenDecimalMath.rawToDecimal(params.amount1, token1Entity);
+
+  poolEntity = {
+    ...poolEntity,
+    tokens0PerToken1: params.newPoolPrices.tokens0PerToken1,
+    tokens1PerToken0: params.newPoolPrices.tokens1PerToken0,
+    totalValueLockedToken0: poolEntity.totalValueLockedToken0.plus(amount0Formatted),
+    totalValueLockedToken1: poolEntity.totalValueLockedToken1.plus(amount1Formatted),
+  };
+
+  token0Entity = {
+    ...token0Entity,
+    swapsInCount: params.amount0 > 0 ? token0Entity.swapsInCount + 1 : token0Entity.swapsInCount,
+    swapsOutCount: params.amount0 < 0 ? token0Entity.swapsOutCount + 1 : token0Entity.swapsOutCount,
+    swapsCount: token0Entity.swapsCount + 1,
+    tokenTotalValuePooled: token0Entity.tokenTotalValuePooled.plus(amount0Formatted),
+  };
+
+  token1Entity = {
+    ...token1Entity,
+    swapsInCount: params.amount1 > 0 ? token1Entity.swapsInCount + 1 : token1Entity.swapsInCount,
+    swapsOutCount: params.amount1 < 0 ? token1Entity.swapsOutCount + 1 : token1Entity.swapsOutCount,
+    swapsCount: token1Entity.swapsCount + 1,
+    tokenTotalValuePooled: token1Entity.tokenTotalValuePooled.plus(amount1Formatted),
+  };
+
   const { token0MarketUsdPrice, token1MarketUsdPrice, trackedToken0MarketUsdPrice, trackedToken1MarketUsdPrice } =
     PriceDiscover.discoverTokenUsdMarketPrices({
       network: params.network,
@@ -59,36 +86,19 @@ export async function processSwap(params: {
       pool: poolEntity,
     });
 
-  poolEntity = {
-    ...poolEntity,
-    tokens0PerToken1: params.newPoolPrices.tokens0PerToken1,
-    tokens1PerToken0: params.newPoolPrices.tokens1PerToken0,
-  };
-
   token0Entity = {
     ...token0Entity,
     usdPrice: token0MarketUsdPrice,
     trackedUsdPrice: trackedToken0MarketUsdPrice,
-    swapsInCount: params.amount0 > 0 ? token0Entity.swapsInCount + 1 : token0Entity.swapsInCount,
-    swapsOutCount: params.amount0 < 0 ? token0Entity.swapsOutCount + 1 : token0Entity.swapsOutCount,
-    swapsCount: token0Entity.swapsCount + 1,
   };
 
   token1Entity = {
     ...token1Entity,
     usdPrice: token1MarketUsdPrice,
     trackedUsdPrice: trackedToken1MarketUsdPrice,
-    swapsInCount: params.amount1 > 0 ? token1Entity.swapsInCount + 1 : token1Entity.swapsInCount,
-    swapsOutCount: params.amount1 < 0 ? token1Entity.swapsOutCount + 1 : token1Entity.swapsOutCount,
-    swapsCount: token1Entity.swapsCount + 1,
   };
 
-  const amount0Formatted = TokenDecimalMath.rawToDecimal(params.amount0, token0Entity);
-  const amount1Formatted = TokenDecimalMath.rawToDecimal(params.amount1, token1Entity);
-
-  const newLockedAmounts = calculateNewLockedAmounts({
-    amount0AddedOrRemoved: params.amount0,
-    amount1AddedOrRemoved: params.amount1,
+  const newLockedAmounts = calculateNewLockedAmountsUSD({
     poolEntity: poolEntity,
     token0: token0Entity,
     token1: token1Entity,
@@ -139,11 +149,9 @@ export async function processSwap(params: {
     totalValueLockedUsd: newLockedAmounts.newPoolTotalValueLockedUSD,
     trackedTotalValueLockedUsd: newLockedAmounts.newTrackedPoolTotalValueLockedUSD,
 
-    totalValueLockedToken0: newLockedAmounts.newPoolTotalValueLockedToken0,
     totalValueLockedToken0Usd: newLockedAmounts.newPoolTotalValueLockedToken0USD,
     trackedTotalValueLockedToken0Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
 
-    totalValueLockedToken1: newLockedAmounts.newPoolTotalValueLockedToken1,
     totalValueLockedToken1Usd: newLockedAmounts.newPoolTotalValueLockedToken1USD,
     trackedTotalValueLockedToken1Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
 
@@ -157,7 +165,6 @@ export async function processSwap(params: {
     swapVolumeUsd: token0Entity.swapVolumeUsd.plus(swapVolume.volumeToken0USD),
     trackedSwapVolumeUsd: token0Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken0USD),
 
-    tokenTotalValuePooled: newLockedAmounts.newToken0TotalPooledAmount,
     totalValuePooledUsd: newLockedAmounts.newToken0TotalPooledAmountUSD,
     trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken0TotalPooledAmountUSD,
 
@@ -172,7 +179,6 @@ export async function processSwap(params: {
     trackedSwapVolumeUsd: token1Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken1USD),
     tokenSwapVolume: token1Entity.tokenSwapVolume.plus(swapVolume.volumeToken1),
 
-    tokenTotalValuePooled: newLockedAmounts.newToken1TotalPooledAmount,
     totalValuePooledUsd: newLockedAmounts.newToken1TotalPooledAmountUSD,
     trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken1TotalPooledAmountUSD,
 

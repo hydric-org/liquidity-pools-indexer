@@ -1,5 +1,5 @@
 import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
-import { MAX_TVL_IMBALANCE_PERCENTAGE, ZERO_BIG_DECIMAL } from "../../core/constants";
+import { ZERO_BIG_DECIMAL } from "../../core/constants";
 import { PriceConverter } from "../pricing/price-converter";
 import { isPercentageDifferenceWithinThreshold } from "./percentage-math";
 import { TokenDecimalMath } from "./token/token-decimal-math";
@@ -97,21 +97,15 @@ export function calculateLiquidityFlow(params: {
   };
 }
 
-export function calculateNewLockedAmounts(params: {
-  amount0AddedOrRemoved: bigint;
-  amount1AddedOrRemoved: bigint;
+export function calculateNewLockedAmountsUSD(params: {
   poolEntity: PoolEntity;
   token0: TokenEntity;
   token1: TokenEntity;
 }): {
-  newPoolTotalValueLockedToken0: BigDecimal;
   newPoolTotalValueLockedToken0USD: BigDecimal;
-  newPoolTotalValueLockedToken1: BigDecimal;
   newPoolTotalValueLockedToken1USD: BigDecimal;
   newPoolTotalValueLockedUSD: BigDecimal;
-  newToken0TotalPooledAmount: BigDecimal;
   newToken0TotalPooledAmountUSD: BigDecimal;
-  newToken1TotalPooledAmount: BigDecimal;
   newToken1TotalPooledAmountUSD: BigDecimal;
   newTrackedPoolTotalValueLockedToken0USD: BigDecimal;
   newTrackedPoolTotalValueLockedToken1USD: BigDecimal;
@@ -119,10 +113,9 @@ export function calculateNewLockedAmounts(params: {
   newTrackedToken0TotalPooledAmountUSD: BigDecimal;
   newTrackedToken1TotalPooledAmountUSD: BigDecimal;
 } {
-  const amount0Formatted = TokenDecimalMath.rawToDecimal(params.amount0AddedOrRemoved, params.token0);
-  const amount1Formatted = TokenDecimalMath.rawToDecimal(params.amount1AddedOrRemoved, params.token1);
+  const updatedPoolTotalValueLockedToken0 = params.poolEntity.totalValueLockedToken0;
+  const updatedPoolTotalValueLockedToken1 = params.poolEntity.totalValueLockedToken1;
 
-  const updatedPoolTotalValueLockedToken0 = params.poolEntity.totalValueLockedToken0.plus(amount0Formatted);
   const updatedPoolTotalValueLockedToken0USD = updatedPoolTotalValueLockedToken0.times(params.token0.usdPrice);
   const updatedTrackedPoolTotalValueLockedToken0USD = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: updatedPoolTotalValueLockedToken0,
@@ -132,7 +125,6 @@ export function calculateNewLockedAmounts(params: {
     fallbackUsdValue: ZERO_BIG_DECIMAL,
   });
 
-  const updatedPoolTotalValueLockedToken1 = params.poolEntity.totalValueLockedToken1.plus(amount1Formatted);
   const updatedPoolTotalValueLockedToken1USD = updatedPoolTotalValueLockedToken1.times(params.token1.usdPrice);
   const updatedTrackedPoolTotalValueLockedToken1USD = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: updatedPoolTotalValueLockedToken1,
@@ -150,7 +142,7 @@ export function calculateNewLockedAmounts(params: {
     updatedTrackedPoolTotalValueLockedToken1USD
   );
 
-  const updatedToken0TotalPooledAmount = params.token0.tokenTotalValuePooled.plus(amount0Formatted);
+  const updatedToken0TotalPooledAmount = params.token0.tokenTotalValuePooled;
   const updatedToken0TotalPooledAmountUSD = updatedToken0TotalPooledAmount.times(params.token0.usdPrice);
   const updatedToken0TrackedTotalPooledAmountUSD = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: updatedToken0TotalPooledAmount,
@@ -160,7 +152,7 @@ export function calculateNewLockedAmounts(params: {
     fallbackUsdValue: params.token0.poolsCount === 1 ? ZERO_BIG_DECIMAL : params.token0.totalValuePooledUsd,
   });
 
-  const updatedToken1TotalPooledAmount = params.token1.tokenTotalValuePooled.plus(amount1Formatted);
+  const updatedToken1TotalPooledAmount = params.token1.tokenTotalValuePooled;
   const updatedToken1TotalPooledAmountUSD = updatedToken1TotalPooledAmount.times(params.token1.usdPrice);
   const updatedTrackedToken1TotalPooledAmountUSD = PriceConverter.convertTokenAmountToTrackedUsd({
     amount: updatedToken1TotalPooledAmount,
@@ -170,23 +162,19 @@ export function calculateNewLockedAmounts(params: {
     fallbackUsdValue: params.token1.poolsCount === 1 ? ZERO_BIG_DECIMAL : params.token1.totalValuePooledUsd,
   });
 
-  const isNewTrackedTvlUsdBalanced = isPercentageDifferenceWithinThreshold(
-    updatedTrackedPoolTotalValueLockedToken0USD,
-    updatedTrackedPoolTotalValueLockedToken1USD,
-    MAX_TVL_IMBALANCE_PERCENTAGE
+  const isNewTrackedTvlCloseToRealTVL = isPercentageDifferenceWithinThreshold(
+    updatedTrackedPoolTotalValueLockedUSD,
+    updatedPoolTotalValueLockedUSD,
+    50
   );
 
   return {
-    newPoolTotalValueLockedToken0: updatedPoolTotalValueLockedToken0,
-    newPoolTotalValueLockedToken1: updatedPoolTotalValueLockedToken1,
-    newToken0TotalPooledAmount: updatedToken0TotalPooledAmount,
-    newToken1TotalPooledAmount: updatedToken1TotalPooledAmount,
     newPoolTotalValueLockedToken0USD: updatedPoolTotalValueLockedToken0USD,
     newPoolTotalValueLockedToken1USD: updatedPoolTotalValueLockedToken1USD,
     newPoolTotalValueLockedUSD: updatedPoolTotalValueLockedUSD,
     newToken0TotalPooledAmountUSD: updatedToken0TotalPooledAmountUSD,
     newToken1TotalPooledAmountUSD: updatedToken1TotalPooledAmountUSD,
-    ...(isNewTrackedTvlUsdBalanced
+    ...(isNewTrackedTvlCloseToRealTVL
       ? {
           newTrackedPoolTotalValueLockedToken0USD: updatedTrackedPoolTotalValueLockedToken0USD,
           newTrackedPoolTotalValueLockedToken1USD: updatedTrackedPoolTotalValueLockedToken1USD,

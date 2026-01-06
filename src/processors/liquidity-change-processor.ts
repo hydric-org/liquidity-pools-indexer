@@ -2,7 +2,7 @@ import type { PoolHistoricalData as PoolHistoricalDataEntity, Token as TokenEnti
 import type { HandlerContext } from "generated/src/Types";
 import { EntityId } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
-import { calculateNewLockedAmounts } from "../lib/math";
+import { calculateNewLockedAmountsUSD, TokenDecimalMath } from "../lib/math";
 import { DatabaseService } from "../services/database-service";
 import { processLiquidityMetrics } from "./liquidity-metrics-processor";
 import { processPoolTimeframedStatsUpdate } from "./pool-timeframed-stats-update-processor";
@@ -29,9 +29,26 @@ export async function processLiquidityChange(params: {
       }),
     ]);
 
-  const newLockedAmounts = calculateNewLockedAmounts({
-    amount0AddedOrRemoved: params.amount0AddedOrRemoved,
-    amount1AddedOrRemoved: params.amount1AddedOrRemoved,
+  const amount0Formatted = TokenDecimalMath.rawToDecimal(params.amount0AddedOrRemoved, token0Entity);
+  const amount1Formatted = TokenDecimalMath.rawToDecimal(params.amount1AddedOrRemoved, token1Entity);
+
+  poolEntity = {
+    ...poolEntity,
+    totalValueLockedToken0: poolEntity.totalValueLockedToken0.plus(amount0Formatted),
+    totalValueLockedToken1: poolEntity.totalValueLockedToken1.plus(amount1Formatted),
+  };
+
+  token0Entity = {
+    ...token0Entity,
+    tokenTotalValuePooled: token0Entity.tokenTotalValuePooled.plus(amount0Formatted),
+  };
+
+  token1Entity = {
+    ...token1Entity,
+    tokenTotalValuePooled: token1Entity.tokenTotalValuePooled.plus(amount1Formatted),
+  };
+
+  const newUsdLockedAmounts = calculateNewLockedAmountsUSD({
     poolEntity,
     token0: token0Entity,
     token1: token1Entity,
@@ -39,30 +56,26 @@ export async function processLiquidityChange(params: {
 
   poolEntity = {
     ...poolEntity,
-    totalValueLockedToken0: newLockedAmounts.newPoolTotalValueLockedToken0,
-    totalValueLockedToken0Usd: newLockedAmounts.newPoolTotalValueLockedToken0USD,
-    trackedTotalValueLockedToken0Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
+    totalValueLockedToken0Usd: newUsdLockedAmounts.newPoolTotalValueLockedToken0USD,
+    trackedTotalValueLockedToken0Usd: newUsdLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
 
-    totalValueLockedToken1: newLockedAmounts.newPoolTotalValueLockedToken1,
-    totalValueLockedToken1Usd: newLockedAmounts.newPoolTotalValueLockedToken1USD,
-    trackedTotalValueLockedToken1Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
+    totalValueLockedToken1Usd: newUsdLockedAmounts.newPoolTotalValueLockedToken1USD,
+    trackedTotalValueLockedToken1Usd: newUsdLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
 
-    totalValueLockedUsd: newLockedAmounts.newPoolTotalValueLockedUSD,
-    trackedTotalValueLockedUsd: newLockedAmounts.newTrackedPoolTotalValueLockedUSD,
+    totalValueLockedUsd: newUsdLockedAmounts.newPoolTotalValueLockedUSD,
+    trackedTotalValueLockedUsd: newUsdLockedAmounts.newTrackedPoolTotalValueLockedUSD,
   };
 
   token0Entity = {
     ...token0Entity,
-    tokenTotalValuePooled: newLockedAmounts.newToken0TotalPooledAmount,
-    totalValuePooledUsd: newLockedAmounts.newToken0TotalPooledAmountUSD,
-    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken0TotalPooledAmountUSD,
+    totalValuePooledUsd: newUsdLockedAmounts.newToken0TotalPooledAmountUSD,
+    trackedTotalValuePooledUsd: newUsdLockedAmounts.newTrackedToken0TotalPooledAmountUSD,
   };
 
   token1Entity = {
     ...token1Entity,
-    tokenTotalValuePooled: newLockedAmounts.newToken1TotalPooledAmount,
-    totalValuePooledUsd: newLockedAmounts.newToken1TotalPooledAmountUSD,
-    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken1TotalPooledAmountUSD,
+    totalValuePooledUsd: newUsdLockedAmounts.newToken1TotalPooledAmountUSD,
+    trackedTotalValuePooledUsd: newUsdLockedAmounts.newTrackedToken1TotalPooledAmountUSD,
   };
 
   poolHistoricalDataEntities = poolHistoricalDataEntities.map((historicalDataEntity) => ({

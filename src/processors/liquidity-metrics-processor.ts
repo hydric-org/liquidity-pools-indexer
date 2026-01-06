@@ -59,9 +59,9 @@ export async function processLiquidityMetrics(params: {
   });
 
   const token0VolumeUsd = amount0Usd.abs();
-  const trackedToken0VolumeUsd = trackedAmount0Usd.abs();
-
   const token1VolumeUsd = amount1Usd.abs();
+
+  const trackedToken0VolumeUsd = trackedAmount0Usd.abs();
   const trackedToken1VolumeUsd = trackedAmount1Usd.abs();
 
   const operationVolumeUsd = token0VolumeUsd.plus(token1VolumeUsd);

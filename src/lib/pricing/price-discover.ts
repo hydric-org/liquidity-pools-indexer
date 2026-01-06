@@ -10,6 +10,7 @@ import {
   findStableToken,
   findWrappedNative,
   isNativePool,
+  isPoolTokenTrusted,
   isStableOnlyPool,
   isVariableWithStablePool,
   isWrappedNativePool,
@@ -38,64 +39,132 @@ export function discoverTokenUsdMarketPrices(params: {
   trackedToken0MarketUsdPrice: BigDecimal;
   trackedToken1MarketUsdPrice: BigDecimal;
 } {
-  const formattedAmount0 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount0, params.poolToken0Entity);
-  const formattedAmount1 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount1, params.poolToken1Entity);
+  const amount0 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount0, params.poolToken0Entity);
+  const amount1 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount1, params.poolToken1Entity);
 
-  const [suggestedToken0Price, suggestedToken1Price] = discoverUsdPricesFromPoolPrices({
+  const [suggestedPrice0, suggestedPrice1] = discoverUsdPricesFromPoolPrices({
     network: params.network,
     poolPrices: params.newPoolPrices,
     poolToken0Entity: params.poolToken0Entity,
     poolToken1Entity: params.poolToken1Entity,
   });
 
-  const currentPrice0 = params.poolToken0Entity.usdPrice;
-  const currentPrice1 = params.poolToken1Entity.usdPrice;
-
-  const anchorPrice0 = currentPrice0.eq(ZERO_BIG_DECIMAL) ? suggestedToken0Price : currentPrice0;
-  const anchorPrice1 = currentPrice1.eq(ZERO_BIG_DECIMAL) ? suggestedToken1Price : currentPrice1;
-
-  const [token0SwapUsdPrice, token1SwapUsdPrice] = calculateSwapTokenPrices({
+  const { price0: token0MarketUsdPrice, price1: token1MarketUsdPrice } = calculateValidatedMarketPrices({
     network: params.network,
-    swapAmount0: formattedAmount0,
-    swapAmount1: formattedAmount1,
-    currentToken0Price: anchorPrice0,
-    currentToken1Price: anchorPrice1,
-  });
-
-  const isMarketPayingNew0Price = isPercentageDifferenceWithinThreshold(
-    suggestedToken0Price,
-    token0SwapUsdPrice,
-    OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD
-  );
-
-  const isMarketPayingNew1Price = isPercentageDifferenceWithinThreshold(
-    suggestedToken1Price,
-    token1SwapUsdPrice,
-    OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD
-  );
-
-  const token0MarketUsdPrice = isMarketPayingNew0Price
-    ? suggestedToken0Price.decimalPlaces(params.poolToken0Entity.decimals)
-    : currentPrice0;
-
-  const token1MarketUsdPrice = isMarketPayingNew1Price
-    ? suggestedToken1Price.decimalPlaces(params.poolToken1Entity.decimals)
-    : currentPrice1;
-
-  const trackedPrices = _resolveTrackedPricesForNewPrices({
-    pool: params.pool,
-    suggestedPrice0: token0MarketUsdPrice,
-    suggestedPrice1: token1MarketUsdPrice,
+    swapAmount0: amount0,
+    swapAmount1: amount1,
     token0: params.poolToken0Entity,
     token1: params.poolToken1Entity,
-    poolPrices: params.newPoolPrices,
+    suggestedPrice0,
+    suggestedPrice1,
+    currentPrice0: params.poolToken0Entity.usdPrice,
+    currentPrice1: params.poolToken1Entity.usdPrice,
+  });
+
+  const trackedPrices = discoverTrackedTokenUsdPrices({
+    network: params.network,
+    newPoolPrices: params.newPoolPrices,
+    poolToken0Entity: params.poolToken0Entity,
+    poolToken1Entity: params.poolToken1Entity,
+    pool: params.pool,
+    swapAmount0: amount0,
+    swapAmount1: amount1,
   });
 
   return {
     token0MarketUsdPrice,
     token1MarketUsdPrice,
-    trackedToken0MarketUsdPrice: trackedPrices.trackedToken0Price,
-    trackedToken1MarketUsdPrice: trackedPrices.trackedToken1Price,
+    trackedToken0MarketUsdPrice: trackedPrices.trackedToken0MarketUsdPrice,
+    trackedToken1MarketUsdPrice: trackedPrices.trackedToken1MarketUsdPrice,
+  };
+}
+
+function discoverTrackedTokenUsdPrices(params: {
+  poolToken0Entity: TokenEntity;
+  poolToken1Entity: TokenEntity;
+  newPoolPrices: PoolPrices;
+  swapAmount0: BigDecimal;
+  swapAmount1: BigDecimal;
+  network: IndexerNetwork;
+  pool: PoolEntity;
+}): {
+  trackedToken0MarketUsdPrice: BigDecimal;
+  trackedToken1MarketUsdPrice: BigDecimal;
+} {
+  const [suggestedPrice0, suggestedPrice1] = discoverUsdPricesFromPoolPrices({
+    network: params.network,
+    poolPrices: params.newPoolPrices,
+    poolToken0Entity: params.poolToken0Entity,
+    poolToken1Entity: params.poolToken1Entity,
+    useTrackedPrices: true,
+  });
+
+  const { price0, price1 } = calculateValidatedMarketPrices({
+    network: params.network,
+    swapAmount0: params.swapAmount0,
+    swapAmount1: params.swapAmount1,
+    token0: params.poolToken0Entity,
+    token1: params.poolToken1Entity,
+    suggestedPrice0,
+    suggestedPrice1,
+    currentPrice0: params.poolToken0Entity.trackedUsdPrice,
+    currentPrice1: params.poolToken1Entity.trackedUsdPrice,
+  });
+
+  const safeTrackedPrices = _resolveTrackedPricesForNewPrices({
+    pool: params.pool,
+    token0: params.poolToken0Entity,
+    token1: params.poolToken1Entity,
+    poolPrices: params.newPoolPrices,
+    suggestedPrice0: price0,
+    suggestedPrice1: price1,
+  });
+
+  return {
+    trackedToken0MarketUsdPrice: safeTrackedPrices.trackedToken0Price,
+    trackedToken1MarketUsdPrice: safeTrackedPrices.trackedToken1Price,
+  };
+}
+
+function calculateValidatedMarketPrices(params: {
+  network: IndexerNetwork;
+  swapAmount0: BigDecimal;
+  swapAmount1: BigDecimal;
+  token0: TokenEntity;
+  token1: TokenEntity;
+  suggestedPrice0: BigDecimal;
+  suggestedPrice1: BigDecimal;
+  currentPrice0: BigDecimal;
+  currentPrice1: BigDecimal;
+}): { price0: BigDecimal; price1: BigDecimal } {
+  const { network, swapAmount0, swapAmount1, suggestedPrice0, suggestedPrice1, currentPrice0, currentPrice1 } = params;
+
+  const anchorPrice0 = currentPrice0.eq(ZERO_BIG_DECIMAL) ? suggestedPrice0 : currentPrice0;
+  const anchorPrice1 = currentPrice1.eq(ZERO_BIG_DECIMAL) ? suggestedPrice1 : currentPrice1;
+
+  const [swapPrice0, swapPrice1] = calculateSwapTokenPrices({
+    network,
+    swapAmount0,
+    swapAmount1,
+    currentToken0Price: anchorPrice0,
+    currentToken1Price: anchorPrice1,
+  });
+
+  const isPrice0Valid = isPercentageDifferenceWithinThreshold(
+    suggestedPrice0,
+    swapPrice0,
+    OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD
+  );
+
+  const isPrice1Valid = isPercentageDifferenceWithinThreshold(
+    suggestedPrice1,
+    swapPrice1,
+    OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD
+  );
+
+  return {
+    price0: isPrice0Valid ? suggestedPrice0.decimalPlaces(params.token0.decimals) : currentPrice0,
+    price1: isPrice1Valid ? suggestedPrice1.decimalPlaces(params.token1.decimals) : currentPrice1,
   };
 }
 
@@ -104,6 +173,7 @@ export function discoverUsdPricesFromPoolPrices(params: {
   poolToken1Entity: TokenEntity;
   poolPrices: PoolPrices;
   network: IndexerNetwork;
+  useTrackedPrices?: boolean;
 }): [token0Price: BigDecimal, token1Price: BigDecimal] {
   if (isVariableWithStablePool(params.poolToken0Entity, params.poolToken1Entity, params.network)) {
     const stableToken = findStableToken(params.poolToken0Entity, params.poolToken1Entity, params.network);
@@ -123,15 +193,17 @@ export function discoverUsdPricesFromPoolPrices(params: {
     const nativeToken = findNativeToken(params.poolToken0Entity, params.poolToken1Entity);
 
     if (nativeToken.id == params.poolToken0Entity.id) {
-      return [
-        params.poolToken0Entity.usdPrice,
-        params.poolPrices.tokens0PerToken1.times(params.poolToken0Entity.usdPrice),
-      ];
+      const token0Price = params.useTrackedPrices
+        ? params.poolToken0Entity.trackedUsdPrice
+        : params.poolToken0Entity.usdPrice;
+
+      return [token0Price, params.poolPrices.tokens0PerToken1.times(token0Price)];
     } else {
-      return [
-        params.poolPrices.tokens1PerToken0.times(params.poolToken1Entity.usdPrice),
-        params.poolToken1Entity.usdPrice,
-      ];
+      const token1Price = params.useTrackedPrices
+        ? params.poolToken1Entity.trackedUsdPrice
+        : params.poolToken1Entity.usdPrice;
+
+      return [params.poolPrices.tokens1PerToken0.times(token1Price), token1Price];
     }
   }
 
@@ -139,15 +211,17 @@ export function discoverUsdPricesFromPoolPrices(params: {
     const wrappedNativeToken = findWrappedNative(params.poolToken0Entity, params.poolToken1Entity, params.network);
 
     if (wrappedNativeToken.id == params.poolToken0Entity.id) {
-      return [
-        params.poolToken0Entity.usdPrice,
-        params.poolPrices.tokens0PerToken1.times(params.poolToken0Entity.usdPrice),
-      ];
+      const token0Price = params.useTrackedPrices
+        ? params.poolToken0Entity.trackedUsdPrice
+        : params.poolToken0Entity.usdPrice;
+
+      return [token0Price, params.poolPrices.tokens0PerToken1.times(token0Price)];
     } else {
-      return [
-        params.poolPrices.tokens1PerToken0.times(params.poolToken1Entity.usdPrice),
-        params.poolToken1Entity.usdPrice,
-      ];
+      const token1Price = params.useTrackedPrices
+        ? params.poolToken1Entity.trackedUsdPrice
+        : params.poolToken1Entity.usdPrice;
+
+      return [params.poolPrices.tokens1PerToken0.times(token1Price), token1Price];
     }
   }
 
@@ -155,15 +229,31 @@ export function discoverUsdPricesFromPoolPrices(params: {
     return [params.poolPrices.tokens1PerToken0, params.poolPrices.tokens0PerToken1];
   }
 
-  let p0 = params.poolToken0Entity.usdPrice;
-  let p1 = params.poolToken1Entity.usdPrice;
+  let p0 = params.useTrackedPrices ? params.poolToken0Entity.trackedUsdPrice : params.poolToken0Entity.usdPrice;
+  let p1 = params.useTrackedPrices ? params.poolToken1Entity.trackedUsdPrice : params.poolToken1Entity.usdPrice;
 
-  if (!params.poolToken1Entity.usdPrice.eq(ZERO_BIG_DECIMAL)) {
-    p0 = params.poolPrices.tokens1PerToken0.times(params.poolToken1Entity.usdPrice);
+  const isToken0Priced = params.useTrackedPrices
+    ? !params.poolToken0Entity.trackedUsdPrice.eq(ZERO_BIG_DECIMAL)
+    : !params.poolToken0Entity.usdPrice.eq(ZERO_BIG_DECIMAL);
+
+  const isToken1Priced = params.useTrackedPrices
+    ? !params.poolToken1Entity.trackedUsdPrice.eq(ZERO_BIG_DECIMAL)
+    : !params.poolToken1Entity.usdPrice.eq(ZERO_BIG_DECIMAL);
+
+  if (!isToken0Priced) {
+    const token1Price = params.useTrackedPrices
+      ? params.poolToken1Entity.trackedUsdPrice
+      : params.poolToken1Entity.usdPrice;
+
+    p0 = params.poolPrices.tokens1PerToken0.times(token1Price);
   }
 
-  if (!params.poolToken0Entity.usdPrice.eq(ZERO_BIG_DECIMAL)) {
-    p1 = params.poolPrices.tokens0PerToken1.times(params.poolToken0Entity.usdPrice);
+  if (!isToken1Priced) {
+    const token0Price = params.useTrackedPrices
+      ? params.poolToken0Entity.trackedUsdPrice
+      : params.poolToken0Entity.usdPrice;
+
+    p1 = params.poolPrices.tokens0PerToken1.times(token0Price);
   }
 
   return [p0, p1];
@@ -180,28 +270,42 @@ function _resolveTrackedPricesForNewPrices(params: {
   trackedToken0Price: BigDecimal;
   trackedToken1Price: BigDecimal;
 } {
-  if (params.pool.swapsCount == 0 || params.token0.swapsCount == 0 || params.token1.swapsCount == 0) {
-    return {
-      trackedToken0Price: params.token0.trackedUsdPrice,
-      trackedToken1Price: params.token1.trackedUsdPrice,
-    };
+  const { pool, token0, token1, suggestedPrice0, suggestedPrice1 } = params;
+
+  if (suggestedPrice0.eq(ZERO_BIG_DECIMAL) && suggestedPrice1.eq(ZERO_BIG_DECIMAL)) {
+    return { trackedToken0Price: ZERO_BIG_DECIMAL, trackedToken1Price: ZERO_BIG_DECIMAL };
   }
 
-  const isPoolWithNewTrackedPricesBalanced = isPercentageDifferenceWithinThreshold(
-    params.pool.totalValueLockedToken0.times(params.suggestedPrice0),
-    params.pool.totalValueLockedToken1.times(params.suggestedPrice1),
-    MAX_TVL_IMBALANCE_PERCENTAGE
-  );
+  const tvl0Usd = pool.totalValueLockedToken0.times(suggestedPrice0);
+  const tvl1Usd = pool.totalValueLockedToken1.times(suggestedPrice1);
 
-  if (!isPoolWithNewTrackedPricesBalanced) {
+  const isPoolBalanced = isPercentageDifferenceWithinThreshold(tvl0Usd, tvl1Usd, MAX_TVL_IMBALANCE_PERCENTAGE);
+
+  if (isPoolBalanced) return { trackedToken0Price: suggestedPrice0, trackedToken1Price: suggestedPrice1 };
+
+  const isToken0Dominant = tvl0Usd.gt(tvl1Usd);
+  const isToken1Dominant = tvl1Usd.gt(tvl0Usd);
+
+  const isToken0Trusted = isPoolTokenTrusted(token0, pool.chainId);
+  const isToken1Trusted = isPoolTokenTrusted(token1, pool.chainId);
+
+  const isToken0Corrupted = isToken0Dominant && !isToken0Trusted;
+  const isToken1Corrupted = isToken1Dominant && !isToken1Trusted;
+
+  if (isToken0Corrupted || isToken1Corrupted) {
+    // ENGINEERING DECISION: State Reset.
+    // If a token is detected as corrupted, we force it to ZERO.
+    // This allows the price discovery algorithm to re-derive the price from scratch
+    // in the next iteration, using the Trusted Asset as the source of truth.
+
     return {
-      trackedToken0Price: params.token0.trackedUsdPrice,
-      trackedToken1Price: params.token1.trackedUsdPrice,
+      trackedToken0Price: isToken0Corrupted ? ZERO_BIG_DECIMAL : suggestedPrice0,
+      trackedToken1Price: isToken1Corrupted ? ZERO_BIG_DECIMAL : suggestedPrice1,
     };
   }
 
   return {
-    trackedToken0Price: params.suggestedPrice0,
-    trackedToken1Price: params.suggestedPrice1,
+    trackedToken0Price: suggestedPrice0,
+    trackedToken1Price: suggestedPrice1,
   };
 }

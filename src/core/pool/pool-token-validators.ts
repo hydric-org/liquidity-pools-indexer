@@ -53,3 +53,24 @@ export function isNativePool(token0: TokenEntity, token1: TokenEntity): boolean 
 
   return false;
 }
+
+export function isPoolTokenTrusted(token: TokenEntity, network: IndexerNetwork): boolean {
+  const isTokenWrappedNative = String.lowercasedEquals(
+    token.tokenAddress,
+    IndexerNetwork.wrappedNativeAddress[network]
+  );
+
+  if (isTokenWrappedNative) return true;
+
+  const stablecoinsAddressesLowercased = IndexerNetwork.stablecoinsAddresses[network].map<string>((address) =>
+    address.toLowerCase()
+  );
+
+  const isTokenStablecoin = stablecoinsAddressesLowercased.includes(token.tokenAddress.toLowerCase());
+  if (isTokenStablecoin) return true;
+
+  const isTokenNative = token.tokenAddress === ZERO_ADDRESS;
+  if (isTokenNative) return true;
+
+  return false;
+}
