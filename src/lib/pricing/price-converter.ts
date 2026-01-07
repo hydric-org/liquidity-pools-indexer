@@ -31,6 +31,18 @@ function _convertTokenAmountToTrackedUsd(params: {
     return params.fallbackUsdValue;
   }
 
+  const isToken0PriceDiscoveryCapitalLowerThanTVL = poolToken0.trackedPriceDiscoveryCapitalUsd.lt(tvl0Usd);
+  const isToken1PriceDiscoveryCapitalLoverThanTVL = poolToken1.trackedPriceDiscoveryCapitalUsd.lt(tvl1Usd);
+
+  if (
+    !isToken0PriceDiscoveryCapitalLowerThanTVL &&
+    !isToken0Trusted &&
+    !isToken1PriceDiscoveryCapitalLoverThanTVL &&
+    !isToken1Trusted
+  ) {
+    return params.fallbackUsdValue;
+  }
+
   const tokenTrackedUsdPrice =
     params.token.id === params.poolEntity.token0_id ? poolToken0.trackedUsdPrice : poolToken1.trackedUsdPrice;
 

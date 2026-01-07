@@ -272,32 +272,44 @@ function _resolveTrackedPricesForNewPrices(params: {
 } {
   const { pool, token0, token1, suggestedPrice0, suggestedPrice1 } = params;
 
-  if (suggestedPrice0.eq(ZERO_BIG_DECIMAL) && suggestedPrice1.eq(ZERO_BIG_DECIMAL)) {
-    return { trackedToken0Price: ZERO_BIG_DECIMAL, trackedToken1Price: ZERO_BIG_DECIMAL };
+  if (suggestedPrice0.isZero() && suggestedPrice1.isZero()) {
+    return {
+      trackedToken0Price: ZERO_BIG_DECIMAL,
+      trackedToken1Price: ZERO_BIG_DECIMAL,
+    };
   }
 
   const tvl0Usd = pool.totalValueLockedToken0.times(suggestedPrice0);
   const tvl1Usd = pool.totalValueLockedToken1.times(suggestedPrice1);
 
-  const isPoolBalanced = isPercentageDifferenceWithinThreshold(tvl0Usd, tvl1Usd, MAX_TVL_IMBALANCE_PERCENTAGE);
-
-  if (isPoolBalanced) return { trackedToken0Price: suggestedPrice0, trackedToken1Price: suggestedPrice1 };
-
-  const isToken0Dominant = tvl0Usd.gt(tvl1Usd);
-  const isToken1Dominant = tvl1Usd.gt(tvl0Usd);
-
   const isToken0Trusted = isPoolTokenTrusted(token0, pool.chainId);
   const isToken1Trusted = isPoolTokenTrusted(token1, pool.chainId);
 
+  const isToken0Trustable = token0.trackedPriceDiscoveryCapitalUsd.gt(tvl0Usd) || isToken1Trusted;
+  const isToken1Trustable = token1.trackedPriceDiscoveryCapitalUsd.gt(tvl1Usd) || isToken0Trusted;
+
+  const isPoolBalanced = isPercentageDifferenceWithinThreshold(tvl0Usd, tvl1Usd, MAX_TVL_IMBALANCE_PERCENTAGE);
+
+  if (isPoolBalanced && (isToken0Trustable || isToken1Trustable)) {
+    return { trackedToken0Price: suggestedPrice0, trackedToken1Price: suggestedPrice1 };
+  }
+
+  if (!isToken0Trustable && !isToken1Trustable) {
+    return {
+      trackedToken0Price: token0.trackedUsdPrice,
+      trackedToken1Price: token1.trackedUsdPrice,
+    };
+  }
+
+  const isToken0Dominant = tvl0Usd.gt(tvl1Usd);
   const isToken0Corrupted = isToken0Dominant && !isToken0Trusted;
-  const isToken1Corrupted = isToken1Dominant && !isToken1Trusted;
+  const isToken1Corrupted = !isToken0Dominant && !isToken1Trusted;
 
   if (isToken0Corrupted || isToken1Corrupted) {
-    // ENGINEERING DECISION: State Reset.
-    // If a token is detected as corrupted, we force it to ZERO.
-    // This allows the price discovery algorithm to re-derive the price from scratch
-    // in the next iteration, using the Trusted Asset as the source of truth.
-
+    /** * ENGINEERING DECISION: State Reset.
+     * If a token is detected as corrupted, we force it to ZERO to allow
+     * the price discovery to re-derive from the Trusted Asset.
+     */
     return {
       trackedToken0Price: isToken0Corrupted ? ZERO_BIG_DECIMAL : suggestedPrice0,
       trackedToken1Price: isToken1Corrupted ? ZERO_BIG_DECIMAL : suggestedPrice1,

@@ -149,42 +149,42 @@ export namespace IndexerNetwork {
     Omit<onBlockOptions<Types_chainId>, "name">
   > = {
     [IndexerNetwork.ETHEREUM]: {
-      chain: IndexerNetwork.ETHEREUM,
+      chain: IndexerNetwork.ETHEREUM as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.ETHEREUM],
       startBlock: 12369621,
     },
     [IndexerNetwork.SCROLL]: {
-      chain: IndexerNetwork.SCROLL,
+      chain: IndexerNetwork.SCROLL as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.SCROLL],
       startBlock: 1367,
     },
     [IndexerNetwork.UNICHAIN]: {
-      chain: IndexerNetwork.UNICHAIN,
+      chain: IndexerNetwork.UNICHAIN as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.UNICHAIN],
       startBlock: 0,
     },
     [IndexerNetwork.BASE]: {
-      chain: IndexerNetwork.BASE,
+      chain: IndexerNetwork.BASE as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.BASE],
       startBlock: 1371680,
     },
     [IndexerNetwork.SEPOLIA]: {
-      chain: IndexerNetwork.SEPOLIA,
+      chain: IndexerNetwork.SEPOLIA as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.SEPOLIA],
       startBlock: 3518269,
     },
     [IndexerNetwork.HYPER_EVM]: {
-      chain: IndexerNetwork.HYPER_EVM,
+      chain: IndexerNetwork.HYPER_EVM as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.HYPER_EVM],
       startBlock: 11648,
     },
     [IndexerNetwork.PLASMA]: {
-      chain: IndexerNetwork.PLASMA,
+      chain: IndexerNetwork.PLASMA as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.PLASMA],
       startBlock: 430127,
     },
     [IndexerNetwork.MONAD]: {
-      chain: IndexerNetwork.MONAD,
+      chain: IndexerNetwork.MONAD as Types_chainId,
       interval: oneDayInBlocks[IndexerNetwork.MONAD],
       startBlock: 23058782,
     },

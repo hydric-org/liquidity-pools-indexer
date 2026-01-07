@@ -23,6 +23,7 @@ type Token {
   tokenAddress: String! @index
   usdPrice: BigDecimal!
   trackedUsdPrice: BigDecimal!
+  trackedPriceDiscoveryCapitalUsd: BigDecimal!
   decimals: Int!
   totalValuePooledUsd: BigDecimal!
   trackedTotalValuePooledUsd: BigDecimal!
