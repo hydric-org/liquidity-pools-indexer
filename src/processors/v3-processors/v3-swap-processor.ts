@@ -1,4 +1,5 @@
 import type {
+  Block_t,
   HandlerContext,
   Pool as PoolEntity,
   Token as TokenEntity,
@@ -17,7 +18,7 @@ export async function processV3Swap(params: {
   network: IndexerNetwork;
   amount0: bigint;
   amount1: bigint;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
 }): Promise<void> {
   const poolId = EntityId.fromAddress(params.network, params.poolAddress);
 
@@ -43,7 +44,7 @@ export async function processV3Swap(params: {
     network: params.network,
     amount0: params.amount0,
     amount1: params.amount1,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     swapFee: poolEntity.currentFeeTier,
     newPoolPrices: ConcentratedSqrtPriceMath.convertSqrtPriceX96ToPoolPrices({
       poolToken0: token0Entity,

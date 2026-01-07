@@ -14,7 +14,7 @@ OctoSwapCLFactory.PoolCreated.handler(async ({ event, context }) => {
     token1Address: event.params.token1,
     feeTier: Number.parseInt(event.params.fee.toString()),
     tickSpacing: Number.parseInt(event.params.tickSpacing.toString()),
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     chainId: event.chainId,
     protocol: SupportedProtocol.OCTOSWAP_CL,
   });

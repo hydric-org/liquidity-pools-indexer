@@ -15,7 +15,7 @@ RamsesV3Factory.PoolCreated.handler(async ({ event, context }) => {
     token1Address: event.params.token1,
     feeTier: Number(event.params.fee),
     tickSpacing: Number(event.params.tickSpacing),
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     chainId: event.chainId,
     protocol: SupportedProtocol.RAMSES_V3,
   });

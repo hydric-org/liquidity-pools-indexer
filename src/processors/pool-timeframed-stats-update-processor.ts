@@ -14,83 +14,81 @@ export async function processPoolTimeframedStatsUpdate(params: {
   if (isSecondsTimestampMoreThanDaysAgo(params.eventTimestamp, 100)) return;
 
   const statsEntities = await DatabaseService.getAllPooltimeframedStatsEntities(params.context, params.poolEntity);
+  const updatedStats = await Promise.all(statsEntities.map((stat) => _updatePoolTimeframedStat(stat, params)));
 
-  await Promise.all(
-    statsEntities.map(async (stat) => {
-      if (!isSecondsTimestampMoreThanHoursAgo(stat.lastRefreshTimestamp, 1)) return;
+  updatedStats.forEach((updatedStat) => params.context.PoolTimeframedStats.set(updatedStat));
+}
 
-      const timeframe = stat.timeframe;
-      const isRefreshingOneDayStats = timeframe === "DAY";
+async function _updatePoolTimeframedStat(
+  stat: PoolTimeframedStats,
+  params: {
+    context: HandlerContext;
+    eventTimestamp: bigint;
+    poolEntity: PoolEntity;
+  }
+): Promise<PoolTimeframedStats> {
+  if (!isSecondsTimestampMoreThanHoursAgo(stat.lastRefreshTimestamp, 1)) return stat;
 
-      let dataAgo = await DatabaseService.getPoolHourlyDataAgo(
-        STATS_TIMEFRAME_IN_HOURS[timeframe],
-        params.eventTimestamp,
-        params.context,
-        params.poolEntity
-      );
+  const timeframe = stat.timeframe;
+  const isRefreshingOneDayStats = timeframe === "DAY";
 
-      if (!dataAgo && !isRefreshingOneDayStats) {
-        dataAgo = await DatabaseService.getOldestPoolDailyDataAgo(
-          STATS_TIMEFRAME_IN_DAYS[timeframe],
-          params.eventTimestamp,
-          params.context,
-          params.poolEntity
-        );
-      } else if (!dataAgo) {
-        dataAgo = await DatabaseService.getOldestPoolHourlyDataAgo(
-          STATS_TIMEFRAME_IN_HOURS[timeframe],
-          params.eventTimestamp,
-          params.context,
-          params.poolEntity
-        );
-      }
-
-      let updatedStat: PoolTimeframedStats;
-
-      if (dataAgo) {
-        const yieldAtStart = dataAgo.accumulatedYieldAtStart;
-        const accumulatedYield = params.poolEntity.accumulatedYield.minus(yieldAtStart);
-
-        updatedStat = {
-          ...stat,
-
-          dataPointTimestamp: dataAgo.timestampAtStart,
-          lastRefreshTimestamp: params.eventTimestamp,
-
-          liquidityVolumeUsd: params.poolEntity.liquidityVolumeUsd.minus(dataAgo.liquidityVolumeUsdAtStart),
-          trackedLiquidityVolumeUsd: params.poolEntity.trackedLiquidityVolumeUsd.minus(
-            dataAgo.trackedLiquidityVolumeUsdAtStart
-          ),
-
-          liquidityNetInflowUsd: params.poolEntity.liquidityNetInflowUsd.minus(dataAgo.liquidityNetInflowUsdAtStart),
-          trackedLiquidityNetInflowUsd: params.poolEntity.trackedLiquidityNetInflowUsd.minus(
-            dataAgo.trackedLiquidityNetInflowUsdAtStart
-          ),
-
-          feesUsd: params.poolEntity.feesUsd.minus(dataAgo.feesUsdAtStart),
-          trackedFeesUsd: params.poolEntity.trackedFeesUsd.minus(dataAgo.trackedFeesUsdAtStart),
-
-          swapVolumeUsd: params.poolEntity.swapVolumeUsd.minus(dataAgo.swapVolumeUsdAtStart),
-          trackedSwapVolumeUsd: params.poolEntity.trackedSwapVolumeUsd.minus(dataAgo.trackedSwapVolumeUsdAtStart),
-
-          accumulatedYield: accumulatedYield,
-          yearlyYield: YieldMath.yearlyYieldFromAccumulated({
-            accumulatedYield,
-            daysAccumulated: STATS_TIMEFRAME_IN_DAYS[timeframe],
-            pool: params.poolEntity,
-            eventTimestamp: params.eventTimestamp,
-          }),
-        };
-      } else {
-        updatedStat = new InitialPoolTimeframedStatsEntity({
-          id: stat.id,
-          poolId: stat.pool_id,
-          timeframe: timeframe,
-          dataPointTimestamp: params.eventTimestamp,
-        });
-      }
-
-      params.context.PoolTimeframedStats.set(updatedStat);
-    })
+  let dataAgo = await DatabaseService.getPoolHourlyDataAgo(
+    STATS_TIMEFRAME_IN_HOURS[timeframe],
+    params.eventTimestamp,
+    params.context,
+    params.poolEntity
   );
+
+  if (!dataAgo && !isRefreshingOneDayStats) {
+    dataAgo = await DatabaseService.getOldestPoolDailyDataAgo(
+      STATS_TIMEFRAME_IN_DAYS[timeframe],
+      params.eventTimestamp,
+      params.context,
+      params.poolEntity
+    );
+  } else if (!dataAgo) {
+    dataAgo = await DatabaseService.getOldestPoolHourlyDataAgo(
+      STATS_TIMEFRAME_IN_HOURS[timeframe],
+      params.eventTimestamp,
+      params.context,
+      params.poolEntity
+    );
+  }
+
+  if (dataAgo) {
+    const yieldAtStart = dataAgo.accumulatedYieldAtStart;
+    const accumulatedYield = params.poolEntity.accumulatedYield.minus(yieldAtStart);
+
+    return {
+      ...stat,
+      dataPointTimestamp: dataAgo.timestampAtStart,
+      lastRefreshTimestamp: params.eventTimestamp,
+      liquidityVolumeUsd: params.poolEntity.liquidityVolumeUsd.minus(dataAgo.liquidityVolumeUsdAtStart),
+      trackedLiquidityVolumeUsd: params.poolEntity.trackedLiquidityVolumeUsd.minus(
+        dataAgo.trackedLiquidityVolumeUsdAtStart
+      ),
+      liquidityNetInflowUsd: params.poolEntity.liquidityNetInflowUsd.minus(dataAgo.liquidityNetInflowUsdAtStart),
+      trackedLiquidityNetInflowUsd: params.poolEntity.trackedLiquidityNetInflowUsd.minus(
+        dataAgo.trackedLiquidityNetInflowUsdAtStart
+      ),
+      feesUsd: params.poolEntity.feesUsd.minus(dataAgo.feesUsdAtStart),
+      trackedFeesUsd: params.poolEntity.trackedFeesUsd.minus(dataAgo.trackedFeesUsdAtStart),
+      swapVolumeUsd: params.poolEntity.swapVolumeUsd.minus(dataAgo.swapVolumeUsdAtStart),
+      trackedSwapVolumeUsd: params.poolEntity.trackedSwapVolumeUsd.minus(dataAgo.trackedSwapVolumeUsdAtStart),
+      accumulatedYield,
+      yearlyYield: YieldMath.yearlyYieldFromAccumulated({
+        accumulatedYield,
+        daysAccumulated: STATS_TIMEFRAME_IN_DAYS[timeframe],
+        pool: params.poolEntity,
+        eventTimestamp: params.eventTimestamp,
+      }),
+    };
+  }
+
+  return new InitialPoolTimeframedStatsEntity({
+    id: stat.id,
+    poolId: stat.pool_id,
+    timeframe,
+    dataPointTimestamp: params.eventTimestamp,
+  });
 }

@@ -6,7 +6,7 @@ SlipstreamPool.Swap.handler(async ({ event, context }) => {
     amount0: event.params.amount0,
     amount1: event.params.amount1,
     context: context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     network: event.chainId,
     poolAddress: event.srcAddress,
     sqrtPriceX96: event.params.sqrtPriceX96,

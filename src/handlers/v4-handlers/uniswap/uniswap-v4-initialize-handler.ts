@@ -14,7 +14,7 @@ UniswapV4PoolManager.Initialize.handler(async ({ event, context }) => {
     sqrtPriceX96: event.params.sqrtPriceX96,
     protocol: SupportedProtocol.UNISWAP_V4,
     hooks: event.params.hooks,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     chainId: event.chainId,
     poolManagerAddress: event.srcAddress,
   });

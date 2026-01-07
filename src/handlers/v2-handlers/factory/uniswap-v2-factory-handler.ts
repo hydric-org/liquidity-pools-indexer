@@ -9,7 +9,7 @@ UniswapV2Factory.PairCreated.contractRegister(({ event, context }) => {
 UniswapV2Factory.PairCreated.handler(async ({ event, context }) => {
   await processNewPool({
     context: context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     feeTier: 3000,
     isDynamicFee: false,
     network: event.chainId,

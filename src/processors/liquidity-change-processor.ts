@@ -1,4 +1,4 @@
-import type { PoolHistoricalData as PoolHistoricalDataEntity, Token as TokenEntity } from "generated";
+import type { Block_t, PoolHistoricalData as PoolHistoricalDataEntity, Token as TokenEntity } from "generated";
 import type { HandlerContext } from "generated/src/Types";
 import { EntityId } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
@@ -13,7 +13,7 @@ export async function processLiquidityChange(params: {
   network: IndexerNetwork;
   amount0AddedOrRemoved: bigint;
   amount1AddedOrRemoved: bigint;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   updateMetrics: boolean;
 }) {
   let poolEntity = await params.context.Pool.getOrThrow(EntityId.fromAddress(params.network, params.poolAddress));
@@ -24,7 +24,7 @@ export async function processLiquidityChange(params: {
       params.context.Token.getOrThrow(poolEntity.token1_id),
       DatabaseService.getOrCreateHistoricalPoolDataEntities({
         context: params.context,
-        eventTimestamp: params.eventTimestamp,
+        eventTimestamp: BigInt(params.eventBlock.timestamp),
         pool: poolEntity,
       }),
     ]);
@@ -64,6 +64,9 @@ export async function processLiquidityChange(params: {
 
     totalValueLockedUsd: newUsdLockedAmounts.newPoolTotalValueLockedUSD,
     trackedTotalValueLockedUsd: newUsdLockedAmounts.newTrackedPoolTotalValueLockedUSD,
+
+    lastActivityBlock: BigInt(params.eventBlock.number),
+    lastActivityTimestamp: BigInt(params.eventBlock.timestamp),
   };
 
   token0Entity = {
@@ -86,7 +89,7 @@ export async function processLiquidityChange(params: {
     totalValueLockedUsdAtEnd: poolEntity.totalValueLockedUsd,
     trackedTotalValueLockedUsdAtEnd: poolEntity.trackedTotalValueLockedUsd,
 
-    timestampAtEnd: params.eventTimestamp,
+    timestampAtEnd: BigInt(params.eventBlock.timestamp),
   }));
 
   params.context.Pool.set(poolEntity);
@@ -99,7 +102,7 @@ export async function processLiquidityChange(params: {
       context: params.context,
       poolAddress: params.poolAddress,
       network: params.network,
-      eventTimestamp: params.eventTimestamp,
+      eventBlock: params.eventBlock,
       amount0AddedOrRemoved: params.amount0AddedOrRemoved,
       amount1AddedOrRemoved: params.amount1AddedOrRemoved,
     });
@@ -107,7 +110,7 @@ export async function processLiquidityChange(params: {
 
   await processPoolTimeframedStatsUpdate({
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventTimestamp: BigInt(params.eventBlock.timestamp),
     poolEntity,
   });
 }

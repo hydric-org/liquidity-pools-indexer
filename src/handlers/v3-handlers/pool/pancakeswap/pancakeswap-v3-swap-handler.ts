@@ -4,7 +4,7 @@ import { processV3Swap } from "../../../../processors/v3-processors/v3-swap-proc
 PancakeSwapV3Pool.Swap.handler(async ({ event, context }) => {
   await processV3Swap({
     context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     network: event.chainId,
     poolAddress: event.srcAddress,
     amount0: event.params.amount0,

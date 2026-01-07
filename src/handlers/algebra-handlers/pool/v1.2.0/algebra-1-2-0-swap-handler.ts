@@ -4,7 +4,7 @@ import { processAlgebraSwap } from "../../../../processors/algebra-processors/al
 AlgebraPool_1_2_0.Swap.handler(async ({ event, context }) => {
   await processAlgebraSwap({
     context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     network: event.chainId,
     poolAddress: event.srcAddress,
     swapAmount0: event.params.amount0,

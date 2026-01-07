@@ -4,7 +4,7 @@ import { processV2Sync } from "../../../../processors/v2-processors/v2-sync-proc
 UniswapV2Pool.Sync.handler(async ({ event, context }) => {
   await processV2Sync({
     context: context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     network: event.chainId,
     poolAddress: event.srcAddress,
     reserve0: event.params.reserve0,

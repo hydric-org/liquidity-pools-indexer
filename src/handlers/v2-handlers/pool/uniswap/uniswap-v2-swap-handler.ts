@@ -8,7 +8,7 @@ UniswapV2Pool.Swap.handler(async ({ event, context }) => {
     amount1In: event.params.amount1In,
     amount1Out: event.params.amount1Out,
     context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     network: event.chainId,
     poolAddress: event.srcAddress,
   });

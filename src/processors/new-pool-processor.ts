@@ -1,4 +1,4 @@
-import type { Pool as PoolEntity, Token as TokenEntity } from "generated";
+import type { Block_t, Pool as PoolEntity, Token as TokenEntity } from "generated";
 import type { PoolType_t } from "generated/src/db/Enums.gen";
 import type { HandlerContext } from "generated/src/Types";
 import { POSITION_MANAGER_ADDRESS } from "../core/address/position-manager-address";
@@ -16,7 +16,7 @@ export async function processNewPool(params: {
   network: IndexerNetwork;
   protocol: SupportedProtocol;
   isDynamicFee: boolean;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   poolType: PoolType_t;
 }): Promise<{
   poolEntity: PoolEntity;
@@ -34,7 +34,7 @@ export async function processNewPool(params: {
 
   const poolEntity: PoolEntity = new InitialPoolEntity({
     chainId: params.network,
-    createdAtTimestamp: params.eventTimestamp,
+    createdAtTimestamp: BigInt(params.eventBlock.timestamp),
     initialFeeTier: params.feeTier,
     isDynamicFee: params.isDynamicFee,
     poolAddress: params.poolAddress,
@@ -43,6 +43,7 @@ export async function processNewPool(params: {
     protocol_id: params.protocol,
     token0_id: token0Entity.id,
     token1_id: token1Entity.id,
+    createdAtBlock: BigInt(params.eventBlock.number),
   });
 
   token0Entity = {
@@ -69,7 +70,7 @@ export async function processNewPool(params: {
   params.context.PoolTimeframedStats.set(
     new InitialPoolTimeframedStatsEntity({
       id: EntityId.build24hStatsId(params.network, params.poolAddress),
-      dataPointTimestamp: params.eventTimestamp,
+      dataPointTimestamp: BigInt(params.eventBlock.timestamp),
       poolId: poolEntity.id,
       timeframe: "DAY",
     })
@@ -78,7 +79,7 @@ export async function processNewPool(params: {
   params.context.PoolTimeframedStats.set(
     new InitialPoolTimeframedStatsEntity({
       id: EntityId.build7dStatsId(params.network, params.poolAddress),
-      dataPointTimestamp: params.eventTimestamp,
+      dataPointTimestamp: BigInt(params.eventBlock.timestamp),
       poolId: poolEntity.id,
       timeframe: "WEEK",
     })
@@ -87,7 +88,7 @@ export async function processNewPool(params: {
   params.context.PoolTimeframedStats.set(
     new InitialPoolTimeframedStatsEntity({
       id: EntityId.build30dStatsId(params.network, params.poolAddress),
-      dataPointTimestamp: params.eventTimestamp,
+      dataPointTimestamp: BigInt(params.eventBlock.timestamp),
       poolId: poolEntity.id,
       timeframe: "MONTH",
     })
@@ -96,7 +97,7 @@ export async function processNewPool(params: {
   params.context.PoolTimeframedStats.set(
     new InitialPoolTimeframedStatsEntity({
       id: EntityId.build90dStatsId(params.network, params.poolAddress),
-      dataPointTimestamp: params.eventTimestamp,
+      dataPointTimestamp: BigInt(params.eventBlock.timestamp),
       poolId: poolEntity.id,
       timeframe: "QUARTER",
     })

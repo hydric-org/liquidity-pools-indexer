@@ -1,3 +1,6 @@
+import type { onBlockOptions } from "envio/src/Envio.gen.js";
+import type { chainId as Types_chainId } from "generated/src/Types.gen.ts";
+import { ONE_DAY_IN_SECONDS } from "../constants";
 import type { TokenMetadata } from "../types";
 import { NetworkToken } from "./network-token";
 
@@ -117,5 +120,73 @@ export namespace IndexerNetwork {
     [IndexerNetwork.HYPER_EVM]: "0x5555555555555555555555555555555555555555",
     [IndexerNetwork.PLASMA]: "0x6100e367285b01f48d07953803a2d8dca5d19873",
     [IndexerNetwork.MONAD]: "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+  };
+
+  export const meanBlockTimeSeconds: Record<IndexerNetwork, number> = {
+    [IndexerNetwork.ETHEREUM]: 12,
+    [IndexerNetwork.SCROLL]: 1,
+    [IndexerNetwork.UNICHAIN]: 1,
+    [IndexerNetwork.BASE]: 2,
+    [IndexerNetwork.SEPOLIA]: 12,
+    [IndexerNetwork.HYPER_EVM]: 1,
+    [IndexerNetwork.PLASMA]: 1,
+    [IndexerNetwork.MONAD]: 0.4,
+  };
+
+  export const oneDayInBlocks: Record<IndexerNetwork, number> = {
+    [IndexerNetwork.ETHEREUM]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.ETHEREUM],
+    [IndexerNetwork.SCROLL]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.SCROLL],
+    [IndexerNetwork.UNICHAIN]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.UNICHAIN],
+    [IndexerNetwork.BASE]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.BASE],
+    [IndexerNetwork.SEPOLIA]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.SEPOLIA],
+    [IndexerNetwork.HYPER_EVM]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.HYPER_EVM],
+    [IndexerNetwork.PLASMA]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.PLASMA],
+    [IndexerNetwork.MONAD]: ONE_DAY_IN_SECONDS / IndexerNetwork.meanBlockTimeSeconds[IndexerNetwork.MONAD],
+  };
+
+  export const dailyAutoUpdateBlockHandlerParams: Record<
+    IndexerNetwork,
+    Omit<onBlockOptions<Types_chainId>, "name">
+  > = {
+    [IndexerNetwork.ETHEREUM]: {
+      chain: IndexerNetwork.ETHEREUM,
+      interval: oneDayInBlocks[IndexerNetwork.ETHEREUM],
+      startBlock: 12369621,
+    },
+    [IndexerNetwork.SCROLL]: {
+      chain: IndexerNetwork.SCROLL,
+      interval: oneDayInBlocks[IndexerNetwork.SCROLL],
+      startBlock: 1367,
+    },
+    [IndexerNetwork.UNICHAIN]: {
+      chain: IndexerNetwork.UNICHAIN,
+      interval: oneDayInBlocks[IndexerNetwork.UNICHAIN],
+      startBlock: 0,
+    },
+    [IndexerNetwork.BASE]: {
+      chain: IndexerNetwork.BASE,
+      interval: oneDayInBlocks[IndexerNetwork.BASE],
+      startBlock: 1371680,
+    },
+    [IndexerNetwork.SEPOLIA]: {
+      chain: IndexerNetwork.SEPOLIA,
+      interval: oneDayInBlocks[IndexerNetwork.SEPOLIA],
+      startBlock: 3518269,
+    },
+    [IndexerNetwork.HYPER_EVM]: {
+      chain: IndexerNetwork.HYPER_EVM,
+      interval: oneDayInBlocks[IndexerNetwork.HYPER_EVM],
+      startBlock: 11648,
+    },
+    [IndexerNetwork.PLASMA]: {
+      chain: IndexerNetwork.PLASMA,
+      interval: oneDayInBlocks[IndexerNetwork.PLASMA],
+      startBlock: 430127,
+    },
+    [IndexerNetwork.MONAD]: {
+      chain: IndexerNetwork.MONAD,
+      interval: oneDayInBlocks[IndexerNetwork.MONAD],
+      startBlock: 23058782,
+    },
   };
 }

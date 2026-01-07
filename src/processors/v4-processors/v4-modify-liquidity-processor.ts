@@ -1,4 +1,4 @@
-import type { handlerContext } from "generated";
+import type { Block_t, handlerContext } from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedLiquidityMath } from "../../lib/math";
@@ -8,7 +8,7 @@ export async function processV4ModifyLiquidity(params: {
   context: handlerContext;
   poolAddress: string;
   network: IndexerNetwork;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   liqudityDelta: bigint;
   tickLower: number;
   tickUpper: number;
@@ -37,7 +37,7 @@ export async function processV4ModifyLiquidity(params: {
     amount0AddedOrRemoved: amount0,
     amount1AddedOrRemoved: amount1,
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     network: params.network,
     poolAddress: params.poolAddress,
     updateMetrics: true,

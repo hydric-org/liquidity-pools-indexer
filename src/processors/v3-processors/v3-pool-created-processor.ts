@@ -1,4 +1,4 @@
-import type { handlerContext } from "generated";
+import type { Block_t, handlerContext } from "generated";
 import { ZERO_BIG_INT } from "../../core/constants";
 import { EntityId } from "../../core/entity";
 import { SupportedProtocol } from "../../core/protocol";
@@ -11,7 +11,7 @@ export async function processV3PoolCreated(params: {
   token1Address: string;
   feeTier?: number;
   tickSpacing: number;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   chainId: number;
   protocol: SupportedProtocol;
 }): Promise<void> {
@@ -24,7 +24,7 @@ export async function processV3PoolCreated(params: {
 
   await processNewPool({
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     feeTier: params.feeTier ?? 0,
     isDynamicFee: false,
     network: params.chainId,

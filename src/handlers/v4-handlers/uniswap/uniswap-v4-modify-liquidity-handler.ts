@@ -4,7 +4,7 @@ import { processV4ModifyLiquidity } from "../../../processors/v4-processors/v4-m
 UniswapV4PoolManager.ModifyLiquidity.handler(async ({ event, context }) => {
   await processV4ModifyLiquidity({
     context: context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     liqudityDelta: event.params.liquidityDelta,
     network: event.chainId,
     poolAddress: event.params.id,

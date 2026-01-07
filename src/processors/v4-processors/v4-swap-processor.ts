@@ -1,4 +1,5 @@
 import type {
+  Block_t,
   handlerContext,
   Pool as PoolEntity,
   Token as TokenEntity,
@@ -18,7 +19,7 @@ export async function processV4Swap(params: {
   sqrtPriceX96: bigint;
   tick: bigint;
   swapFee: number;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
 }): Promise<void> {
   const poolId = EntityId.fromAddress(params.network, params.poolAddress);
 
@@ -51,7 +52,7 @@ export async function processV4Swap(params: {
     amount0: amount0SignInverted,
     amount1: amount1SignInverted,
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     network: params.network,
     poolAddress: params.poolAddress,
     swapFee: params.swapFee,

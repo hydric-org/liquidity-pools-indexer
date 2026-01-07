@@ -1,4 +1,4 @@
-import type { handlerContext } from "generated";
+import type { Block_t, handlerContext } from "generated";
 import { PERMIT2_ADDRESS } from "../../core/address/permit2-address";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
@@ -20,7 +20,7 @@ export async function processV4Initialize(params: {
   sqrtPriceX96: bigint;
   protocol: SupportedProtocol;
   hooks: string;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   chainId: number & IndexerNetwork;
   poolManagerAddress: string;
 }): Promise<void> {
@@ -40,7 +40,7 @@ export async function processV4Initialize(params: {
   const { token0Entity, token1Entity } = await processNewPool({
     poolAddress: params.poolAddress,
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     feeTier: params.feeTier,
     isDynamicFee: params.feeTier === V4PoolConstants.V4_DYNAMIC_FEE_FLAG,
     network: params.chainId,

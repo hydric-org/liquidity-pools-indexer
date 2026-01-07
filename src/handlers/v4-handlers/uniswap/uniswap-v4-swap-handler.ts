@@ -3,7 +3,7 @@ import { processV4Swap } from "../../../processors/v4-processors/v4-swap-process
 
 UniswapV4PoolManager.Swap.handler(async ({ event, context }) => {
   await processV4Swap({
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     amount0: event.params.amount0,
     amount1: event.params.amount1,
     context: context,

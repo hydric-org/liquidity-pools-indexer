@@ -1,4 +1,4 @@
-import type { HandlerContext } from "generated";
+import type { Block_t, HandlerContext } from "generated";
 import { IndexerNetwork } from "../../core/network";
 import { processLiquidityChange } from "../liquidity-change-processor";
 
@@ -8,7 +8,7 @@ export async function processAlgebraLiquidityChange(params: {
   network: IndexerNetwork;
   amount0AddedOrRemoved: bigint;
   amount1AddedOrRemoved: bigint;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   updateMetrics: boolean;
 }): Promise<void> {
   await processLiquidityChange({
@@ -16,7 +16,7 @@ export async function processAlgebraLiquidityChange(params: {
     amount0AddedOrRemoved: params.amount0AddedOrRemoved,
     amount1AddedOrRemoved: params.amount1AddedOrRemoved,
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     network: params.network,
     poolAddress: params.poolAddress,
   });

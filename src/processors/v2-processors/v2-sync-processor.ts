@@ -1,4 +1,4 @@
-import type { handlerContext, Token as TokenEntity } from "generated";
+import type { Block_t, handlerContext, Token as TokenEntity } from "generated";
 
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
@@ -8,7 +8,7 @@ import { processLiquidityChange } from "../liquidity-change-processor";
 export async function processV2Sync(params: {
   poolAddress: string;
   network: IndexerNetwork;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   context: handlerContext;
   reserve0: bigint;
   reserve1: bigint;
@@ -30,7 +30,7 @@ export async function processV2Sync(params: {
     amount0AddedOrRemoved: rawReserve0Difference,
     amount1AddedOrRemoved: rawReserve1Difference,
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     network: params.network,
     poolAddress: params.poolAddress,
     updateMetrics: false,

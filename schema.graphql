@@ -66,8 +66,13 @@ type Pool @index(fields: ["token0", "token1", "totalValueLockedUsd"]) {
 
   chainId: Int! @index
   isDynamicFee: Boolean!
-  createdAtTimestamp: BigInt! @config(precision: 12)
+
   historicalData: [PoolHistoricalData!]! @derivedFrom(field: "pool")
+
+  createdAtBlock: BigInt!
+  createdAtTimestamp: BigInt! @config(precision: 12)
+  lastActivityBlock: BigInt! @index
+  lastActivityTimestamp: BigInt! @config(precision: 12)
 
   totalValueLockedUsd: BigDecimal!
   totalValueLockedToken0: BigDecimal!

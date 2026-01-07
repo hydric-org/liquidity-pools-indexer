@@ -1,4 +1,4 @@
-import type { handlerContext, Token as TokenEntity } from "generated";
+import type { Block_t, handlerContext, Token as TokenEntity } from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConstantProductPriceMath } from "../../lib/math/constant-product/constant-product-price-math";
@@ -9,7 +9,7 @@ export async function processV2Swap(params: {
   context: handlerContext;
   poolAddress: string;
   network: IndexerNetwork;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   amount0In: bigint;
   amount1In: bigint;
   amount0Out: bigint;
@@ -46,7 +46,7 @@ export async function processV2Swap(params: {
     amount0: rawAmount0,
     amount1: rawAmount1,
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     network: params.network,
     newPoolPrices: poolPrice,
     poolAddress: params.poolAddress,

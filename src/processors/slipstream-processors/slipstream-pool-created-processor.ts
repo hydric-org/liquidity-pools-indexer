@@ -1,4 +1,4 @@
-import type { handlerContext, SlipstreamPoolData } from "generated";
+import type { Block_t, handlerContext, SlipstreamPoolData } from "generated";
 import { EntityId } from "../../core/entity";
 import { SupportedProtocol } from "../../core/protocol";
 import { ConcentratedSqrtPriceMath } from "../../lib/math";
@@ -11,7 +11,7 @@ export async function processSlipstreamPoolCreated(params: {
   token0Address: string;
   token1Address: string;
   tickSpacing: number;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   chainId: number;
   protocol: SupportedProtocol;
 }): Promise<void> {
@@ -26,7 +26,7 @@ export async function processSlipstreamPoolCreated(params: {
 
   const { token0Entity, token1Entity } = await processNewPool({
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     feeTier: 0,
     isDynamicFee: true,
     network: params.chainId,

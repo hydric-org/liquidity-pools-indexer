@@ -1,4 +1,4 @@
-import type { BigDecimal, Pool as PoolEntity } from "generated";
+import { BigDecimal, type Pool as PoolEntity } from "generated";
 import type { PoolType_t } from "generated/src/db/Enums.gen";
 import { ZERO_BIG_DECIMAL } from "../constants";
 import { EntityId } from "./entity-id";
@@ -17,11 +17,16 @@ export class InitialPoolEntity implements PoolEntity {
       | "protocol_id"
       | "token0_id"
       | "token1_id"
+      | "createdAtBlock"
     >
   ) {
+    this.createdAtTimestamp = params.createdAtTimestamp;
+    this.createdAtBlock = params.createdAtBlock;
+    this.lastActivityBlock = params.createdAtBlock;
+    this.lastActivityTimestamp = params.createdAtTimestamp;
+
     this.chainId = params.chainId;
     this.poolAddress = params.poolAddress;
-    this.createdAtTimestamp = params.createdAtTimestamp;
     this.initialFeeTier = params.initialFeeTier;
     this.isDynamicFee = params.isDynamicFee;
     this.poolType = params.poolType;
@@ -44,9 +49,12 @@ export class InitialPoolEntity implements PoolEntity {
     this.algebraPoolData_id = this.id;
   }
 
+  readonly lastActivityBlock: bigint;
+  readonly lastActivityTimestamp: bigint;
+  readonly createdAtBlock: bigint;
+  readonly createdAtTimestamp: bigint;
   readonly chainId: number;
   readonly poolAddress: string;
-  readonly createdAtTimestamp: bigint;
   readonly initialFeeTier: number;
   readonly isDynamicFee: boolean;
   readonly poolType: PoolType_t;

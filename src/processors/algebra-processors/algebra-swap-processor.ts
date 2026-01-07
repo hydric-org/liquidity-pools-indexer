@@ -1,5 +1,6 @@
 import type {
   AlgebraPoolData as AlgebraPoolDataEntity,
+  Block_t,
   handlerContext,
   Pool as PoolEntity,
   Token as TokenEntity,
@@ -14,7 +15,7 @@ export async function processAlgebraSwap(params: {
   context: handlerContext;
   poolAddress: string;
   network: IndexerNetwork;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   swapAmount0: bigint;
   swapAmount1: bigint;
   sqrtPriceX96: bigint;
@@ -75,7 +76,7 @@ export async function processAlgebraSwap(params: {
     context: params.context,
     poolAddress: params.poolAddress,
     network: params.network,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     amount0: params.swapAmount0,
     amount1: params.swapAmount1,
     swapFee: params.overrideSwapFee ?? poolEntity.currentFeeTier,

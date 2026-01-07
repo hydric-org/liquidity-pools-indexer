@@ -11,11 +11,13 @@ import { calculateLiquidityFlow, PriceConverter } from "../lib/math";
 import { TokenDecimalMath } from "../lib/math/token/token-decimal-math";
 import { DatabaseService } from "../services/database-service";
 
+import type { Block_t } from "generated";
+
 export async function processLiquidityMetrics(params: {
   context: handlerContext;
   poolAddress: string;
   network: IndexerNetwork;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   amount0AddedOrRemoved: bigint;
   amount1AddedOrRemoved: bigint;
 }) {
@@ -32,7 +34,7 @@ export async function processLiquidityMetrics(params: {
     DatabaseService.getAllPooltimeframedStatsEntities(params.context, poolEntity),
     DatabaseService.getOrCreateHistoricalPoolDataEntities({
       context: params.context,
-      eventTimestamp: params.eventTimestamp,
+      eventTimestamp: BigInt(params.eventBlock.timestamp),
       pool: poolEntity,
     }),
   ]);
@@ -111,7 +113,7 @@ export async function processLiquidityMetrics(params: {
 
   poolHistoricalDataEntities = poolHistoricalDataEntities.map((historicalDataEntity) => ({
     ...historicalDataEntity,
-    timestampAtEnd: params.eventTimestamp,
+    timestampAtEnd: BigInt(params.eventBlock.timestamp),
 
     liquidityNetInflowUsdAtEnd: poolEntity.liquidityNetInflowUsd,
     trackedLiquidityNetInflowUsdAtEnd: poolEntity.trackedLiquidityNetInflowUsd,

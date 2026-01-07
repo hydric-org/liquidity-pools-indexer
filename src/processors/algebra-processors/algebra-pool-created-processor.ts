@@ -1,4 +1,4 @@
-import type { handlerContext } from "generated";
+import type { Block_t, handlerContext } from "generated";
 import { AlgebraVersion } from "../../core/algebra/algebra-version";
 import { ZERO_ADDRESS } from "../../core/constants";
 import { EntityId } from "../../core/entity";
@@ -10,7 +10,7 @@ export async function processAlgebraPoolCreated(params: {
   poolAddress: string;
   token0Address: string;
   token1Address: string;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   chainId: number;
   protocol: SupportedProtocol;
   deployer: string;
@@ -41,7 +41,7 @@ export async function processAlgebraPoolCreated(params: {
 
   await processNewPool({
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     feeTier: 0,
     isDynamicFee: false,
     network: params.chainId,

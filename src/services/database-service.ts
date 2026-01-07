@@ -8,7 +8,7 @@ import type { HistoricalDataInterval_t } from "generated/src/db/Enums.gen";
 import type { HandlerContext } from "generated/src/Types";
 import { ZERO_ADDRESS } from "../core/constants";
 import { getMultiTokenMetadataEffect } from "../core/effects/token-metadata-effect";
-import { EntityId, InitialPoolHistoricalDataEntity } from "../core/entity";
+import { EntityId, InitialPoolHistoricalDataEntity, InitialPoolTimeframedStatsEntity } from "../core/entity";
 import { InitialTokenEntity } from "../core/entity/initial-token-entity";
 import { IndexerNetwork } from "../core/network";
 import { subtractDaysFromSecondsTimestamp, subtractHoursFromSecondsTimestamp } from "../lib/timestamp";
@@ -21,6 +21,7 @@ export const DatabaseService = {
   getPoolDailyDataAgo,
   getOrCreateHistoricalPoolDataEntities,
   getAllPooltimeframedStatsEntities,
+  resetAllPoolTimeframedStats,
 };
 
 async function getOrCreatePoolTokenEntities(params: {
@@ -91,7 +92,7 @@ async function getOldestPoolHourlyDataAgo(
 ): Promise<PoolHistoricalDataEntity | undefined> {
   for (let hour = hoursAgo; hour >= 0; hour--) {
     const timestamp = subtractHoursFromSecondsTimestamp(eventTimestamp, hour);
-    if (timestamp < pool.createdAtTimestamp) continue;
+    if (timestamp < pool.createdAtTimestamp || pool.lastActivityTimestamp < timestamp) return;
 
     const data = await context.PoolHistoricalData.get(
       EntityId.buildHourlyDataId(timestamp, pool.chainId, pool.poolAddress)
@@ -109,7 +110,7 @@ async function getOldestPoolDailyDataAgo(
 ): Promise<PoolHistoricalDataEntity | undefined> {
   for (let day = daysAgo; day >= 0; day--) {
     const timestamp = subtractDaysFromSecondsTimestamp(eventTimestamp, day);
-    if (timestamp < pool.createdAtTimestamp) continue;
+    if (timestamp < pool.createdAtTimestamp || pool.lastActivityTimestamp < timestamp) return;
 
     const data = await context.PoolHistoricalData.get(
       EntityId.buildDailyDataId(timestamp, pool.chainId, pool.poolAddress)
@@ -126,7 +127,7 @@ async function getPoolHourlyDataAgo(
   pool: PoolEntity
 ): Promise<PoolHistoricalDataEntity | undefined> {
   const timestampAgo = subtractHoursFromSecondsTimestamp(eventTimestamp, hoursAgo);
-  if (timestampAgo < pool.createdAtTimestamp) return;
+  if (timestampAgo < pool.createdAtTimestamp || pool.lastActivityTimestamp < timestampAgo) return;
 
   return await context.PoolHistoricalData.get(EntityId.buildHourlyDataId(timestampAgo, pool.chainId, pool.poolAddress));
 }
@@ -138,7 +139,7 @@ async function getPoolDailyDataAgo(
   pool: PoolEntity
 ): Promise<PoolHistoricalDataEntity | undefined> {
   const timestampAgo = subtractDaysFromSecondsTimestamp(eventTimestamp, daysAgo);
-  if (timestampAgo < pool.createdAtTimestamp) return;
+  if (timestampAgo < pool.createdAtTimestamp || pool.lastActivityTimestamp < timestampAgo) return;
 
   return await context.PoolHistoricalData.get(EntityId.buildDailyDataId(timestampAgo, pool.chainId, pool.poolAddress));
 }
@@ -167,10 +168,21 @@ async function getAllPooltimeframedStatsEntities(
   context: HandlerContext,
   pool: PoolEntity
 ): Promise<PoolTimeframedStatsEntity[]> {
-  return await Promise.all([
-    context.PoolTimeframedStats.getOrThrow(EntityId.build24hStatsId(pool.chainId, pool.poolAddress)),
-    context.PoolTimeframedStats.getOrThrow(EntityId.build7dStatsId(pool.chainId, pool.poolAddress)),
-    context.PoolTimeframedStats.getOrThrow(EntityId.build30dStatsId(pool.chainId, pool.poolAddress)),
-    context.PoolTimeframedStats.getOrThrow(EntityId.build90dStatsId(pool.chainId, pool.poolAddress)),
-  ]);
+  const statsToFetch = EntityId.buildAllTimeframedStatsIds(pool.chainId, pool.poolAddress);
+  return Promise.all(statsToFetch.map((stat) => context.PoolTimeframedStats.getOrThrow(stat.id)));
+}
+
+async function resetAllPoolTimeframedStats(context: HandlerContext, pool: PoolEntity) {
+  const statsToReset = EntityId.buildAllTimeframedStatsIds(pool.chainId, pool.poolAddress);
+
+  statsToReset.forEach((stat) =>
+    context.PoolTimeframedStats.set(
+      new InitialPoolTimeframedStatsEntity({
+        id: stat.id,
+        timeframe: stat.timeframe,
+        poolId: pool.id,
+        dataPointTimestamp: BigInt(0),
+      })
+    )
+  );
 }

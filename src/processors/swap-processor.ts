@@ -1,4 +1,5 @@
 import type {
+  Block_t,
   PoolHistoricalData as PoolHistoricalDataEntity,
   PoolTimeframedStats as PoolTimeframedStatsEntity,
   Token as TokenEntity,
@@ -26,7 +27,7 @@ export async function processSwap(params: {
   network: IndexerNetwork;
   amount0: bigint;
   amount1: bigint;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   newPoolPrices: PoolPrices;
   swapFee: number;
 }) {
@@ -43,7 +44,7 @@ export async function processSwap(params: {
     DatabaseService.getAllPooltimeframedStatsEntities(params.context, poolEntity),
     DatabaseService.getOrCreateHistoricalPoolDataEntities({
       context: params.context,
-      eventTimestamp: params.eventTimestamp,
+      eventTimestamp: BigInt(params.eventBlock.timestamp),
       pool: poolEntity,
     }),
   ]);
@@ -57,6 +58,8 @@ export async function processSwap(params: {
     tokens1PerToken0: params.newPoolPrices.tokens1PerToken0,
     totalValueLockedToken0: poolEntity.totalValueLockedToken0.plus(amount0Formatted),
     totalValueLockedToken1: poolEntity.totalValueLockedToken1.plus(amount1Formatted),
+    lastActivityBlock: BigInt(params.eventBlock.number),
+    lastActivityTimestamp: BigInt(params.eventBlock.timestamp),
   };
 
   token0Entity = {
@@ -210,14 +213,14 @@ export async function processSwap(params: {
     intervalFeesToken1: historicalDataEntity.intervalFeesToken1.plus(swapFees.feesToken1),
 
     accumulatedYieldAtEnd: poolEntity.accumulatedYield,
-    timestampAtEnd: params.eventTimestamp,
+    timestampAtEnd: BigInt(params.eventBlock.timestamp),
   }));
 
   statsEntities = statsEntities.map((statEntity) => {
     const yearlyYield = YieldMath.yearlyYieldFromAccumulated({
       accumulatedYield: statEntity.accumulatedYield.plus(swapYield),
       daysAccumulated: STATS_TIMEFRAME_IN_DAYS[statEntity.timeframe],
-      eventTimestamp: params.eventTimestamp,
+      eventTimestamp: BigInt(params.eventBlock.timestamp),
       pool: poolEntity,
     });
 
@@ -242,7 +245,7 @@ export async function processSwap(params: {
 
   await processPoolTimeframedStatsUpdate({
     context: params.context,
-    eventTimestamp: params.eventTimestamp,
+    eventTimestamp: BigInt(params.eventBlock.timestamp),
     poolEntity,
   });
 }

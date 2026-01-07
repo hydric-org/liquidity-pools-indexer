@@ -12,7 +12,7 @@ AlgebraPool_1_2_2.SwapFee.handler(async ({ event }) => {
 AlgebraPool_1_2_2.Swap.handler(async ({ event, context }) => {
   await processAlgebraSwap({
     context,
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     network: event.chainId,
     poolAddress: event.srcAddress,
     swapAmount0: event.params.amount0,

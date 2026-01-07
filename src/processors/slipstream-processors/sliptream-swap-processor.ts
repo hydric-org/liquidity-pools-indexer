@@ -1,4 +1,4 @@
-import type { HandlerContext, Pool as PoolEntity, SlipstreamPoolData, Token as TokenEntity } from "generated";
+import type { Block_t, HandlerContext, Pool as PoolEntity, SlipstreamPoolData, Token as TokenEntity } from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedSqrtPriceMath } from "../../lib/math/concentrated-liquidity/concentrated-sqrt-price-math";
@@ -10,7 +10,7 @@ export async function processSlipstreamSwap(params: {
   context: HandlerContext;
   network: IndexerNetwork;
   poolAddress: string;
-  eventTimestamp: bigint;
+  eventBlock: Block_t;
   sqrtPriceX96: bigint;
   tick: bigint;
   amount0: bigint;
@@ -31,7 +31,8 @@ export async function processSlipstreamSwap(params: {
   let swapFee = poolEntity.currentFeeTier;
 
   const shouldAdjustSwapFee =
-    daysBetweenSecondsTimestamps(params.eventTimestamp, slipstreamPoolData.lastFeeAdjustmentTimestamp) > 1;
+    daysBetweenSecondsTimestamps(BigInt(params.eventBlock.timestamp), slipstreamPoolData.lastFeeAdjustmentTimestamp) >
+    1;
 
   /// We do this now because it's too expensive to do on every swap, but should be get in every swap to maximize accuracy
   if (shouldAdjustSwapFee) {
@@ -42,7 +43,7 @@ export async function processSlipstreamSwap(params: {
 
     slipstreamPoolData = {
       ...slipstreamPoolData,
-      lastFeeAdjustmentTimestamp: params.eventTimestamp,
+      lastFeeAdjustmentTimestamp: BigInt(params.eventBlock.timestamp),
     };
 
     params.context.Pool.set({
@@ -63,7 +64,7 @@ export async function processSlipstreamSwap(params: {
     network: params.network,
     amount0: params.amount0,
     amount1: params.amount1,
-    eventTimestamp: params.eventTimestamp,
+    eventBlock: params.eventBlock,
     swapFee: swapFee,
     newPoolPrices: ConcentratedSqrtPriceMath.convertSqrtPriceX96ToPoolPrices({
       poolToken0: token0Entity,

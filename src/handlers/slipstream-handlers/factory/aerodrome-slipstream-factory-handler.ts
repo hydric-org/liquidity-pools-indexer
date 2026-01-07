@@ -13,7 +13,7 @@ AerodromeSlipstreamFactory.PoolCreated.handler(async ({ event, context }) => {
     token0Address: event.params.token0,
     token1Address: event.params.token1,
     tickSpacing: Number.parseInt(event.params.tickSpacing.toString()),
-    eventTimestamp: BigInt(event.block.timestamp),
+    eventBlock: event.block,
     chainId: event.chainId,
     protocol: SupportedProtocol.AERODROME_V3,
   });
