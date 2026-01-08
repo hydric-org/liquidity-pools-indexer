@@ -71,9 +71,6 @@ export const POSITION_MANAGER_ADDRESS: Record<SupportedProtocol, Partial<Record<
   [SupportedProtocol.UPHEAVAL_V3]: {
     [IndexerNetwork.HYPER_EVM]: "0xC8352A2EbA29F4d9BD4221c07D3461BaCc779088",
   },
-  [SupportedProtocol.AETHONSWAP_ALGEBRA]: {
-    [IndexerNetwork.MONAD]: "0xB879564EE31F841d8049c21227c6109856409bc7",
-  },
   [SupportedProtocol.ATLANTIS_ALGEBRA]: {
     [IndexerNetwork.MONAD]: "0x69D57B9D705eaD73a5d2f2476C30c55bD755cc2F",
   },

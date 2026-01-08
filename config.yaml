@@ -63,12 +63,6 @@ contracts:
       - event: Pool(address indexed token0, address indexed token1, address pool)
       - event: CustomPool(address indexed deployer, address indexed token0, address indexed token1, address pool)
 
-  - name: AethonSwapAlgebraFactory
-    abi_file_path: ./abis/factories/AlgebraFactory_1_2_0.json
-    events:
-      - event: Pool(address indexed token0, address indexed token1, address pool)
-      - event: CustomPool(address indexed deployer, address indexed token0, address indexed token1, address pool)
-
   - name: AlgebraPool_1_2_0
     abi_file_path: ./abis/pools/AlgebraPool_1_2_0.json
     events:
@@ -324,8 +318,6 @@ chains:
         address: 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e
       - name: PancakeSwapV3Factory
         address: 0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865
-      - name: AethonSwapAlgebraFactory
-        address: 0x05aA1d36F78D1242C40b3680d38EB1feE7060c20
       - name: AtlantisAlgebraFactory
         address: 0x10253594A832f967994b44f33411940533302ACb
       - name: OctoSwapCLFactory

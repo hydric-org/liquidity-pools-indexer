@@ -19,7 +19,6 @@ export enum SupportedProtocol {
   KITTENSWAP_ALGEBRA = "kittenswap-v3",
   ULTRASOLID_V3 = "ultrasolid-v3",
   UPHEAVAL_V3 = "upheaval-v3",
-  AETHONSWAP_ALGEBRA = "aethonswap-algebra",
   ATLANTIS_ALGEBRA = "atlantis-algebra",
   RAMSES_V3 = "ramses-v3",
   OCTOSWAP_CL = "octoswap-cl",
@@ -129,12 +128,6 @@ export namespace SupportedProtocol {
       name: "Upheaval V3",
       url: "https://upheaval.fi/",
       logoUrl: "https://assets.coingecko.com/markets/images/22071/large/upheaval-finance.jpg",
-    },
-
-    [SupportedProtocol.AETHONSWAP_ALGEBRA]: {
-      name: "AethonSwap Algebra",
-      url: "https://aethonswap.com/",
-      logoUrl: "https://assets.coingecko.com/coins/images/70760/large/AethonSwap_Logo_icon.png",
     },
 
     [SupportedProtocol.ATLANTIS_ALGEBRA]: {
