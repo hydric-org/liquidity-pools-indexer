@@ -39,6 +39,25 @@ export function discoverTokenUsdMarketPrices(params: {
   trackedToken0MarketUsdPrice: BigDecimal;
   trackedToken1MarketUsdPrice: BigDecimal;
 } {
+  const canPoolSetToken0Price = _canPoolDiscoverTokenPrice({
+    poolEntity: params.pool,
+    tokenEntity: params.poolToken0Entity,
+  });
+
+  const canPoolSetToken1Price = _canPoolDiscoverTokenPrice({
+    poolEntity: params.pool,
+    tokenEntity: params.poolToken1Entity,
+  });
+
+  if (!canPoolSetToken0Price && !canPoolSetToken1Price) {
+    return {
+      token0MarketUsdPrice: params.poolToken0Entity.usdPrice,
+      token1MarketUsdPrice: params.poolToken1Entity.usdPrice,
+      trackedToken0MarketUsdPrice: params.poolToken0Entity.trackedUsdPrice,
+      trackedToken1MarketUsdPrice: params.poolToken1Entity.trackedUsdPrice,
+    };
+  }
+
   const amount0 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount0, params.poolToken0Entity);
   const amount1 = TokenDecimalMath.rawToDecimal(params.rawSwapAmount1, params.poolToken1Entity);
 
@@ -72,10 +91,15 @@ export function discoverTokenUsdMarketPrices(params: {
   });
 
   return {
-    token0MarketUsdPrice,
-    token1MarketUsdPrice,
-    trackedToken0MarketUsdPrice: trackedPrices.trackedToken0MarketUsdPrice,
-    trackedToken1MarketUsdPrice: trackedPrices.trackedToken1MarketUsdPrice,
+    token0MarketUsdPrice: canPoolSetToken0Price ? token0MarketUsdPrice : params.poolToken0Entity.usdPrice,
+    token1MarketUsdPrice: canPoolSetToken1Price ? token1MarketUsdPrice : params.poolToken1Entity.usdPrice,
+
+    trackedToken0MarketUsdPrice: canPoolSetToken0Price
+      ? trackedPrices.trackedToken0MarketUsdPrice
+      : params.poolToken0Entity.trackedUsdPrice,
+    trackedToken1MarketUsdPrice: canPoolSetToken1Price
+      ? trackedPrices.trackedToken1MarketUsdPrice
+      : params.poolToken1Entity.trackedUsdPrice,
   };
 }
 
@@ -150,21 +174,21 @@ function calculateValidatedMarketPrices(params: {
     currentToken1Price: anchorPrice1,
   });
 
-  const isPrice0Valid = isPercentageDifferenceWithinThreshold(
+  const isSuggestedPrice0CloseToSwapPrice = isPercentageDifferenceWithinThreshold(
     suggestedPrice0,
     swapPrice0,
     OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD
   );
 
-  const isPrice1Valid = isPercentageDifferenceWithinThreshold(
+  const isSuggestedPrice1CloseToSwapPrice = isPercentageDifferenceWithinThreshold(
     suggestedPrice1,
     swapPrice1,
     OUTLIER_TOKEN_PRICE_PERCENT_THRESHOLD
   );
 
   return {
-    price0: isPrice0Valid ? suggestedPrice0.decimalPlaces(params.token0.decimals) : currentPrice0,
-    price1: isPrice1Valid ? suggestedPrice1.decimalPlaces(params.token1.decimals) : currentPrice1,
+    price0: isSuggestedPrice0CloseToSwapPrice ? suggestedPrice0.decimalPlaces(params.token0.decimals) : currentPrice0,
+    price1: isSuggestedPrice1CloseToSwapPrice ? suggestedPrice1.decimalPlaces(params.token1.decimals) : currentPrice1,
   };
 }
 
@@ -320,4 +344,16 @@ function _resolveTrackedPricesForNewPrices(params: {
     trackedToken0Price: suggestedPrice0,
     trackedToken1Price: suggestedPrice1,
   };
+}
+
+function _canPoolDiscoverTokenPrice(params: { poolEntity: PoolEntity; tokenEntity: TokenEntity }): boolean {
+  if (params.tokenEntity.poolsCount === 1) return true;
+
+  const averageLiquidityPerPool = params.tokenEntity.tokenTotalValuePooled.div(params.tokenEntity.poolsCount);
+  const amountInPool =
+    params.poolEntity.token0_id === params.tokenEntity.id
+      ? params.poolEntity.totalValueLockedToken0
+      : params.poolEntity.totalValueLockedToken1;
+
+  return amountInPool.gte(averageLiquidityPerPool);
 }
