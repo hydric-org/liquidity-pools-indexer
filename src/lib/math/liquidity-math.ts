@@ -186,8 +186,12 @@ export function calculateNewLockedAmountsUSD(params: {
           newTrackedPoolTotalValueLockedToken0USD: ZERO_BIG_DECIMAL,
           newTrackedPoolTotalValueLockedToken1USD: ZERO_BIG_DECIMAL,
           newTrackedPoolTotalValueLockedUSD: ZERO_BIG_DECIMAL,
-          newTrackedToken0TotalPooledAmountUSD: params.token0.totalValuePooledUsd,
-          newTrackedToken1TotalPooledAmountUSD: params.token1.totalValuePooledUsd,
+          newTrackedToken0TotalPooledAmountUSD: params.token0.trackedTotalValuePooledUsd.minus(
+            params.poolEntity.trackedTotalValueLockedToken0Usd
+          ),
+          newTrackedToken1TotalPooledAmountUSD: params.token1.trackedTotalValuePooledUsd.minus(
+            params.poolEntity.trackedTotalValueLockedToken1Usd
+          ),
         }),
   };
 }
