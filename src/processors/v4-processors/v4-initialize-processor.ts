@@ -34,7 +34,7 @@ export async function processV4Initialize(params: {
     tickSpacing: params.tickSpacing,
     tick: params.tick,
     permit2: PERMIT2_ADDRESS[params.protocol]![params.chainId]!,
-    stateView: V4_STATE_VIEW_ADDRESS[params.protocol]![params.chainId],
+    stateView: V4_STATE_VIEW_ADDRESS[params.protocol]?.[params.chainId],
   });
 
   const { token0Entity, token1Entity } = await processNewPool({
