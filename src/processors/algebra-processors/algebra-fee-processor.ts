@@ -12,6 +12,6 @@ export async function processAlgebraFee(params: {
 
   params.context.Pool.set({
     ...poolEntity,
-    currentFeeTier: params.newFeeTier,
+    rawCurrentFeeTier: params.newFeeTier,
   });
 }

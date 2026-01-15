@@ -10,7 +10,7 @@ export class InitialPoolEntity implements PoolEntity {
       | "chainId"
       | "poolAddress"
       | "createdAtTimestamp"
-      | "initialFeeTier"
+      | "rawInitialFeeTier"
       | "isDynamicFee"
       | "poolType"
       | "positionManager"
@@ -27,7 +27,7 @@ export class InitialPoolEntity implements PoolEntity {
 
     this.chainId = params.chainId;
     this.poolAddress = params.poolAddress;
-    this.initialFeeTier = params.initialFeeTier;
+    this.rawInitialFeeTier = params.rawInitialFeeTier;
     this.isDynamicFee = params.isDynamicFee;
     this.poolType = params.poolType;
     this.positionManager = params.positionManager;
@@ -35,7 +35,7 @@ export class InitialPoolEntity implements PoolEntity {
     this.token0_id = params.token0_id;
     this.token1_id = params.token1_id;
 
-    this.currentFeeTier = this.initialFeeTier;
+    this.rawCurrentFeeTier = this.rawInitialFeeTier;
 
     this.id = EntityId.fromAddress(this.chainId, this.poolAddress);
     this.totalStats24h_id = EntityId.build24hStatsId(this.chainId, this.poolAddress);
@@ -48,6 +48,8 @@ export class InitialPoolEntity implements PoolEntity {
     this.slipstreamPoolData_id = this.id;
     this.algebraPoolData_id = this.id;
   }
+  rawCurrentFeeTier: number;
+  rawInitialFeeTier: number;
 
   readonly lastActivityBlock: bigint;
   readonly lastActivityTimestamp: bigint;
@@ -55,7 +57,6 @@ export class InitialPoolEntity implements PoolEntity {
   readonly createdAtTimestamp: bigint;
   readonly chainId: number;
   readonly poolAddress: string;
-  readonly initialFeeTier: number;
   readonly isDynamicFee: boolean;
   readonly poolType: PoolType_t;
   readonly positionManager: string;
@@ -63,7 +64,6 @@ export class InitialPoolEntity implements PoolEntity {
   readonly token0_id: string;
   readonly token1_id: string;
 
-  readonly currentFeeTier: number;
   readonly id: string;
   readonly totalStats24h_id: string;
   readonly totalStats7d_id: string;

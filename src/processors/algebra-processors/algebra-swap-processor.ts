@@ -39,21 +39,21 @@ export async function processAlgebraSwap(params: {
   const nonLPFeesTokenAmount = AlgebraMath.calculateAlgebraNonLPFeesAmount({
     swapAmount0: params.swapAmount0,
     swapAmount1: params.swapAmount1,
-    communityFee: algebraPoolData.communityFee,
+    rawCommunityFee: algebraPoolData.rawCommunityFee,
     poolEntity: poolEntity,
-    pluginFee: params.pluginFee,
+    rawPluginFee: params.pluginFee,
     token0: token0Entity,
     token1: token1Entity,
-    swapFee: params.overrideSwapFee ?? poolEntity.currentFeeTier,
+    rawSwapFee: params.overrideSwapFee ?? poolEntity.rawCurrentFeeTier,
   });
 
   params.context.Pool.set({
     ...poolEntity,
     totalValueLockedToken0: poolEntity.totalValueLockedToken0.minus(nonLPFeesTokenAmount.token0FeeAmount),
     totalValueLockedToken1: poolEntity.totalValueLockedToken1.minus(nonLPFeesTokenAmount.token1FeeAmount),
-    currentFeeTier: poolEntity.isDynamicFee
-      ? params.overrideSwapFee ?? poolEntity.currentFeeTier
-      : poolEntity.currentFeeTier,
+    rawCurrentFeeTier: poolEntity.isDynamicFee
+      ? params.overrideSwapFee ?? poolEntity.rawCurrentFeeTier
+      : poolEntity.rawCurrentFeeTier,
   });
 
   params.context.Token.set({
@@ -79,7 +79,7 @@ export async function processAlgebraSwap(params: {
     eventBlock: params.eventBlock,
     amount0: params.swapAmount0,
     amount1: params.swapAmount1,
-    swapFee: params.overrideSwapFee ?? poolEntity.currentFeeTier,
+    rawSwapFee: params.overrideSwapFee ?? poolEntity.rawCurrentFeeTier,
     newPoolPrices: ConcentratedSqrtPriceMath.convertSqrtPriceX96ToPoolPrices({
       poolToken0: token0Entity,
       poolToken1: token1Entity,

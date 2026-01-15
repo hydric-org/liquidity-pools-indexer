@@ -41,7 +41,7 @@ export async function processV4Initialize(params: {
     poolAddress: params.poolAddress,
     context: params.context,
     eventBlock: params.eventBlock,
-    feeTier: params.feeTier,
+    rawFeeTier: params.feeTier,
     isDynamicFee: params.feeTier === V4PoolConstants.V4_DYNAMIC_FEE_FLAG,
     network: params.chainId,
     poolType: "V4",

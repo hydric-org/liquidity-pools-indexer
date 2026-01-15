@@ -10,7 +10,7 @@ UniswapV2Factory.PairCreated.handler(async ({ event, context }) => {
   await processNewPool({
     context: context,
     eventBlock: event.block,
-    feeTier: 3000,
+    rawFeeTier: 3000,
     isDynamicFee: false,
     network: event.chainId,
     poolAddress: event.params.pair,

@@ -7,6 +7,6 @@ RamsesV3Pool.FeeAdjustment.handler(async ({ event, context }) => {
 
   context.Pool.set({
     ...poolEntity,
-    currentFeeTier: Number(event.params.newFee),
+    rawCurrentFeeTier: Number(event.params.newFee),
   });
 });

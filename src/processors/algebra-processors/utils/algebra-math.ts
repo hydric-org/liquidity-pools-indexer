@@ -10,19 +10,19 @@ export const AlgebraMath = {
 
 function calculateAlgebraNonLPFeesAmount(params: {
   poolEntity: PoolEntity;
-  pluginFee: number;
-  communityFee: number;
+  rawPluginFee: number;
+  rawCommunityFee: number;
   swapAmount0: bigint;
   swapAmount1: bigint;
   token0: TokenEntity;
   token1: TokenEntity;
-  swapFee: number;
+  rawSwapFee: number;
 }): { token0FeeAmount: BigDecimal; token1FeeAmount: BigDecimal } {
   if (params.swapAmount0 > 0n) {
-    const swapFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.swapFee);
-    const pluginFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.pluginFee);
+    const swapFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.rawSwapFee);
+    const pluginFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.rawPluginFee);
     const communityFeeTokenAmount =
-      (swapFeeTokenAmount * BigInt(params.communityFee)) / ALGEBRA_COMMUNITY_FEE_DENOMINATOR;
+      (swapFeeTokenAmount * BigInt(params.rawCommunityFee)) / ALGEBRA_COMMUNITY_FEE_DENOMINATOR;
     const algebraNonLPFees = pluginFeeTokenAmount + communityFeeTokenAmount;
 
     return {
@@ -31,10 +31,10 @@ function calculateAlgebraNonLPFeesAmount(params: {
     };
   }
 
-  const swapFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.swapFee);
-  const pluginFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.pluginFee);
+  const swapFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.rawSwapFee);
+  const pluginFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.rawPluginFee);
   const communityFeeTokenAmount =
-    (swapFeeTokenAmount * BigInt(params.communityFee)) / ALGEBRA_COMMUNITY_FEE_DENOMINATOR;
+    (swapFeeTokenAmount * BigInt(params.rawCommunityFee)) / ALGEBRA_COMMUNITY_FEE_DENOMINATOR;
   const algebraNonLPFees = pluginFeeTokenAmount + communityFeeTokenAmount;
 
   return {

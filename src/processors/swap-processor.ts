@@ -30,7 +30,7 @@ export async function processSwap(params: {
   amount1: bigint;
   eventBlock: Block_t;
   newPoolPrices: PoolPrices;
-  swapFee: number;
+  rawSwapFee: number;
 }) {
   let poolEntity = await params.context.Pool.getOrThrow(EntityId.fromAddress(params.network, params.poolAddress));
 
@@ -135,7 +135,7 @@ export async function processSwap(params: {
   const swapFees = calculateSwapFees({
     rawSwapAmount0: params.amount0,
     rawSwapAmount1: params.amount1,
-    rawSwapFee: params.swapFee,
+    rawSwapFee: params.rawSwapFee,
     token0: token0Entity,
     token1: token1Entity,
     poolEntity: poolEntity,

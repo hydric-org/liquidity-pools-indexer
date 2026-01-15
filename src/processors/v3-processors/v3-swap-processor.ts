@@ -45,7 +45,7 @@ export async function processV3Swap(params: {
     amount0: params.amount0,
     amount1: params.amount1,
     eventBlock: params.eventBlock,
-    swapFee: poolEntity.currentFeeTier,
+    rawSwapFee: poolEntity.rawCurrentFeeTier,
     newPoolPrices: ConcentratedSqrtPriceMath.convertSqrtPriceX96ToPoolPrices({
       poolToken0: token0Entity,
       poolToken1: token1Entity,

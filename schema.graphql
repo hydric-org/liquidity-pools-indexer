@@ -67,8 +67,8 @@ type Pool
   token0: Token! @index
   token1: Token! @index
 
-  currentFeeTier: Int!
-  initialFeeTier: Int!
+  rawCurrentFeeTier: Int!
+  rawInitialFeeTier: Int!
 
   positionManager: Bytes!
   protocol: Protocol! @index
@@ -156,7 +156,7 @@ type SlipstreamPoolData {
 type AlgebraPoolData {
   id: ID!
   deployer: String!
-  communityFee: Int!
+  rawCommunityFee: Int!
   plugin: String!
   pluginConfig: Int!
   version: String!

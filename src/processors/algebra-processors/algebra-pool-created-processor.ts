@@ -21,7 +21,7 @@ export async function processAlgebraPoolCreated(params: {
   // we use get or create because it can be created before the factory at algebra-plugin-handler
   let algebraPoolData = await params.context.AlgebraPoolData.getOrCreate({
     id: poolId,
-    communityFee: 0,
+    rawCommunityFee: 0,
     pluginConfig: 0,
     sqrtPriceX96: 0n,
     tick: 0n,
@@ -42,7 +42,7 @@ export async function processAlgebraPoolCreated(params: {
   await processNewPool({
     context: params.context,
     eventBlock: params.eventBlock,
-    feeTier: 0,
+    rawFeeTier: 0,
     isDynamicFee: false,
     network: params.chainId,
     poolAddress: params.poolAddress,

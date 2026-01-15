@@ -39,7 +39,7 @@ export async function processV4Swap(params: {
 
   params.context.Pool.set({
     ...poolEntity,
-    currentFeeTier: params.swapFee,
+    rawCurrentFeeTier: params.swapFee,
   });
 
   params.context.V4PoolData.set({
@@ -55,7 +55,7 @@ export async function processV4Swap(params: {
     eventBlock: params.eventBlock,
     network: params.network,
     poolAddress: params.poolAddress,
-    swapFee: params.swapFee,
+    rawSwapFee: params.swapFee,
     newPoolPrices: ConcentratedSqrtPriceMath.convertSqrtPriceX96ToPoolPrices({
       poolToken0: token0Entity,
       poolToken1: token1Entity,

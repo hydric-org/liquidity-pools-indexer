@@ -13,7 +13,7 @@ export async function processAlgebraPlugin(params: {
   // we use get or created because this handler can be called before the factory
   let algebraPoolData = await params.context.AlgebraPoolData.getOrCreate({
     id: EntityId.fromAddress(params.network, params.poolAddress),
-    communityFee: 0,
+    rawCommunityFee: 0,
     deployer: ZERO_ADDRESS,
     plugin: ZERO_ADDRESS,
     pluginConfig: 0,

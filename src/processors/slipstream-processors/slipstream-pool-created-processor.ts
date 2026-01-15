@@ -27,7 +27,7 @@ export async function processSlipstreamPoolCreated(params: {
   const { token0Entity, token1Entity } = await processNewPool({
     context: params.context,
     eventBlock: params.eventBlock,
-    feeTier: 0,
+    rawFeeTier: 0,
     isDynamicFee: true,
     network: params.chainId,
     poolAddress: params.poolAddress,

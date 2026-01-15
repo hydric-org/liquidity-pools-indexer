@@ -50,6 +50,6 @@ export async function processV2Swap(params: {
     network: params.network,
     newPoolPrices: poolPrice,
     poolAddress: params.poolAddress,
-    swapFee: poolEntity.currentFeeTier,
+    rawSwapFee: poolEntity.rawCurrentFeeTier,
   });
 }

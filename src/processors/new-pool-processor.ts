@@ -12,7 +12,7 @@ export async function processNewPool(params: {
   poolAddress: string;
   token0Address: string;
   token1Address: string;
-  feeTier: number;
+  rawFeeTier: number;
   network: IndexerNetwork;
   protocol: SupportedProtocol;
   isDynamicFee: boolean;
@@ -35,7 +35,7 @@ export async function processNewPool(params: {
   const poolEntity: PoolEntity = new InitialPoolEntity({
     chainId: params.network,
     createdAtTimestamp: BigInt(params.eventBlock.timestamp),
-    initialFeeTier: params.feeTier,
+    rawInitialFeeTier: params.rawFeeTier,
     isDynamicFee: params.isDynamicFee,
     poolAddress: params.poolAddress,
     poolType: params.poolType,

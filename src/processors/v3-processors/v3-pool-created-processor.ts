@@ -25,7 +25,7 @@ export async function processV3PoolCreated(params: {
   await processNewPool({
     context: params.context,
     eventBlock: params.eventBlock,
-    feeTier: params.feeTier ?? 0,
+    rawFeeTier: params.feeTier ?? 0,
     isDynamicFee: false,
     network: params.chainId,
     poolAddress: params.poolAddress,

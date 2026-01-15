@@ -14,6 +14,6 @@ export async function processAlgebraCommunityFee(params: {
 
   params.context.AlgebraPoolData.set({
     ...algebraPoolData,
-    communityFee: params.newCommunityFee,
+    rawCommunityFee: params.newCommunityFee,
   });
 }

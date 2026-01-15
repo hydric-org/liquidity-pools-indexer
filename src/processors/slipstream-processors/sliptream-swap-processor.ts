@@ -28,7 +28,7 @@ export async function processSlipstreamSwap(params: {
     params.context.Token.getOrThrow(poolEntity.token1_id),
   ]);
 
-  let swapFee = poolEntity.currentFeeTier;
+  let rawSwapFee = poolEntity.rawCurrentFeeTier;
 
   const shouldAdjustSwapFee =
     daysBetweenSecondsTimestamps(BigInt(params.eventBlock.timestamp), slipstreamPoolData.lastFeeAdjustmentTimestamp) >
@@ -36,7 +36,7 @@ export async function processSlipstreamSwap(params: {
 
   /// We do this now because it's too expensive to do on every swap, but should be get in every swap to maximize accuracy
   if (shouldAdjustSwapFee) {
-    swapFee = await params.context.effect(SlipsteamEffects.swapFeeEffect, {
+    rawSwapFee = await params.context.effect(SlipsteamEffects.swapFeeEffect, {
       chainId: params.network,
       poolAddress: params.poolAddress,
     });
@@ -48,7 +48,7 @@ export async function processSlipstreamSwap(params: {
 
     params.context.Pool.set({
       ...poolEntity,
-      currentFeeTier: swapFee,
+      rawCurrentFeeTier: rawSwapFee,
     });
   }
 
@@ -65,7 +65,7 @@ export async function processSlipstreamSwap(params: {
     amount0: params.amount0,
     amount1: params.amount1,
     eventBlock: params.eventBlock,
-    swapFee: swapFee,
+    rawSwapFee: rawSwapFee,
     newPoolPrices: ConcentratedSqrtPriceMath.convertSqrtPriceX96ToPoolPrices({
       poolToken0: token0Entity,
       poolToken1: token1Entity,
