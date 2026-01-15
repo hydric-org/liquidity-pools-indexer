@@ -69,6 +69,8 @@ type Pool
 
   rawCurrentFeeTier: Int!
   rawInitialFeeTier: Int!
+  currentFeeTierPercentage: Float!
+  initialFeeTierPercentage: Float!
 
   positionManager: Bytes!
   protocol: Protocol! @index
@@ -157,6 +159,7 @@ type AlgebraPoolData {
   id: ID!
   deployer: String!
   rawCommunityFee: Int!
+  communityFeePercentage: Float!
   plugin: String!
   pluginConfig: Int!
   version: String!

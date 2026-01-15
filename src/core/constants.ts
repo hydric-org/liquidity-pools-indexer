@@ -7,7 +7,7 @@ export const ONE_BIG_DECIMAL = BigDecimal(1);
 
 export const HUNDRED_BIG_DECIMAL = BigDecimal(100);
 
-export const MILLION_BIG_INT = BigInt(1_000_000);
+export const SWAP_FEE_DENOMINATOR = 1_000_000;
 
 export const ZERO_BIG_INT = BigInt(0);
 

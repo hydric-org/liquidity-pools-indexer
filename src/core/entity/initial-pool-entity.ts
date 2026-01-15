@@ -1,5 +1,6 @@
 import { BigDecimal, type Pool as PoolEntity } from "generated";
 import type { PoolType_t } from "generated/src/db/Enums.gen";
+import { FeeMath } from "../../lib/math/fee-math";
 import { ZERO_BIG_DECIMAL } from "../constants";
 import { EntityId } from "./entity-id";
 
@@ -28,14 +29,15 @@ export class InitialPoolEntity implements PoolEntity {
     this.chainId = params.chainId;
     this.poolAddress = params.poolAddress;
     this.rawInitialFeeTier = params.rawInitialFeeTier;
+    this.rawCurrentFeeTier = this.rawInitialFeeTier;
+    this.currentFeeTierPercentage = FeeMath.convertRawSwapFeeToPercentage(this.rawCurrentFeeTier);
+    this.initialFeeTierPercentage = FeeMath.convertRawSwapFeeToPercentage(this.rawInitialFeeTier);
     this.isDynamicFee = params.isDynamicFee;
     this.poolType = params.poolType;
     this.positionManager = params.positionManager;
     this.protocol_id = params.protocol_id;
     this.token0_id = params.token0_id;
     this.token1_id = params.token1_id;
-
-    this.rawCurrentFeeTier = this.rawInitialFeeTier;
 
     this.id = EntityId.fromAddress(this.chainId, this.poolAddress);
     this.totalStats24h_id = EntityId.build24hStatsId(this.chainId, this.poolAddress);
@@ -48,13 +50,17 @@ export class InitialPoolEntity implements PoolEntity {
     this.slipstreamPoolData_id = this.id;
     this.algebraPoolData_id = this.id;
   }
-  rawCurrentFeeTier: number;
-  rawInitialFeeTier: number;
+
+  readonly currentFeeTierPercentage: number;
+  readonly initialFeeTierPercentage: number;
+  readonly rawCurrentFeeTier: number;
+  readonly rawInitialFeeTier: number;
 
   readonly lastActivityBlock: bigint;
   readonly lastActivityTimestamp: bigint;
   readonly createdAtBlock: bigint;
   readonly createdAtTimestamp: bigint;
+
   readonly chainId: number;
   readonly poolAddress: string;
   readonly isDynamicFee: boolean;

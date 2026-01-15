@@ -22,6 +22,7 @@ export async function processAlgebraPoolCreated(params: {
   let algebraPoolData = await params.context.AlgebraPoolData.getOrCreate({
     id: poolId,
     rawCommunityFee: 0,
+    communityFeePercentage: 0,
     pluginConfig: 0,
     sqrtPriceX96: 0n,
     tick: 0n,

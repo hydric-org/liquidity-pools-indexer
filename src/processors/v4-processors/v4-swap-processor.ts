@@ -8,6 +8,7 @@ import type {
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedSqrtPriceMath } from "../../lib/math";
+import { FeeMath } from "../../lib/math/fee-math";
 import { processSwap } from "../swap-processor";
 
 export async function processV4Swap(params: {
@@ -40,6 +41,7 @@ export async function processV4Swap(params: {
   params.context.Pool.set({
     ...poolEntity,
     rawCurrentFeeTier: params.swapFee,
+    currentFeeTierPercentage: FeeMath.convertRawSwapFeeToPercentage(params.swapFee),
   });
 
   params.context.V4PoolData.set({

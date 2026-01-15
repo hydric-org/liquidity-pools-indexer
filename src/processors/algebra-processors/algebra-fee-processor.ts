@@ -1,6 +1,7 @@
 import type { HandlerContext } from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
+import { FeeMath } from "../../lib/math/fee-math";
 
 export async function processAlgebraFee(params: {
   context: HandlerContext;
@@ -13,5 +14,6 @@ export async function processAlgebraFee(params: {
   params.context.Pool.set({
     ...poolEntity,
     rawCurrentFeeTier: params.newFeeTier,
+    currentFeeTierPercentage: FeeMath.convertRawSwapFeeToPercentage(params.newFeeTier),
   });
 }

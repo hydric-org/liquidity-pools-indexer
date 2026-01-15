@@ -8,6 +8,7 @@ import type {
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedSqrtPriceMath } from "../../lib/math/concentrated-liquidity/concentrated-sqrt-price-math";
+import { FeeMath } from "../../lib/math/fee-math";
 import { processSwap } from "../swap-processor";
 import { AlgebraMath } from "./utils/algebra-math";
 
@@ -47,13 +48,16 @@ export async function processAlgebraSwap(params: {
     rawSwapFee: params.overrideSwapFee ?? poolEntity.rawCurrentFeeTier,
   });
 
+  const newRawFeeTier = poolEntity.isDynamicFee
+    ? params.overrideSwapFee ?? poolEntity.rawCurrentFeeTier
+    : poolEntity.rawCurrentFeeTier;
+
   params.context.Pool.set({
     ...poolEntity,
     totalValueLockedToken0: poolEntity.totalValueLockedToken0.minus(nonLPFeesTokenAmount.token0FeeAmount),
     totalValueLockedToken1: poolEntity.totalValueLockedToken1.minus(nonLPFeesTokenAmount.token1FeeAmount),
-    rawCurrentFeeTier: poolEntity.isDynamicFee
-      ? params.overrideSwapFee ?? poolEntity.rawCurrentFeeTier
-      : poolEntity.rawCurrentFeeTier,
+    rawCurrentFeeTier: newRawFeeTier,
+    currentFeeTierPercentage: FeeMath.convertRawSwapFeeToPercentage(newRawFeeTier),
   });
 
   params.context.Token.set({

@@ -1,7 +1,8 @@
 import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
-import { HUNDRED_BIG_DECIMAL, MILLION_BIG_INT, ZERO_BIG_DECIMAL } from "../../core/constants";
+import { HUNDRED_BIG_DECIMAL, ZERO_BIG_DECIMAL } from "../../core/constants";
 import { IndexerNetwork } from "../../core/network";
 import { PriceConverter } from "../pricing/price-converter";
+import { FeeMath } from "./fee-math";
 import { SafeMath } from "./safe-math";
 import { TokenDecimalMath } from "./token/token-decimal-math";
 
@@ -86,7 +87,7 @@ export function calculateSwapFees(params: {
   const isToken0Output = params.rawSwapAmount0 < 0n;
 
   if (isToken0Output) {
-    const rawFee = calculateRawSwapFeeFromTokenAmount(params.rawSwapAmount1, params.rawSwapFee);
+    const rawFee = FeeMath.calculateRawSwapFeeFromTokenAmount(params.rawSwapAmount1, params.rawSwapFee);
     const tokenFees = TokenDecimalMath.rawToDecimal(rawFee, params.token1);
 
     const tokenFeesUsd = tokenFees.times(params.token1.usdPrice);
@@ -110,7 +111,7 @@ export function calculateSwapFees(params: {
     };
   }
 
-  const rawFee = calculateRawSwapFeeFromTokenAmount(params.rawSwapAmount0, params.rawSwapFee);
+  const rawFee = FeeMath.calculateRawSwapFeeFromTokenAmount(params.rawSwapAmount0, params.rawSwapFee);
   const tokenFees = TokenDecimalMath.rawToDecimal(rawFee, params.token0);
 
   const tokenFeesUsd = tokenFees.times(params.token0.usdPrice);
@@ -132,10 +133,6 @@ export function calculateSwapFees(params: {
     feesToken1: ZERO_BIG_DECIMAL,
     feesToken1USD: ZERO_BIG_DECIMAL,
   };
-}
-
-export function calculateRawSwapFeeFromTokenAmount(rawTokenAmount: bigint, rawFee: number): bigint {
-  return (rawTokenAmount * BigInt(rawFee)) / MILLION_BIG_INT;
 }
 
 export function calculateSwapYield(params: { swapFeesUsd: BigDecimal; poolTotalValueLockedUsd: BigDecimal }) {

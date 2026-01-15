@@ -2,6 +2,7 @@ import type { Block_t, HandlerContext, Pool as PoolEntity, SlipstreamPoolData, T
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedSqrtPriceMath } from "../../lib/math/concentrated-liquidity/concentrated-sqrt-price-math";
+import { FeeMath } from "../../lib/math/fee-math";
 import { daysBetweenSecondsTimestamps } from "../../lib/timestamp";
 import { processSwap } from "../swap-processor";
 import { SlipsteamEffects } from "./utils/slipstream-effects";
@@ -49,6 +50,7 @@ export async function processSlipstreamSwap(params: {
     params.context.Pool.set({
       ...poolEntity,
       rawCurrentFeeTier: rawSwapFee,
+      currentFeeTierPercentage: FeeMath.convertRawSwapFeeToPercentage(rawSwapFee),
     });
   }
 

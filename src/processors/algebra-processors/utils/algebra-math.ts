@@ -1,6 +1,6 @@
 import type { BigDecimal, Pool as PoolEntity, Token as TokenEntity } from "generated";
 import { ZERO_BIG_DECIMAL } from "../../../core/constants";
-import { calculateRawSwapFeeFromTokenAmount } from "../../../lib/math";
+import { FeeMath } from "../../../lib/math/fee-math";
 import { TokenDecimalMath } from "../../../lib/math/token/token-decimal-math";
 import { ALGEBRA_COMMUNITY_FEE_DENOMINATOR } from "./constants";
 
@@ -19,10 +19,10 @@ function calculateAlgebraNonLPFeesAmount(params: {
   rawSwapFee: number;
 }): { token0FeeAmount: BigDecimal; token1FeeAmount: BigDecimal } {
   if (params.swapAmount0 > 0n) {
-    const swapFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.rawSwapFee);
-    const pluginFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.rawPluginFee);
+    const swapFeeTokenAmount = FeeMath.calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.rawSwapFee);
+    const pluginFeeTokenAmount = FeeMath.calculateRawSwapFeeFromTokenAmount(params.swapAmount0, params.rawPluginFee);
     const communityFeeTokenAmount =
-      (swapFeeTokenAmount * BigInt(params.rawCommunityFee)) / ALGEBRA_COMMUNITY_FEE_DENOMINATOR;
+      (swapFeeTokenAmount * BigInt(params.rawCommunityFee)) / BigInt(ALGEBRA_COMMUNITY_FEE_DENOMINATOR);
     const algebraNonLPFees = pluginFeeTokenAmount + communityFeeTokenAmount;
 
     return {
@@ -31,10 +31,10 @@ function calculateAlgebraNonLPFeesAmount(params: {
     };
   }
 
-  const swapFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.rawSwapFee);
-  const pluginFeeTokenAmount = calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.rawPluginFee);
+  const swapFeeTokenAmount = FeeMath.calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.rawSwapFee);
+  const pluginFeeTokenAmount = FeeMath.calculateRawSwapFeeFromTokenAmount(params.swapAmount1, params.rawPluginFee);
   const communityFeeTokenAmount =
-    (swapFeeTokenAmount * BigInt(params.rawCommunityFee)) / ALGEBRA_COMMUNITY_FEE_DENOMINATOR;
+    (swapFeeTokenAmount * BigInt(params.rawCommunityFee)) / BigInt(ALGEBRA_COMMUNITY_FEE_DENOMINATOR);
   const algebraNonLPFees = pluginFeeTokenAmount + communityFeeTokenAmount;
 
   return {
