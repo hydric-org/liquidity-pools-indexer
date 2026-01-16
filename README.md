@@ -1,8 +1,9 @@
 # Liquidity Pools Indexer
 
-**hydric**
-
 The **Liquidity Pools Indexer** is one of the indexers from the hydric indexing layer. It aggregates, normalizes, and indexes liquidity pool data across all supported blockchains and protocols to power liquidity pool analytics and data.
+
+<img width="4103" height="1389" alt="hydric banner" src="https://github.com/user-attachments/assets/bbeff3a4-7a54-4679-9c3d-8f819ea15842" />
+
 
 ---
 
