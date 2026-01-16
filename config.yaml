@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 
-name: Pools Indexer
-description: This is the primary indexer used by the Zup Protocol to calculate yields. It aggregates data from all protocols supported by Zup across different networks. For each network, it includes all Zup-supported DEXs in a single indexer.
+name: Liquidity Pools Indexer
+description: The Liquidity Pools Indexer is one of the indexers from the hydric indexing layer. It aggregates, normalizes, and indexes liquidity pool data across all supported blockchains and protocols to power liquidity pool analytics and data.
+
 contracts:
   - name: UniswapV2Factory
     abi_file_path: ./abis/factories/UniswapV2Factory.json

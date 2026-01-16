@@ -1,8 +1,8 @@
-# Pools Indexer
+# Liquidity Pools Indexer
 
-**Zup Protocol**
+**hydric**
 
-The **Pools Indexer** is the primary indexing engine used by the Zup Protocol. It aggregates, normalizes, and indexes liquidity data across all supported blockchains and protocols to power yield calculations and protocol analytics.
+The **Liquidity Pools Indexer** is one of the indexers from the hydric indexing layer. It aggregates, normalizes, and indexes liquidity pool data across all supported blockchains and protocols to power liquidity pool analytics and data.
 
 ---
 
