@@ -1,4 +1,10 @@
-import type { Block_t, HandlerContext, Pool as PoolEntity, SlipstreamPoolData, Token as TokenEntity } from "generated";
+import type {
+  Block_t,
+  HandlerContext,
+  Pool as PoolEntity,
+  SingleChainToken as SingleChainTokenEntity,
+  SlipstreamPoolData,
+} from "generated";
 import { EntityId } from "../../core/entity";
 import { IndexerNetwork } from "../../core/network";
 import { ConcentratedSqrtPriceMath } from "../../lib/math/concentrated-liquidity/concentrated-sqrt-price-math";
@@ -24,9 +30,9 @@ export async function processSlipstreamSwap(params: {
     params.context.SlipstreamPoolData.getOrThrow(poolId),
   ]);
 
-  const [token0Entity, token1Entity]: [TokenEntity, TokenEntity] = await Promise.all([
-    params.context.Token.getOrThrow(poolEntity.token0_id),
-    params.context.Token.getOrThrow(poolEntity.token1_id),
+  const [token0Entity, token1Entity]: [SingleChainTokenEntity, SingleChainTokenEntity] = await Promise.all([
+    params.context.SingleChainToken.getOrThrow(poolEntity.token0_id),
+    params.context.SingleChainToken.getOrThrow(poolEntity.token1_id),
   ]);
 
   let rawSwapFee = poolEntity.rawCurrentFeeTier;
@@ -68,6 +74,8 @@ export async function processSlipstreamSwap(params: {
     amount1: params.amount1,
     eventBlock: params.eventBlock,
     rawSwapFee: rawSwapFee,
+    token0Entity: token0Entity,
+    token1Entity: token1Entity,
     newPoolPrices: ConcentratedSqrtPriceMath.convertSqrtPriceX96ToPoolPrices({
       poolToken0: token0Entity,
       poolToken1: token1Entity,

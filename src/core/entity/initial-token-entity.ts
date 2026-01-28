@@ -1,9 +1,10 @@
-import type { BigDecimal, Token as TokenEntity } from "generated";
+import type { BigDecimal, SingleChainToken as SingleChainTokenEntity } from "generated";
+import { String } from "../../lib/string-utils";
 import { ZERO_BIG_DECIMAL } from "../constants";
 import { IndexerNetwork } from "../network";
 import { EntityId } from "./entity-id";
 
-export class InitialTokenEntity implements TokenEntity {
+export class InitialTokenEntity implements SingleChainTokenEntity {
   constructor(
     readonly params: {
       tokenAddress: string;
@@ -18,6 +19,8 @@ export class InitialTokenEntity implements TokenEntity {
     this.decimals = params.decimals;
     this.symbol = params.symbol;
     this.name = params.name;
+    this.normalizedSymbol = String.transliterate(params.symbol, { ignoreEmojis: true });
+    this.normalizedName = String.transliterate(params.name, { ignoreEmojis: true });
 
     this.id = EntityId.fromAddress(params.network, params.tokenAddress);
   }
@@ -28,6 +31,8 @@ export class InitialTokenEntity implements TokenEntity {
   readonly name: string;
   readonly symbol: string;
   readonly tokenAddress: string;
+  readonly normalizedName: string;
+  readonly normalizedSymbol: string;
 
   readonly trackedPriceDiscoveryCapitalUsd: BigDecimal = ZERO_BIG_DECIMAL;
   readonly trackedUsdPrice: BigDecimal = ZERO_BIG_DECIMAL;

@@ -3,7 +3,7 @@ import {
   type Block_t,
   type PoolHistoricalData as PoolHistoricalDataEntity,
   type PoolTimeframedStats as PoolTimeframedStatsEntity,
-  type Token as TokenEntity,
+  type SingleChainToken as SingleChainTokenEntity,
 } from "generated";
 import type { HandlerContext } from "generated/src/Types";
 import { MAX_PRICE_DISCOVERY_CAPITAL_USD, STATS_TIMEFRAME_IN_DAYS } from "../core/constants";
@@ -31,17 +31,23 @@ export async function processSwap(params: {
   eventBlock: Block_t;
   newPoolPrices: PoolPrices;
   rawSwapFee: number;
+  token0Entity?: SingleChainTokenEntity;
+  token1Entity?: SingleChainTokenEntity;
 }) {
   let poolEntity = await params.context.Pool.getOrThrow(EntityId.fromAddress(params.network, params.poolAddress));
 
   let [token0Entity, token1Entity, statsEntities, poolHistoricalDataEntities]: [
-    TokenEntity,
-    TokenEntity,
+    SingleChainTokenEntity,
+    SingleChainTokenEntity,
     PoolTimeframedStatsEntity[],
     PoolHistoricalDataEntity[],
   ] = await Promise.all([
-    params.context.Token.getOrThrow(poolEntity.token0_id),
-    params.context.Token.getOrThrow(poolEntity.token1_id),
+    params.token0Entity
+      ? Promise.resolve(params.token0Entity)
+      : params.context.SingleChainToken.getOrThrow(poolEntity.token0_id),
+    params.token1Entity
+      ? Promise.resolve(params.token1Entity)
+      : params.context.SingleChainToken.getOrThrow(poolEntity.token1_id),
     DatabaseService.getAllPooltimeframedStatsEntities(params.context, poolEntity),
     DatabaseService.getOrCreateHistoricalPoolDataEntities({
       context: params.context,
@@ -90,11 +96,16 @@ export async function processSwap(params: {
       pool: poolEntity,
     });
 
+  const didToken0UsdPriceUpdate = !token0MarketUsdPrice.eq(token0Entity.usdPrice);
+  const didToken1UsdPriceUpdate = !token1MarketUsdPrice.eq(token1Entity.usdPrice);
+  const didToken0TrackedUsdPriceUpdate = !trackedToken0MarketUsdPrice.eq(token0Entity.trackedUsdPrice);
+  const didToken1TrackedUsdPriceUpdate = !trackedToken1MarketUsdPrice.eq(token1Entity.trackedUsdPrice);
+
   token0Entity = {
     ...token0Entity,
     usdPrice: token0MarketUsdPrice,
     trackedUsdPrice: trackedToken0MarketUsdPrice,
-    trackedPriceDiscoveryCapitalUsd: !trackedToken0MarketUsdPrice.eq(token0Entity.trackedUsdPrice)
+    trackedPriceDiscoveryCapitalUsd: didToken0TrackedUsdPriceUpdate
       ? BigDecimal.min(
           token0Entity.trackedPriceDiscoveryCapitalUsd.plus(
             poolEntity.totalValueLockedToken1.times(trackedToken1MarketUsdPrice),
@@ -108,7 +119,7 @@ export async function processSwap(params: {
     ...token1Entity,
     usdPrice: token1MarketUsdPrice,
     trackedUsdPrice: trackedToken1MarketUsdPrice,
-    trackedPriceDiscoveryCapitalUsd: !trackedToken1MarketUsdPrice.eq(token1Entity.trackedUsdPrice)
+    trackedPriceDiscoveryCapitalUsd: didToken1TrackedUsdPriceUpdate
       ? BigDecimal.min(
           token1Entity.trackedPriceDiscoveryCapitalUsd.plus(
             poolEntity.totalValueLockedToken0.times(trackedToken0MarketUsdPrice),
@@ -177,6 +188,16 @@ export async function processSwap(params: {
 
     accumulatedYield: poolEntity.accumulatedYield.plus(swapYield),
     swapsCount: poolEntity.swapsCount + 1n,
+
+    token0UsdPrice: didToken0UsdPriceUpdate ? token0MarketUsdPrice : poolEntity.token0UsdPrice,
+    token1UsdPrice: didToken1UsdPriceUpdate ? token1MarketUsdPrice : poolEntity.token1UsdPrice,
+
+    trackedToken0UsdPrice: didToken0TrackedUsdPriceUpdate
+      ? trackedToken0MarketUsdPrice
+      : poolEntity.trackedToken0UsdPrice,
+    trackedToken1UsdPrice: didToken1TrackedUsdPriceUpdate
+      ? trackedToken1MarketUsdPrice
+      : poolEntity.trackedToken1UsdPrice,
   };
 
   token0Entity = {
@@ -255,8 +276,8 @@ export async function processSwap(params: {
   });
 
   params.context.Pool.set(poolEntity);
-  params.context.Token.set(token0Entity);
-  params.context.Token.set(token1Entity);
+  params.context.SingleChainToken.set(token0Entity);
+  params.context.SingleChainToken.set(token1Entity);
   statsEntities.forEach((entity) => params.context.PoolTimeframedStats.set(entity));
   poolHistoricalDataEntities.forEach((entity) => params.context.PoolHistoricalData.set(entity));
 

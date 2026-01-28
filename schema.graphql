@@ -18,39 +18,43 @@ enum StatsTimeframe {
   QUARTER
 }
 
-type Token
+type SingleChainToken
   @index(fields: ["name", "trackedTotalValuePooledUsd"])
+  @index(fields: ["normalizedName", "trackedTotalValuePooledUsd"])
   @index(fields: ["symbol", "trackedTotalValuePooledUsd"])
+  @index(fields: ["normalizedSymbol", "trackedTotalValuePooledUsd"])
   @index(fields: ["chainId", "trackedTotalValuePooledUsd"]) {
   id: ID!
   tokenAddress: String! @index
 
   usdPrice: BigDecimal!
   trackedUsdPrice: BigDecimal!
-  trackedPriceDiscoveryCapitalUsd: BigDecimal!
+  trackedPriceDiscoveryCapitalUsd: BigDecimal! @index @config(precision: 80, scale: 18)
   decimals: Int!
 
   totalValuePooledUsd: BigDecimal!
-  trackedTotalValuePooledUsd: BigDecimal! @index
+  trackedTotalValuePooledUsd: BigDecimal! @index @config(precision: 80, scale: 18)
 
   tokenTotalValuePooled: BigDecimal!
 
   swapVolumeUsd: BigDecimal!
-  trackedSwapVolumeUsd: BigDecimal! @index
+  trackedSwapVolumeUsd: BigDecimal! @index @config(precision: 80, scale: 18)
 
   tokenSwapVolume: BigDecimal!
 
   liquidityVolumeUsd: BigDecimal!
-  trackedLiquidityVolumeUsd: BigDecimal! @index
+  trackedLiquidityVolumeUsd: BigDecimal! @index @config(precision: 80, scale: 18)
 
   tokenLiquidityVolume: BigDecimal!
   tokenFees: BigDecimal!
   feesUsd: BigDecimal!
   trackedFeesUsd: BigDecimal!
 
-  symbol: String! @index
-  name: String! @index
-  chainId: Int! @index
+  symbol: String!
+  name: String!
+  normalizedSymbol: String!
+  normalizedName: String!
+  chainId: Int!
 
   poolsCount: BigInt! @index @config(precision: 18)
   swapsCount: BigInt! @index @config(precision: 18)
@@ -64,8 +68,8 @@ type Pool
   id: ID!
   poolAddress: String! @index
 
-  token0: Token! @index
-  token1: Token! @index
+  token0: SingleChainToken!
+  token1: SingleChainToken! @index
 
   rawCurrentFeeTier: Int!
   rawInitialFeeTier: Int!
@@ -81,7 +85,7 @@ type Pool
   algebraPoolData: AlgebraPoolData
   slipstreamPoolData: SlipstreamPoolData
 
-  chainId: Int! @index
+  chainId: Int!
   isDynamicFee: Boolean!
 
   historicalData: [PoolHistoricalData!]! @derivedFrom(field: "pool")
@@ -91,13 +95,14 @@ type Pool
 
   lastActivityBlock: BigInt! @index
   lastActivityTimestamp: BigInt! @config(precision: 12)
+  lastStatsRefreshTimestamp: BigInt! @config(precision: 12)
 
-  totalValueLockedUsd: BigDecimal! @index
+  totalValueLockedUsd: BigDecimal!
   totalValueLockedToken0: BigDecimal!
   totalValueLockedToken1: BigDecimal!
   totalValueLockedToken0Usd: BigDecimal!
   totalValueLockedToken1Usd: BigDecimal!
-  trackedTotalValueLockedUsd: BigDecimal! @index
+  trackedTotalValueLockedUsd: BigDecimal! @index @config(precision: 80, scale: 18)
   trackedTotalValueLockedToken0Usd: BigDecimal!
   trackedTotalValueLockedToken1Usd: BigDecimal!
 
@@ -138,6 +143,10 @@ type Pool
 
   tokens0PerToken1: BigDecimal!
   tokens1PerToken0: BigDecimal!
+  token0UsdPrice: BigDecimal!
+  token1UsdPrice: BigDecimal!
+  trackedToken0UsdPrice: BigDecimal!
+  trackedToken1UsdPrice: BigDecimal!
 }
 
 type V3PoolData {
@@ -188,16 +197,16 @@ type PoolTimeframedStats {
   lastRefreshTimestamp: BigInt! @config(precision: 12)
 
   liquidityNetInflowUsd: BigDecimal!
-  trackedLiquidityNetInflowUsd: BigDecimal! @index
+  trackedLiquidityNetInflowUsd: BigDecimal! @index @config(precision: 80, scale: 18)
 
   swapVolumeUsd: BigDecimal!
-  trackedSwapVolumeUsd: BigDecimal! @index
+  trackedSwapVolumeUsd: BigDecimal! @index @config(precision: 80, scale: 18)
 
   liquidityVolumeUsd: BigDecimal!
-  trackedLiquidityVolumeUsd: BigDecimal! @index
+  trackedLiquidityVolumeUsd: BigDecimal! @index @config(precision: 80, scale: 18)
 
   feesUsd: BigDecimal!
-  trackedFeesUsd: BigDecimal! @index
+  trackedFeesUsd: BigDecimal! @index @config(precision: 80, scale: 18)
 
   yearlyYield: BigDecimal! @index @config(precision: 18, scale: 6)
   accumulatedYield: BigDecimal! @config(precision: 18, scale: 6)
@@ -205,10 +214,10 @@ type PoolTimeframedStats {
 
 type PoolHistoricalData @index(fields: ["pool", "interval", "timestampAtStart"]) {
   id: ID!
-  pool: Pool! @index
-  interval: HistoricalDataInterval! @index
+  pool: Pool!
+  interval: HistoricalDataInterval!
 
-  timestampAtStart: BigInt! @index @config(precision: 12)
+  timestampAtStart: BigInt! @config(precision: 12)
   timestampAtEnd: BigInt! @config(precision: 12)
 
   accumulatedYieldAtStart: BigDecimal! @config(precision: 18, scale: 6)

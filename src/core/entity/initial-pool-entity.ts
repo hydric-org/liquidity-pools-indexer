@@ -25,6 +25,7 @@ export class InitialPoolEntity implements PoolEntity {
     this.createdAtBlock = params.createdAtBlock;
     this.lastActivityBlock = params.createdAtBlock;
     this.lastActivityTimestamp = params.createdAtTimestamp;
+    this.lastStatsRefreshTimestamp = 0n;
 
     this.chainId = params.chainId;
     this.poolAddress = params.poolAddress;
@@ -58,6 +59,7 @@ export class InitialPoolEntity implements PoolEntity {
 
   readonly lastActivityBlock: bigint;
   readonly lastActivityTimestamp: bigint;
+  readonly lastStatsRefreshTimestamp: bigint;
   readonly createdAtBlock: bigint;
   readonly createdAtTimestamp: bigint;
 
@@ -118,4 +120,9 @@ export class InitialPoolEntity implements PoolEntity {
   readonly totalValueLockedToken1: BigDecimal = ZERO_BIG_DECIMAL;
   readonly totalValueLockedToken1Usd: BigDecimal = ZERO_BIG_DECIMAL;
   readonly totalValueLockedUsd: BigDecimal = ZERO_BIG_DECIMAL;
+
+  readonly token0UsdPrice: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly token1UsdPrice: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedToken0UsdPrice: BigDecimal = ZERO_BIG_DECIMAL;
+  readonly trackedToken1UsdPrice: BigDecimal = ZERO_BIG_DECIMAL;
 }
