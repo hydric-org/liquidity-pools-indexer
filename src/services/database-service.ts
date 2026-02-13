@@ -8,9 +8,10 @@ import type { HistoricalDataInterval_t } from "generated/src/db/Enums.gen";
 import type { HandlerContext } from "generated/src/Types";
 import { ZERO_ADDRESS, ZERO_BIG_INT } from "../core/constants";
 import { getMultiTokenMetadataEffect } from "../core/effects/token-metadata-effect";
-import { EntityId, InitialPoolHistoricalDataEntity, InitialPoolTimeframedStatsEntity } from "../core/entity";
+import { Id, InitialPoolHistoricalDataEntity, InitialPoolTimeframedStatsEntity } from "../core/entity";
 import { InitialTokenEntity } from "../core/entity/initial-token-entity";
 import { IndexerNetwork } from "../core/network";
+import { String } from "../lib/string-utils";
 import { subtractDaysFromSecondsTimestamp, subtractHoursFromSecondsTimestamp } from "../lib/timestamp";
 
 export const DatabaseService = {
@@ -22,7 +23,66 @@ export const DatabaseService = {
   getOrCreateHistoricalPoolDataEntities,
   getAllPooltimeframedStatsEntities,
   resetAllPoolTimeframedStats,
+  setTokenWithNativeCompatibility,
 };
+
+async function setTokenWithNativeCompatibility(context: HandlerContext, tokenToSet: SingleChainTokenEntity) {
+  context.SingleChainToken.set(tokenToSet);
+
+  const network = tokenToSet.chainId as IndexerNetwork;
+  const wrappedNativeAddress = IndexerNetwork.wrappedNativeAddress[network];
+  const isNative = tokenToSet.tokenAddress === ZERO_ADDRESS;
+  const isWrappedNative = String.lowercasedEquals(tokenToSet.tokenAddress, wrappedNativeAddress);
+
+  if (!isNative && !isWrappedNative) return;
+
+  const compatibleAddress = isNative ? wrappedNativeAddress : ZERO_ADDRESS;
+  const compatibleToken = await context.SingleChainToken.get(Id.fromAddress(network, compatibleAddress));
+
+  if (compatibleToken) {
+    const updatedCompatibleToken: SingleChainTokenEntity = {
+      id: compatibleToken.id,
+      tokenAddress: compatibleToken.tokenAddress,
+      symbol: compatibleToken.symbol,
+      name: compatibleToken.name,
+      decimals: compatibleToken.decimals,
+      normalizedSymbol: compatibleToken.normalizedSymbol,
+      normalizedName: compatibleToken.normalizedName,
+      chainId: tokenToSet.chainId,
+      feesUsd: tokenToSet.feesUsd,
+      liquidityVolumeUsd: tokenToSet.liquidityVolumeUsd,
+      poolsCount: tokenToSet.poolsCount,
+      swapsCount: tokenToSet.swapsCount,
+      priceDiscoveryTokenAmount: tokenToSet.priceDiscoveryTokenAmount,
+      swapsInCount: tokenToSet.swapsInCount,
+      swapsOutCount: tokenToSet.swapsOutCount,
+      swapVolumeUsd: tokenToSet.swapVolumeUsd,
+      tokenFees: tokenToSet.tokenFees,
+      tokenLiquidityVolume: tokenToSet.tokenLiquidityVolume,
+      tokenSwapVolume: tokenToSet.tokenSwapVolume,
+      tokenTotalValuePooled: tokenToSet.tokenTotalValuePooled,
+      totalValuePooledUsd: tokenToSet.totalValuePooledUsd,
+      trackedFeesUsd: tokenToSet.trackedFeesUsd,
+      trackedLiquidityVolumeUsd: tokenToSet.trackedLiquidityVolumeUsd,
+      trackedSwapVolumeUsd: tokenToSet.trackedSwapVolumeUsd,
+      trackedTotalValuePooledUsd: tokenToSet.trackedTotalValuePooledUsd,
+      trackedUsdPrice: tokenToSet.trackedUsdPrice,
+      usdPrice: tokenToSet.usdPrice,
+    };
+
+    context.SingleChainToken.set(updatedCompatibleToken);
+  } else if (isWrappedNative) {
+    const nativeMetadata = IndexerNetwork.nativeToken[network];
+
+    context.SingleChainToken.set(
+      new InitialTokenEntity({
+        ...nativeMetadata,
+        network,
+        tokenAddress: ZERO_ADDRESS,
+      }),
+    );
+  }
+}
 
 async function getOrCreatePoolTokenEntities(params: {
   context: HandlerContext;
@@ -30,58 +90,81 @@ async function getOrCreatePoolTokenEntities(params: {
   token0Address: string;
   token1Address: string;
 }): Promise<[SingleChainTokenEntity, SingleChainTokenEntity]> {
-  const dbEntities = await Promise.all([
-    params.context.SingleChainToken.get(EntityId.fromAddress(params.network, params.token0Address)),
-    params.context.SingleChainToken.get(EntityId.fromAddress(params.network, params.token1Address)),
+  const [token0DB, token1DB] = await Promise.all([
+    params.context.SingleChainToken.get(Id.fromAddress(params.network, params.token0Address)),
+    params.context.SingleChainToken.get(Id.fromAddress(params.network, params.token1Address)),
   ]);
 
-  if (dbEntities[0] && dbEntities[1]) return dbEntities as [SingleChainTokenEntity, SingleChainTokenEntity];
+  if (token0DB && token1DB) return [token0DB, token1DB];
 
-  const entitiesMap = new Map<string, SingleChainTokenEntity>();
-  const missingAddresses: string[] = [];
+  const token0PromiseKey = _getMetadataPromisesCacheKey(params.network, params.token0Address);
+  const token1PromiseKey = _getMetadataPromisesCacheKey(params.network, params.token1Address);
 
-  [params.token0Address, params.token1Address].forEach((address, index) => {
-    const existingEntity = dbEntities[index];
+  let token0Promise: Promise<SingleChainTokenEntity> | undefined = token0DB
+    ? Promise.resolve(token0DB)
+    : _tokenMetadataPromises.get(token0PromiseKey);
 
-    if (existingEntity) entitiesMap.set(address, existingEntity);
-    else if (address === ZERO_ADDRESS) {
-      entitiesMap.set(
-        ZERO_ADDRESS,
-        new InitialTokenEntity({
-          ...IndexerNetwork.nativeToken[params.network],
-          network: params.network,
-          tokenAddress: ZERO_ADDRESS,
-        }),
-      );
-    } else missingAddresses.push(address);
-  });
+  let token1Promise: Promise<SingleChainTokenEntity> | undefined = token1DB
+    ? Promise.resolve(token1DB)
+    : _tokenMetadataPromises.get(token1PromiseKey);
 
-  if (missingAddresses.length === 0) {
-    return [entitiesMap.get(params.token0Address)!, entitiesMap.get(params.token1Address)!];
+  const addressesNeedingMetadata: string[] = [];
+
+  if (params.token0Address !== ZERO_ADDRESS && !token0Promise) addressesNeedingMetadata.push(params.token0Address);
+  if (params.token1Address !== ZERO_ADDRESS && !token1Promise) addressesNeedingMetadata.push(params.token1Address);
+
+  if (addressesNeedingMetadata.length > 0) {
+    const fetchMetadataPromise = params.context
+      .effect(getMultiTokenMetadataEffect, {
+        chainId: params.network,
+        tokenAddresses: addressesNeedingMetadata,
+      })
+      .then((metadatas) => {
+        return metadatas.map((metadata, index) => {
+          return new InitialTokenEntity({
+            decimals: metadata.decimals,
+            name: metadata.name,
+            symbol: metadata.symbol,
+            network: params.network,
+            tokenAddress: addressesNeedingMetadata[index]!,
+          });
+        });
+      });
+
+    addressesNeedingMetadata.forEach((address, index) => {
+      const tokenMetadataPromise = fetchMetadataPromise.then((entities) => entities[index] as SingleChainTokenEntity);
+      _tokenMetadataPromises.set(_getMetadataPromisesCacheKey(params.network, address), tokenMetadataPromise);
+
+      if (address === params.token0Address) token0Promise = tokenMetadataPromise;
+      if (address === params.token1Address) token1Promise = tokenMetadataPromise;
+    });
   }
 
-  const metadatas = await params.context.effect(getMultiTokenMetadataEffect, {
-    chainId: params.network,
-    tokenAddresses: missingAddresses,
-  });
-
-  metadatas.forEach((metadata, index) => {
-    entitiesMap.set(
-      missingAddresses[index]!,
+  if (!token0Promise && params.token0Address === ZERO_ADDRESS) {
+    token0Promise = Promise.resolve(
       new InitialTokenEntity({
-        decimals: metadata.decimals,
-        name: metadata.name,
+        ...IndexerNetwork.nativeToken[params.network],
         network: params.network,
-        symbol: metadata.symbol,
-        tokenAddress: missingAddresses[index]!,
+        tokenAddress: ZERO_ADDRESS,
       }),
     );
-  });
 
-  const token0Entity = entitiesMap.get(params.token0Address)!;
-  const token1Entity = entitiesMap.get(params.token1Address)!;
+    _tokenMetadataPromises.set(token0PromiseKey, token0Promise);
+  }
 
-  return [token0Entity, token1Entity];
+  if (!token1Promise && params.token1Address === ZERO_ADDRESS) {
+    token1Promise = Promise.resolve(
+      new InitialTokenEntity({
+        ...IndexerNetwork.nativeToken[params.network],
+        network: params.network,
+        tokenAddress: ZERO_ADDRESS,
+      }),
+    );
+
+    _tokenMetadataPromises.set(token1PromiseKey, token1Promise);
+  }
+
+  return Promise.all([token0Promise!, token1Promise!]);
 }
 
 async function getOldestPoolHourlyDataAgo(
@@ -96,9 +179,7 @@ async function getOldestPoolHourlyDataAgo(
     const timestamp = subtractHoursFromSecondsTimestamp(eventTimestamp, hour);
     if (timestamp < pool.createdAtTimestamp) continue;
 
-    const data = await context.PoolHistoricalData.get(
-      EntityId.buildHourlyDataId(timestamp, pool.chainId, pool.poolAddress),
-    );
+    const data = await context.PoolHistoricalData.get(Id.buildHourlyDataId(timestamp, pool.chainId, pool.poolAddress));
 
     if (data) return data;
   }
@@ -116,9 +197,7 @@ async function getOldestPoolDailyDataAgo(
     const timestamp = subtractDaysFromSecondsTimestamp(eventTimestamp, day);
     if (timestamp < pool.createdAtTimestamp) continue;
 
-    const data = await context.PoolHistoricalData.get(
-      EntityId.buildDailyDataId(timestamp, pool.chainId, pool.poolAddress),
-    );
+    const data = await context.PoolHistoricalData.get(Id.buildDailyDataId(timestamp, pool.chainId, pool.poolAddress));
 
     if (data) return data;
   }
@@ -133,7 +212,7 @@ async function getPoolHourlyDataAgo(
   const timestampAgo = subtractHoursFromSecondsTimestamp(eventTimestamp, hoursAgo);
   if (timestampAgo < pool.createdAtTimestamp || pool.lastActivityTimestamp < timestampAgo) return;
 
-  return await context.PoolHistoricalData.get(EntityId.buildHourlyDataId(timestampAgo, pool.chainId, pool.poolAddress));
+  return await context.PoolHistoricalData.get(Id.buildHourlyDataId(timestampAgo, pool.chainId, pool.poolAddress));
 }
 
 async function getPoolDailyDataAgo(
@@ -145,7 +224,7 @@ async function getPoolDailyDataAgo(
   const timestampAgo = subtractDaysFromSecondsTimestamp(eventTimestamp, daysAgo);
   if (timestampAgo < pool.createdAtTimestamp || pool.lastActivityTimestamp < timestampAgo) return;
 
-  return await context.PoolHistoricalData.get(EntityId.buildDailyDataId(timestampAgo, pool.chainId, pool.poolAddress));
+  return await context.PoolHistoricalData.get(Id.buildDailyDataId(timestampAgo, pool.chainId, pool.poolAddress));
 }
 
 async function getOrCreateHistoricalPoolDataEntities(params: {
@@ -172,12 +251,12 @@ async function getAllPooltimeframedStatsEntities(
   context: HandlerContext,
   pool: PoolEntity,
 ): Promise<PoolTimeframedStatsEntity[]> {
-  const statsToFetch = EntityId.buildAllTimeframedStatsIds(pool.chainId, pool.poolAddress);
+  const statsToFetch = Id.buildAllTimeframedStatsIds(pool.chainId, pool.poolAddress);
   return Promise.all(statsToFetch.map((stat) => context.PoolTimeframedStats.getOrThrow(stat.id)));
 }
 
 async function resetAllPoolTimeframedStats(context: HandlerContext, pool: PoolEntity) {
-  const statsToReset = EntityId.buildAllTimeframedStatsIds(pool.chainId, pool.poolAddress);
+  const statsToReset = Id.buildAllTimeframedStatsIds(pool.chainId, pool.poolAddress);
 
   statsToReset.forEach((stat) =>
     context.PoolTimeframedStats.set(
@@ -189,4 +268,10 @@ async function resetAllPoolTimeframedStats(context: HandlerContext, pool: PoolEn
       }),
     ),
   );
+}
+
+const _tokenMetadataPromises = new Map<string, Promise<SingleChainTokenEntity>>();
+
+function _getMetadataPromisesCacheKey(network: IndexerNetwork, address: string): string {
+  return `${network}:${address}`;
 }

@@ -1,13 +1,12 @@
 import {
-  BigDecimal,
   type Block_t,
   type PoolHistoricalData as PoolHistoricalDataEntity,
   type PoolTimeframedStats as PoolTimeframedStatsEntity,
   type SingleChainToken as SingleChainTokenEntity,
 } from "generated";
 import type { HandlerContext } from "generated/src/Types";
-import { MAX_PRICE_DISCOVERY_CAPITAL_USD, STATS_TIMEFRAME_IN_DAYS } from "../core/constants";
-import { EntityId } from "../core/entity";
+import { STATS_TIMEFRAME_IN_DAYS, ZERO_BIG_DECIMAL } from "../core/constants";
+import { Id } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
 import type { PoolPrices } from "../core/types";
 import {
@@ -19,6 +18,7 @@ import {
 } from "../lib/math";
 import { TokenDecimalMath } from "../lib/math/token/token-decimal-math";
 import { PriceDiscover } from "../lib/pricing/price-discover";
+import { PriceFormatter } from "../lib/pricing/price-formatter";
 import { DatabaseService } from "../services/database-service";
 import { processPoolTimeframedStatsUpdate } from "./pool-timeframed-stats-update-processor";
 
@@ -34,7 +34,7 @@ export async function processSwap(params: {
   token0Entity?: SingleChainTokenEntity;
   token1Entity?: SingleChainTokenEntity;
 }) {
-  let poolEntity = await params.context.Pool.getOrThrow(EntityId.fromAddress(params.network, params.poolAddress));
+  let poolEntity = await params.context.Pool.getOrThrow(Id.fromAddress(params.network, params.poolAddress));
 
   let [token0Entity, token1Entity, statsEntities, poolHistoricalDataEntities]: [
     SingleChainTokenEntity,
@@ -65,6 +65,7 @@ export async function processSwap(params: {
     tokens1PerToken0: params.newPoolPrices.tokens1PerToken0,
     totalValueLockedToken0: poolEntity.totalValueLockedToken0.plus(amount0Formatted),
     totalValueLockedToken1: poolEntity.totalValueLockedToken1.plus(amount1Formatted),
+    lastActivityDayId: Id.buildLastActivityDayId(BigInt(params.eventBlock.number), params.network),
     lastActivityBlock: BigInt(params.eventBlock.number),
     lastActivityTimestamp: BigInt(params.eventBlock.timestamp),
   };
@@ -85,48 +86,53 @@ export async function processSwap(params: {
     tokenTotalValuePooled: token1Entity.tokenTotalValuePooled.plus(amount1Formatted),
   };
 
-  const { token0MarketUsdPrice, token1MarketUsdPrice, trackedToken0MarketUsdPrice, trackedToken1MarketUsdPrice } =
-    PriceDiscover.discoverTokenUsdMarketPrices({
-      network: params.network,
-      poolToken0Entity: token0Entity,
-      poolToken1Entity: token1Entity,
-      newPoolPrices: params.newPoolPrices,
-      rawSwapAmount0: params.amount0,
-      rawSwapAmount1: params.amount1,
-      pool: poolEntity,
-    });
+  const {
+    token0UsdPrice: token0MarketUsdPrice,
+    token1UsdPrice: token1MarketUsdPrice,
+    trackedToken0UsdPrice: trackedToken0MarketUsdPrice,
+    trackedToken1UsdPrice: trackedToken1MarketUsdPrice,
+  } = PriceDiscover.discoverTokenUsdPrices({
+    network: params.network,
+    poolToken0Entity: token0Entity,
+    poolToken1Entity: token1Entity,
+    newPoolPrices: params.newPoolPrices,
+    rawSwapAmount0: params.amount0,
+    rawSwapAmount1: params.amount1,
+    pool: poolEntity,
+  });
 
   const didToken0UsdPriceUpdate = !token0MarketUsdPrice.eq(token0Entity.usdPrice);
   const didToken1UsdPriceUpdate = !token1MarketUsdPrice.eq(token1Entity.usdPrice);
   const didToken0TrackedUsdPriceUpdate = !trackedToken0MarketUsdPrice.eq(token0Entity.trackedUsdPrice);
   const didToken1TrackedUsdPriceUpdate = !trackedToken1MarketUsdPrice.eq(token1Entity.trackedUsdPrice);
 
+  const isToken0DiscoveryEligible = PriceDiscover.isTokenDiscoveryEligible(token0Entity, poolEntity);
+  const isToken1DiscoveryEligible = PriceDiscover.isTokenDiscoveryEligible(token1Entity, poolEntity);
+
   token0Entity = {
     ...token0Entity,
-    usdPrice: token0MarketUsdPrice,
-    trackedUsdPrice: trackedToken0MarketUsdPrice,
-    trackedPriceDiscoveryCapitalUsd: didToken0TrackedUsdPriceUpdate
-      ? BigDecimal.min(
-          token0Entity.trackedPriceDiscoveryCapitalUsd.plus(
-            poolEntity.totalValueLockedToken1.times(trackedToken1MarketUsdPrice),
-          ),
-          MAX_PRICE_DISCOVERY_CAPITAL_USD,
-        )
-      : token0Entity.trackedPriceDiscoveryCapitalUsd,
+    usdPrice: PriceFormatter.formatUsdPrice(token0MarketUsdPrice),
+    trackedUsdPrice: PriceFormatter.formatUsdPrice(trackedToken0MarketUsdPrice),
+
+    priceDiscoveryTokenAmount:
+      isToken1DiscoveryEligible && amount1Formatted.gt(ZERO_BIG_DECIMAL)
+        ? token0Entity.priceDiscoveryTokenAmount.plus(
+            PriceDiscover.calculateDiscoveryAmountFromOtherToken(amount1Formatted, poolEntity.tokens0PerToken1),
+          )
+        : token0Entity.priceDiscoveryTokenAmount,
   };
 
   token1Entity = {
     ...token1Entity,
-    usdPrice: token1MarketUsdPrice,
-    trackedUsdPrice: trackedToken1MarketUsdPrice,
-    trackedPriceDiscoveryCapitalUsd: didToken1TrackedUsdPriceUpdate
-      ? BigDecimal.min(
-          token1Entity.trackedPriceDiscoveryCapitalUsd.plus(
-            poolEntity.totalValueLockedToken0.times(trackedToken0MarketUsdPrice),
-          ),
-          MAX_PRICE_DISCOVERY_CAPITAL_USD,
-        )
-      : token1Entity.trackedPriceDiscoveryCapitalUsd,
+    usdPrice: PriceFormatter.formatUsdPrice(token1MarketUsdPrice),
+    trackedUsdPrice: PriceFormatter.formatUsdPrice(trackedToken1MarketUsdPrice),
+
+    priceDiscoveryTokenAmount:
+      isToken0DiscoveryEligible && amount0Formatted.gt(ZERO_BIG_DECIMAL)
+        ? token1Entity.priceDiscoveryTokenAmount.plus(
+            PriceDiscover.calculateDiscoveryAmountFromOtherToken(amount0Formatted, poolEntity.tokens1PerToken0),
+          )
+        : token1Entity.priceDiscoveryTokenAmount,
   };
 
   const newLockedAmounts = calculateNewLockedAmountsUSD({
@@ -160,72 +166,90 @@ export async function processSwap(params: {
   poolEntity = {
     ...poolEntity,
 
-    swapVolumeUsd: poolEntity.swapVolumeUsd.plus(swapVolume.volumeUSD),
-    trackedSwapVolumeUsd: poolEntity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeUSD),
+    swapVolumeUsd: PriceFormatter.formatUsdValue(poolEntity.swapVolumeUsd.plus(swapVolume.volumeUSD)),
+    trackedSwapVolumeUsd: PriceFormatter.formatUsdValue(
+      poolEntity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeUSD),
+    ),
 
     swapVolumeToken0: poolEntity.swapVolumeToken0.plus(swapVolume.volumeToken0),
-    swapVolumeToken0Usd: poolEntity.swapVolumeToken0Usd.plus(swapVolume.volumeToken0USD),
-    trackedSwapVolumeToken0Usd: poolEntity.trackedSwapVolumeToken0Usd.plus(swapVolume.trackedVolumeToken0USD),
+    swapVolumeToken0Usd: PriceFormatter.formatUsdValue(poolEntity.swapVolumeToken0Usd.plus(swapVolume.volumeToken0USD)),
+    trackedSwapVolumeToken0Usd: PriceFormatter.formatUsdValue(
+      poolEntity.trackedSwapVolumeToken0Usd.plus(swapVolume.trackedVolumeToken0USD),
+    ),
 
     swapVolumeToken1: poolEntity.swapVolumeToken1.plus(swapVolume.volumeToken1),
-    swapVolumeToken1Usd: poolEntity.swapVolumeToken1Usd.plus(swapVolume.volumeToken1USD),
-    trackedSwapVolumeToken1Usd: poolEntity.trackedSwapVolumeToken1Usd.plus(swapVolume.trackedVolumeToken1USD),
+    swapVolumeToken1Usd: PriceFormatter.formatUsdValue(poolEntity.swapVolumeToken1Usd.plus(swapVolume.volumeToken1USD)),
+    trackedSwapVolumeToken1Usd: PriceFormatter.formatUsdValue(
+      poolEntity.trackedSwapVolumeToken1Usd.plus(swapVolume.trackedVolumeToken1USD),
+    ),
 
-    feesUsd: poolEntity.feesUsd.plus(swapFees.feesUSD),
-    trackedFeesUsd: poolEntity.trackedFeesUsd.plus(swapFees.trackedFeesUSD),
+    feesUsd: PriceFormatter.formatUsdValue(poolEntity.feesUsd.plus(swapFees.feesUSD)),
+    trackedFeesUsd: PriceFormatter.formatUsdValue(poolEntity.trackedFeesUsd.plus(swapFees.trackedFeesUSD)),
 
     feesToken0: poolEntity.feesToken0.plus(swapFees.feesToken0),
     feesToken1: poolEntity.feesToken1.plus(swapFees.feesToken1),
 
-    totalValueLockedUsd: newLockedAmounts.newPoolTotalValueLockedUSD,
-    trackedTotalValueLockedUsd: newLockedAmounts.newTrackedPoolTotalValueLockedUSD,
+    totalValueLockedUsd: PriceFormatter.formatUsdValue(newLockedAmounts.newPoolTotalValueLockedUSD),
+    trackedTotalValueLockedUsd: PriceFormatter.formatUsdValue(newLockedAmounts.newTrackedPoolTotalValueLockedUSD),
 
-    totalValueLockedToken0Usd: newLockedAmounts.newPoolTotalValueLockedToken0USD,
-    trackedTotalValueLockedToken0Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
+    totalValueLockedToken0Usd: PriceFormatter.formatUsdValue(newLockedAmounts.newPoolTotalValueLockedToken0USD),
+    trackedTotalValueLockedToken0Usd: PriceFormatter.formatUsdValue(
+      newLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
+    ),
 
-    totalValueLockedToken1Usd: newLockedAmounts.newPoolTotalValueLockedToken1USD,
-    trackedTotalValueLockedToken1Usd: newLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
+    totalValueLockedToken1Usd: PriceFormatter.formatUsdValue(newLockedAmounts.newPoolTotalValueLockedToken1USD),
+    trackedTotalValueLockedToken1Usd: PriceFormatter.formatUsdValue(
+      newLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
+    ),
 
     accumulatedYield: poolEntity.accumulatedYield.plus(swapYield),
     swapsCount: poolEntity.swapsCount + 1n,
 
-    token0UsdPrice: didToken0UsdPriceUpdate ? token0MarketUsdPrice : poolEntity.token0UsdPrice,
-    token1UsdPrice: didToken1UsdPriceUpdate ? token1MarketUsdPrice : poolEntity.token1UsdPrice,
+    token0UsdPrice: PriceFormatter.formatUsdPrice(
+      didToken0UsdPriceUpdate ? token0MarketUsdPrice : poolEntity.token0UsdPrice,
+    ),
+    token1UsdPrice: PriceFormatter.formatUsdPrice(
+      didToken1UsdPriceUpdate ? token1MarketUsdPrice : poolEntity.token1UsdPrice,
+    ),
 
-    trackedToken0UsdPrice: didToken0TrackedUsdPriceUpdate
-      ? trackedToken0MarketUsdPrice
-      : poolEntity.trackedToken0UsdPrice,
-    trackedToken1UsdPrice: didToken1TrackedUsdPriceUpdate
-      ? trackedToken1MarketUsdPrice
-      : poolEntity.trackedToken1UsdPrice,
+    trackedToken0UsdPrice: PriceFormatter.formatUsdPrice(
+      didToken0TrackedUsdPriceUpdate ? trackedToken0MarketUsdPrice : poolEntity.trackedToken0UsdPrice,
+    ),
+    trackedToken1UsdPrice: PriceFormatter.formatUsdPrice(
+      didToken1TrackedUsdPriceUpdate ? trackedToken1MarketUsdPrice : poolEntity.trackedToken1UsdPrice,
+    ),
   };
 
   token0Entity = {
     ...token0Entity,
     tokenSwapVolume: token0Entity.tokenSwapVolume.plus(swapVolume.volumeToken0),
-    swapVolumeUsd: token0Entity.swapVolumeUsd.plus(swapVolume.volumeToken0USD),
-    trackedSwapVolumeUsd: token0Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken0USD),
+    swapVolumeUsd: PriceFormatter.formatUsdValue(token0Entity.swapVolumeUsd.plus(swapVolume.volumeToken0USD)),
+    trackedSwapVolumeUsd: PriceFormatter.formatUsdValue(
+      token0Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken0USD),
+    ),
 
-    totalValuePooledUsd: newLockedAmounts.newToken0TotalPooledAmountUSD,
-    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken0TotalPooledAmountUSD,
+    totalValuePooledUsd: PriceFormatter.formatUsdValue(newLockedAmounts.newToken0TotalPooledAmountUSD),
+    trackedTotalValuePooledUsd: PriceFormatter.formatUsdValue(newLockedAmounts.newTrackedToken0TotalPooledAmountUSD),
 
     tokenFees: token0Entity.tokenFees.plus(swapFees.feesToken0),
-    feesUsd: token0Entity.feesUsd.plus(swapFees.feesToken0USD),
-    trackedFeesUsd: token0Entity.trackedFeesUsd.plus(swapFees.trackedFeesToken0USD),
+    feesUsd: PriceFormatter.formatUsdValue(token0Entity.feesUsd.plus(swapFees.feesToken0USD)),
+    trackedFeesUsd: PriceFormatter.formatUsdValue(token0Entity.trackedFeesUsd.plus(swapFees.trackedFeesToken0USD)),
   };
 
   token1Entity = {
     ...token1Entity,
-    swapVolumeUsd: token1Entity.swapVolumeUsd.plus(swapVolume.volumeToken1USD),
-    trackedSwapVolumeUsd: token1Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken1USD),
+    swapVolumeUsd: PriceFormatter.formatUsdValue(token1Entity.swapVolumeUsd.plus(swapVolume.volumeToken1USD)),
+    trackedSwapVolumeUsd: PriceFormatter.formatUsdValue(
+      token1Entity.trackedSwapVolumeUsd.plus(swapVolume.trackedVolumeToken1USD),
+    ),
     tokenSwapVolume: token1Entity.tokenSwapVolume.plus(swapVolume.volumeToken1),
 
-    totalValuePooledUsd: newLockedAmounts.newToken1TotalPooledAmountUSD,
-    trackedTotalValuePooledUsd: newLockedAmounts.newTrackedToken1TotalPooledAmountUSD,
+    totalValuePooledUsd: PriceFormatter.formatUsdValue(newLockedAmounts.newToken1TotalPooledAmountUSD),
+    trackedTotalValuePooledUsd: PriceFormatter.formatUsdValue(newLockedAmounts.newTrackedToken1TotalPooledAmountUSD),
 
     tokenFees: token1Entity.tokenFees.plus(swapFees.feesToken1),
-    feesUsd: token1Entity.feesUsd.plus(swapFees.feesToken1USD),
-    trackedFeesUsd: token1Entity.trackedFeesUsd.plus(swapFees.trackedFeesToken1USD),
+    feesUsd: PriceFormatter.formatUsdValue(token1Entity.feesUsd.plus(swapFees.feesToken1USD)),
+    trackedFeesUsd: PriceFormatter.formatUsdValue(token1Entity.trackedFeesUsd.plus(swapFees.trackedFeesToken1USD)),
   };
 
   poolHistoricalDataEntities = poolHistoricalDataEntities.map((historicalDataEntity) => ({
@@ -242,11 +266,13 @@ export async function processSwap(params: {
     feesUsdAtEnd: poolEntity.feesUsd,
     trackedFeesUsdAtEnd: poolEntity.trackedFeesUsd,
 
-    intervalSwapVolumeUsd: historicalDataEntity.intervalSwapVolumeUsd.plus(swapVolume.volumeUSD),
+    intervalSwapVolumeUsd: PriceFormatter.formatUsdValue(
+      historicalDataEntity.intervalSwapVolumeUsd.plus(swapVolume.volumeUSD),
+    ),
     intervalSwapVolumeToken0: historicalDataEntity.intervalSwapVolumeToken0.plus(swapVolume.volumeToken0),
     intervalSwapVolumeToken1: historicalDataEntity.intervalSwapVolumeToken1.plus(swapVolume.volumeToken1),
 
-    intervalFeesUsd: historicalDataEntity.intervalFeesUsd.plus(swapFees.feesUSD),
+    intervalFeesUsd: PriceFormatter.formatUsdValue(historicalDataEntity.intervalFeesUsd.plus(swapFees.feesUSD)),
     intervalFeesToken0: historicalDataEntity.intervalFeesToken0.plus(swapFees.feesToken0),
     intervalFeesToken1: historicalDataEntity.intervalFeesToken1.plus(swapFees.feesToken1),
 
@@ -276,8 +302,8 @@ export async function processSwap(params: {
   });
 
   params.context.Pool.set(poolEntity);
-  params.context.SingleChainToken.set(token0Entity);
-  params.context.SingleChainToken.set(token1Entity);
+  await DatabaseService.setTokenWithNativeCompatibility(params.context, token0Entity);
+  await DatabaseService.setTokenWithNativeCompatibility(params.context, token1Entity);
   statsEntities.forEach((entity) => params.context.PoolTimeframedStats.set(entity));
   poolHistoricalDataEntities.forEach((entity) => params.context.PoolHistoricalData.set(entity));
 

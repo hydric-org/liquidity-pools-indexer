@@ -4,9 +4,12 @@ import type {
   SingleChainToken as SingleChainTokenEntity,
 } from "generated";
 import type { HandlerContext } from "generated/src/Types";
-import { EntityId } from "../core/entity";
+import { ZERO_BIG_DECIMAL } from "../core/constants";
+import { Id } from "../core/entity";
 import { IndexerNetwork } from "../core/network";
 import { calculateNewLockedAmountsUSD, TokenDecimalMath } from "../lib/math";
+import { PriceDiscover } from "../lib/pricing/price-discover";
+import { PriceFormatter } from "../lib/pricing/price-formatter";
 import { DatabaseService } from "../services/database-service";
 import { processLiquidityMetrics } from "./liquidity-metrics-processor";
 import { processPoolTimeframedStatsUpdate } from "./pool-timeframed-stats-update-processor";
@@ -20,7 +23,7 @@ export async function processLiquidityChange(params: {
   eventBlock: Block_t;
   updateMetrics: boolean;
 }) {
-  let poolEntity = await params.context.Pool.getOrThrow(EntityId.fromAddress(params.network, params.poolAddress));
+  let poolEntity = await params.context.Pool.getOrThrow(Id.fromAddress(params.network, params.poolAddress));
 
   let [token0Entity, token1Entity, poolHistoricalDataEntities]: [
     SingleChainTokenEntity,
@@ -45,14 +48,29 @@ export async function processLiquidityChange(params: {
     totalValueLockedToken1: poolEntity.totalValueLockedToken1.plus(amount1Formatted),
   };
 
+  const isToken0DiscoveryEligible = PriceDiscover.isTokenDiscoveryEligible(token0Entity, poolEntity);
+  const isToken1DiscoveryEligible = PriceDiscover.isTokenDiscoveryEligible(token1Entity, poolEntity);
+
   token0Entity = {
     ...token0Entity,
     tokenTotalValuePooled: token0Entity.tokenTotalValuePooled.plus(amount0Formatted),
+    priceDiscoveryTokenAmount:
+      isToken1DiscoveryEligible && amount1Formatted.gt(ZERO_BIG_DECIMAL)
+        ? token0Entity.priceDiscoveryTokenAmount.plus(
+            PriceDiscover.calculateDiscoveryAmountFromOtherToken(amount1Formatted, poolEntity.tokens0PerToken1),
+          )
+        : token0Entity.priceDiscoveryTokenAmount,
   };
 
   token1Entity = {
     ...token1Entity,
     tokenTotalValuePooled: token1Entity.tokenTotalValuePooled.plus(amount1Formatted),
+    priceDiscoveryTokenAmount:
+      isToken0DiscoveryEligible && amount0Formatted.gt(ZERO_BIG_DECIMAL)
+        ? token1Entity.priceDiscoveryTokenAmount.plus(
+            PriceDiscover.calculateDiscoveryAmountFromOtherToken(amount0Formatted, poolEntity.tokens1PerToken0),
+          )
+        : token1Entity.priceDiscoveryTokenAmount,
   };
 
   const newUsdLockedAmounts = calculateNewLockedAmountsUSD({
@@ -63,29 +81,34 @@ export async function processLiquidityChange(params: {
 
   poolEntity = {
     ...poolEntity,
-    totalValueLockedToken0Usd: newUsdLockedAmounts.newPoolTotalValueLockedToken0USD,
-    trackedTotalValueLockedToken0Usd: newUsdLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
+    totalValueLockedToken0Usd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newPoolTotalValueLockedToken0USD),
+    trackedTotalValueLockedToken0Usd: PriceFormatter.formatUsdValue(
+      newUsdLockedAmounts.newTrackedPoolTotalValueLockedToken0USD,
+    ),
 
-    totalValueLockedToken1Usd: newUsdLockedAmounts.newPoolTotalValueLockedToken1USD,
-    trackedTotalValueLockedToken1Usd: newUsdLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
+    totalValueLockedToken1Usd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newPoolTotalValueLockedToken1USD),
+    trackedTotalValueLockedToken1Usd: PriceFormatter.formatUsdValue(
+      newUsdLockedAmounts.newTrackedPoolTotalValueLockedToken1USD,
+    ),
 
-    totalValueLockedUsd: newUsdLockedAmounts.newPoolTotalValueLockedUSD,
-    trackedTotalValueLockedUsd: newUsdLockedAmounts.newTrackedPoolTotalValueLockedUSD,
+    totalValueLockedUsd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newPoolTotalValueLockedUSD),
+    trackedTotalValueLockedUsd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newTrackedPoolTotalValueLockedUSD),
 
+    lastActivityDayId: Id.buildLastActivityDayId(BigInt(params.eventBlock.number), params.network),
     lastActivityBlock: BigInt(params.eventBlock.number),
     lastActivityTimestamp: BigInt(params.eventBlock.timestamp),
   };
 
   token0Entity = {
     ...token0Entity,
-    totalValuePooledUsd: newUsdLockedAmounts.newToken0TotalPooledAmountUSD,
-    trackedTotalValuePooledUsd: newUsdLockedAmounts.newTrackedToken0TotalPooledAmountUSD,
+    totalValuePooledUsd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newToken0TotalPooledAmountUSD),
+    trackedTotalValuePooledUsd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newTrackedToken0TotalPooledAmountUSD),
   };
 
   token1Entity = {
     ...token1Entity,
-    totalValuePooledUsd: newUsdLockedAmounts.newToken1TotalPooledAmountUSD,
-    trackedTotalValuePooledUsd: newUsdLockedAmounts.newTrackedToken1TotalPooledAmountUSD,
+    totalValuePooledUsd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newToken1TotalPooledAmountUSD),
+    trackedTotalValuePooledUsd: PriceFormatter.formatUsdValue(newUsdLockedAmounts.newTrackedToken1TotalPooledAmountUSD),
   };
 
   poolHistoricalDataEntities = poolHistoricalDataEntities.map((historicalDataEntity) => ({
@@ -100,8 +123,8 @@ export async function processLiquidityChange(params: {
   }));
 
   params.context.Pool.set(poolEntity);
-  params.context.SingleChainToken.set(token0Entity);
-  params.context.SingleChainToken.set(token1Entity);
+  await DatabaseService.setTokenWithNativeCompatibility(params.context, token0Entity);
+  await DatabaseService.setTokenWithNativeCompatibility(params.context, token1Entity);
   poolHistoricalDataEntities.forEach((entity) => params.context.PoolHistoricalData.set(entity));
 
   if (params.updateMetrics) {
